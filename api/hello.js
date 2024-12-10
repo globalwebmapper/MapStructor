@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
     try {
         await client.connect();
-        const db = client.db('testdb'); // Replace with your database name
+        const db = client.db('mapstructor_database'); // Replace with your database name
         const collection = db.collection('testcollection'); // Replace with your collection name
 
         // Fetch the first document in the collection
