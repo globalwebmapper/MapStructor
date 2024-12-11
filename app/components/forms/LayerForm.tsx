@@ -41,7 +41,9 @@ type LayerFormProps = {
 export default function LayerForm(props: LayerFormProps) {
   const [submitType, setSubmitType] = useState<"POST" | "UPDATE" | "DELETE">();
 
-  const parsedPaint = props.layerConfig?.paint ? JSON.parse(props.layerConfig.paint) : {};
+  const parsedPaint = props.layerConfig?.paint
+    ? JSON.parse(props.layerConfig.paint)
+    : {};
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -78,8 +80,8 @@ export default function LayerForm(props: LayerFormProps) {
       textHaloColor: "#ffffff",
       textHaloWidth: 2,
       circleColor: parsedPaint["circle-color"] ?? "#097911", // Default values
-      circleOpacity: 1, //parsedPaint["circle-opacity"][4][2] ?? 
-      circleRadius: 5, //parsedPaint["circle-radius"] ?? 
+      circleOpacity: 1, //parsedPaint["circle-opacity"][4][2] ??
+      circleRadius: 5, //parsedPaint["circle-radius"] ??
       circleStrokeColor: parsedPaint["circle-stroke-color"] ?? "#0000ee",
       circleStrokeWidth: parsedPaint["circle-stroke-width"] ?? 2,
       lineColor: parsedPaint["line-color"] ?? "#ff9900",
@@ -101,6 +103,7 @@ export default function LayerForm(props: LayerFormProps) {
         { zoom: 15, value: 1 }, // Fully opaque at close zoom levels
       ], // Default for interpolation
       textZoomLevels: [
+        { zoom: 6, value: 0 },
         { zoom: 8, value: 7 },
         { zoom: 15, value: 17 },
         { zoom: 20, value: 25 },
@@ -118,7 +121,8 @@ export default function LayerForm(props: LayerFormProps) {
         { zoom: 15, value: 2.5 }, // Wider lines at closer zoom levels
       ],
       layout: {
-        "text-field": "{name}",
+        "text-field":
+          (props.layerConfig?.layout as any)?.["text-field"] ?? "{name}",
         "text-size":
           (props.layerConfig?.layout as any)?.["text-size"] ??
           ((props.layerConfig as any)?.textZoomLevels?.length
@@ -126,12 +130,14 @@ export default function LayerForm(props: LayerFormProps) {
                 "interpolate",
                 ["linear"],
                 ["zoom"],
-                ...(props.layerConfig as any).textZoomLevels.flatMap((level: any) => [
-                  level.zoom,
-                  level.value,
-                ]),
+                ...(props.layerConfig as any).textZoomLevels.flatMap(
+                  (level: any) => [level.zoom, level.value]
+                ),
               ]
             : (props.layerConfig as any)?.textSizeDefault ?? 12),
+        // "text-offset": (props.layerConfig?.layout as any)?.["text-offset"] ?? [
+        //   0, 0,
+        // ],
         "icon-image": (props.layerConfig as any)?.layout?.["icon-image"] ?? "",
         "icon-size":
           (props.layerConfig as any)?.layout?.["icon-size"] ??
@@ -140,10 +146,9 @@ export default function LayerForm(props: LayerFormProps) {
                 "interpolate",
                 ["linear"],
                 ["zoom"],
-                ...(props.layerConfig as any).zoomLevels.flatMap((level: any) => [
-                  level.zoom,
-                  level.value,
-                ]),
+                ...(props.layerConfig as any).zoomLevels.flatMap(
+                  (level: any) => [level.zoom, level.value]
+                ),
               ]
             : (props.layerConfig as any)?.iconSizeDefault ?? 0.5),
       },
@@ -159,12 +164,15 @@ export default function LayerForm(props: LayerFormProps) {
           "interpolate",
           ["linear"],
           ["zoom"],
-          ...values.zoomLevels.flatMap((level) => [level.zoom, [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            (level.value + 0.3 < 1 ? level.value + 0.3 : 1),
-            level.value
-          ]]),
+          ...values.zoomLevels.flatMap((level) => [
+            level.zoom,
+            [
+              "case",
+              ["boolean", ["feature-state", "hover"], false],
+              level.value + 0.3 < 1 ? level.value + 0.3 : 1,
+              level.value,
+            ],
+          ]),
         ];
         paint["fill-outline-color"] = values.fillOutlineColor ?? "#FF0000";
       } else if (values.type === "symbol") {
@@ -175,6 +183,7 @@ export default function LayerForm(props: LayerFormProps) {
         layout["visibility"] = "visible";
         layout["text-font"] = ["Asap Medium"]; // Adjust font family as needed
         layout["text-field"] = values.layout["text-field"] ?? "{name}"; // Default text field
+        // layout["text-offset"] = values.layout["text-offset"] ?? [0, 0]; // Default text offset
 
         layout["text-size"] = values.textZoomLevels?.length
           ? [
@@ -203,12 +212,10 @@ export default function LayerForm(props: LayerFormProps) {
           "interpolate",
           ["linear"],
           ["zoom"],
-          ...values.zoomLevels.flatMap((level) => [level.zoom, [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            0.5,
-            1,
-          ]]),
+          ...values.zoomLevels.flatMap((level) => [
+            level.zoom,
+            ["case", ["boolean", ["feature-state", "hover"], false], 0.5, 1],
+          ]),
         ];
         paint["circle-radius"] = [
           "interpolate",
@@ -220,22 +227,17 @@ export default function LayerForm(props: LayerFormProps) {
         ];
         paint["circle-stroke-color"] = values.circleStrokeColor ?? "#000000";
         paint["circle-stroke-width"] = values.circleStrokeWidth ?? 1;
-        if(values.hover)
-        {
+        if (values.hover) {
           paint["circle-stroke-opacity"] = [
             "interpolate",
             ["linear"],
             ["zoom"],
-            ...values.zoomLevels.flatMap((level) => [level.zoom, [
-              "case",
-              ["boolean", ["feature-state", "hover"], false],
-              1,
-              0,
-            ]]),
+            ...values.zoomLevels.flatMap((level) => [
+              level.zoom,
+              ["case", ["boolean", ["feature-state", "hover"], false], 1, 0],
+            ]),
           ];
-        }
-        else
-        {
+        } else {
           paint["circle-stroke-opacity"] = values.circleOpacity;
         }
 
@@ -366,7 +368,6 @@ export default function LayerForm(props: LayerFormProps) {
     fontFamily: "Arial, sans-serif",
     fontSize: "14px",
   };
-
 
   const buttonHoverStyling: CSSProperties = {
     backgroundColor: "#0056b3",
@@ -663,6 +664,42 @@ export default function LayerForm(props: LayerFormProps) {
         {formik.values.type === "symbol" && (
           <>
             <div style={{ marginBottom: "15px" }}>
+              <label htmlFor="textField" style={labelStyling}>
+                Text Field:
+              </label>
+              <select
+                id="textField"
+                name="layout.text-field"
+                onChange={(e) =>
+                  formik.setFieldValue("layout.text-field", e.target.value)
+                }
+                value={formik.values.layout["text-field"]}
+                style={boxStyling}
+              >
+                <option value="{name}">Name</option>
+                <option value="{corr_label}">Corr Label</option>
+                <option value="{label}">Label</option>
+                <option value="{custom}">Custom</option>
+              </select>
+            </div>
+            {formik.values.layout["text-field"] === "{custom}" && (
+              <div style={{ marginBottom: "15px" }}>
+                <label htmlFor="customTextField" style={labelStyling}>
+                  Custom Text Field:
+                </label>
+                <input
+                  type="text"
+                  id="customTextField"
+                  name="layout.text-field"
+                  onChange={(e) =>
+                    formik.setFieldValue("layout.text-field", e.target.value)
+                  }
+                  value={formik.values.layout["text-field"]}
+                  style={boxStyling}
+                />
+              </div>
+            )}
+            <div style={{ marginBottom: "15px" }}>
               <label htmlFor="textColor" style={labelStyling}>
                 Text Color:
               </label>
@@ -691,6 +728,57 @@ export default function LayerForm(props: LayerFormProps) {
                 style={boxStyling}
               />
             </div>
+            {/* <div style={{ marginBottom: "15px" }}>
+              <label htmlFor="text-offset" style={labelStyling}>
+                Text Offset:
+              </label>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                  type="number"
+                  name="layout.text-offset[0]"
+                  onFocus={(e) => (e.target.placeholder = "")}
+                  onBlur={(e) => {
+                    if (e.target.value === "") e.target.placeholder = "X Value";
+                  }}
+                  onChange={(e) =>
+                    formik.setFieldValue("layout.text-offset", [
+                      e.target.value === "" ? "" : parseFloat(e.target.value),
+                      formik.values.layout["text-offset"]?.[1] ?? "",
+                    ])
+                  }
+                  value={
+                    formik.values.layout["text-offset"]?.[0] === undefined ||
+                    formik.values.layout["text-offset"]?.[0] === null
+                      ? ""
+                      : formik.values.layout["text-offset"]?.[0]
+                  }
+                  placeholder="X Value"
+                  style={boxStyling}
+                />
+                <input
+                  type="number"
+                  name="layout.text-offset[1]"
+                  onFocus={(e) => (e.target.placeholder = "")}
+                  onBlur={(e) => {
+                    if (e.target.value === "") e.target.placeholder = "Y Value";
+                  }}
+                  onChange={(e) =>
+                    formik.setFieldValue("layout.text-offset", [
+                      formik.values.layout["text-offset"]?.[0] ?? "",
+                      e.target.value === "" ? "" : parseFloat(e.target.value),
+                    ])
+                  }
+                  value={
+                    formik.values.layout["text-offset"]?.[1] === undefined ||
+                    formik.values.layout["text-offset"]?.[1] === null
+                      ? ""
+                      : formik.values.layout["text-offset"]?.[1]
+                  }
+                  placeholder="Y Value"
+                  style={boxStyling}
+                />
+              </div>
+            </div> */}
             <div style={{ marginBottom: "15px" }}>
               <label htmlFor="textHaloColor" style={labelStyling}>
                 Text Halo Color:
@@ -1162,6 +1250,21 @@ export default function LayerForm(props: LayerFormProps) {
               />
             </div>
             <div style={{ marginBottom: "15px" }}>
+              <label htmlFor="lineWidth" style={labelStyling}>
+                Line Width:
+              </label>
+              <input
+                type="number"
+                id="lineWidth"
+                name="lineWidth"
+                onChange={formik.handleChange}
+                value={formik.values.lineWidth}
+                min="0"
+                step="0.1"
+                style={boxStyling}
+              />
+            </div>
+            <div style={{ marginBottom: "15px" }}>
               <label htmlFor="lineOpacity" style={labelStyling}>
                 Line Opacity:
               </label>
@@ -1361,7 +1464,7 @@ export default function LayerForm(props: LayerFormProps) {
               onChange={formik.handleChange}
               value={formik.values.iconColor}
               style={{ ...boxStyling, padding: "5px" }}
-              />
+            />
           </div>
 
           <label htmlFor="iconType" style={labelStyling}>

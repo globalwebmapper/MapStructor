@@ -379,6 +379,7 @@ export default function Home() {
         layout = {
           ...layout,
           "text-field": parsedLayout["text-field"] ?? "{name}", // Default text
+          // "text-offset": Array.isArray(parsedLayout["text-offset"]),
           "text-size": Array.isArray(parsedLayout["text-size"])
             ? parsedLayout["text-size"] // Use existing interpolation array
             : parsedLayout["text-size"]?.useTextSizeZoomStyling
@@ -387,6 +388,8 @@ export default function Home() {
                 ["linear"],
                 ["zoom"],
                 ...(parsedLayout["text-size"].textSizeStops ?? [
+                  6,
+                  0,
                   8,
                   7,
                   15,
