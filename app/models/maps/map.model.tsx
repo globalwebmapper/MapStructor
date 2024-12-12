@@ -4,6 +4,8 @@ export type MapItem = {
     groupId: string,
     mapId: string,
     center: [long: number, lat: number],
+    bounds?: [[long1: number, lat1: number], [long2: number, lat2: number]],
+    zoomToBounds?: boolean,
     zoom: number,
     bearing: number,
     styleId: string,
@@ -11,7 +13,9 @@ export type MapItem = {
 }
 
 export type MapZoomProps = {
-    center: [long: number, lat: number],
+    bounds?: [[long1: number, lat1: number], [long2: number, lat2: number]],
+    center?: [long: number, lat: number],
+    zoomToBounds?: boolean,
     zoom: number,
     speed: number,
     curve: number,

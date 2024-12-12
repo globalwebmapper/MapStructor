@@ -52,10 +52,15 @@ export default function LayerForm(props: LayerFormProps) {
       iconColor: props.layerConfig?.iconColor ?? "#000000",
       iconType: props.layerConfig?.iconType ?? "",
       label: props.layerConfig?.label ?? "",
-      longitude: props.layerConfig?.longitude ?? 0,
-      latitude: props.layerConfig?.latitude ?? 0,
-      zoom: props.layerConfig?.zoom ?? 0,
-      bearing: props.layerConfig?.bearing ?? 0,
+      longitude: props.layerConfig?.longitude,
+      latitude: props.layerConfig?.latitude,
+      zoom: props.layerConfig?.zoom,
+      bearing: props.layerConfig?.bearing,
+      topLeftBoundLatitude: props.layerConfig?.topLeftBoundLatitude ?? null,
+      topLeftBoundLongitude: props.layerConfig?.topLeftBoundLongitude ?? null,
+      bottomRightBoundLatitude: props.layerConfig?.bottomRightBoundLatitude ?? null,
+      bottomRightBoundLongitude: props.layerConfig?.bottomRightBoundLongitude ?? null,
+      zoomToBounds: props.layerConfig?.zoomToBounds ?? false,
       topLayerClass: props.groupName,
       infoId: props.layerConfig?.infoId ?? "",
       type: props.layerConfig?.type ?? ("" as LayerType),
@@ -279,7 +284,7 @@ export default function LayerForm(props: LayerFormProps) {
               authorization: props.authToken ?? "",
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(layerData),
+            body: JSON.stringify({...layerData}),
           });
           alert("Layer added successfully");
           formik.resetForm();
@@ -288,6 +293,7 @@ export default function LayerForm(props: LayerFormProps) {
           alert(`Error: ${error.message}`);
         }
       } else if (submitType === "UPDATE") {
+        console.log({...layerData})
         if (props.layerConfig) {
           try {
             await fetch("/api/LayerData/" + props.layerConfig.id, {
@@ -296,7 +302,7 @@ export default function LayerForm(props: LayerFormProps) {
                 authorization: props.authToken,
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(layerData),
+              body: JSON.stringify({...layerData}),
             });
             alert(`Layer Updated`);
             props.afterSubmit();
@@ -315,7 +321,7 @@ export default function LayerForm(props: LayerFormProps) {
                 authorization: props.authToken ?? "",
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(layerData),
+              body: JSON.stringify({...layerData}),
             });
             alert(`Layer Deleted`);
             props.afterSubmit();
@@ -437,6 +443,11 @@ export default function LayerForm(props: LayerFormProps) {
         </div>
 
         <div style={{ marginBottom: "15px" }}>
+          <label style={labelStyling}>Zoom Settings</label>
+          <p>Longitude/Latitude are used to zoom to center, Bounds are used to zoom to bounds.</p>
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
           <label htmlFor="longitude" style={labelStyling}>
             Longitude:
           </label>
@@ -445,7 +456,7 @@ export default function LayerForm(props: LayerFormProps) {
             id="longitude"
             name="longitude"
             onChange={formik.handleChange}
-            value={formik.values.longitude}
+            value={formik.values.longitude ?? undefined}
             style={boxStyling}
           />
         </div>
@@ -459,7 +470,63 @@ export default function LayerForm(props: LayerFormProps) {
             id="latitude"
             name="latitude"
             onChange={formik.handleChange}
-            value={formik.values.latitude}
+            value={formik.values.latitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="topLeftBoundLatitude" style={labelStyling}>
+            West Bound:
+          </label>
+          <input
+            type="number"
+            id="topLeftBoundLatitude"
+            name="topLeftBoundLatitude"
+            onChange={formik.handleChange}
+            value={formik.values.topLeftBoundLatitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="topLeftBoundLongitude" style={labelStyling}>
+            South Bound:
+          </label>
+          <input
+            type="number"
+            id="topLeftBoundLongitude"
+            name="topLeftBoundLongitude"
+            onChange={formik.handleChange}
+            value={formik.values.topLeftBoundLongitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="bottomRightBoundLatitude" style={labelStyling}>
+            East Bound:
+          </label>
+          <input
+            type="number"
+            id="bottomRightBoundLatitude"
+            name="bottomRightBoundLatitude"
+            onChange={formik.handleChange}
+            value={formik.values.bottomRightBoundLatitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="bottomRightBoundLongitude" style={labelStyling}>
+            North Bound:
+          </label>
+          <input
+            type="number"
+            id="bottomRightBoundLongitude"
+            name="bottomRightBoundLongitude"
+            onChange={formik.handleChange}
+            value={formik.values.bottomRightBoundLongitude ?? undefined}
             style={boxStyling}
           />
         </div>
@@ -473,7 +540,7 @@ export default function LayerForm(props: LayerFormProps) {
             id="zoom"
             name="zoom"
             onChange={formik.handleChange}
-            value={formik.values.zoom}
+            value={formik.values.zoom ?? undefined}
             style={boxStyling}
           />
         </div>
@@ -487,9 +554,23 @@ export default function LayerForm(props: LayerFormProps) {
             id="bearing"
             name="bearing"
             onChange={formik.handleChange}
-            value={formik.values.bearing}
+            value={formik.values.bearing ?? undefined}
             style={boxStyling}
           />
+        </div>
+
+        <div style={{ marginBottom: '30px' }}>
+            <label style={labelStyling}>
+                Where Should This Zoom To?
+            </label>
+            <label htmlFor="zoomToBounds" style={labelStyling}>
+            <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', true)} checked={formik.values.zoomToBounds} style={checkboxStyling} />
+                Zoom to Bounds
+            </label>
+            <label htmlFor="zoomToBounds" style={labelStyling}>
+                <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', false)} checked={!formik.values.zoomToBounds} style={checkboxStyling} />
+                Zoom to Center
+            </label>
         </div>
 
         {/* Got rid of this cause I don't think we need to show this
@@ -1484,6 +1565,10 @@ export default function LayerForm(props: LayerFormProps) {
             <option value="square">Square</option>
             <option value="plus-square">Plus Square</option>
             <option value="minus-square">Minus Square</option>
+            <option value="circle">Circle</option>
+            <option value="play-circle">Play Circle</option>
+            <option value="solid-labels">Solid Labels</option>
+            <option value="solid-square">Solid Square</option>
           </select>
 
           {formik.values.iconColor && formik.values.iconType && (

@@ -25,6 +25,8 @@ import {
     faArrowUp,
     faArrowDown,
     faLink,
+    faCircle,
+    faCommentDots as solidCommentDots
 } from "@fortawesome/free-solid-svg-icons";
 
 export function parseFromString(str: string) {
@@ -44,7 +46,15 @@ export function parseFromString(str: string) {
         case 'arrow-up':
             return FontAwesomeLayerIcons.UP_ARROW;
         case 'down-arrow':
-            return FontAwesomeLayerIcons.DOWN_ARROW
+            return FontAwesomeLayerIcons.DOWN_ARROW;
+        case 'circle':
+            return FontAwesomeLayerIcons.CIRCLE;
+        case 'play-circle':
+            return FontAwesomeLayerIcons.PLAY_CIRCLE;
+        case 'solid-square':
+            return FontAwesomeLayerIcons.SOLID_SQUARE
+        case 'solid-labels':
+            return FontAwesomeLayerIcons.SOLID_LABELS
         default:
             return FontAwesomeLayerIcons.LINE;
     }
@@ -55,6 +65,10 @@ export function getFontawesomeIcon(iconVal: FontAwesomeLayerIcons, solid: boolea
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.SQUARE]:
             if(solid) return faSquareSolid;
             return faSquare;
+        case FontAwesomeLayerIcons[FontAwesomeLayerIcons.SOLID_SQUARE]:
+            return faSquareSolid;
+        case FontAwesomeLayerIcons[FontAwesomeLayerIcons.CIRCLE]:
+            return faCircle;
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.PLUS_SQUARE]:
             if(solid) return faPlusSquareSolid;
             return faPlusSquare;
@@ -64,6 +78,8 @@ export function getFontawesomeIcon(iconVal: FontAwesomeLayerIcons, solid: boolea
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.PLAY_CIRCLE]:
             if(solid) return faPlayCircleSolid;
             return faPlayCircle;
+        case FontAwesomeLayerIcons[FontAwesomeLayerIcons.SOLID_PLAY_CIRCLE]:
+            return faPlayCircleSolid;
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.INFO_CIRCLE]:
             return faInfoCircleSolid;
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.CROSSHAIRS]:
@@ -76,6 +92,8 @@ export function getFontawesomeIcon(iconVal: FontAwesomeLayerIcons, solid: boolea
             return faNotesMedicalSolid;
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.COMMENT_DOTS]:
             return faCommentDots;
+        case FontAwesomeLayerIcons[FontAwesomeLayerIcons.SOLID_LABELS]:
+            return solidCommentDots;
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.GLOBE]:
             return faGlobe
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.PEN_TO_SQUARE]:

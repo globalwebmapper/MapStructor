@@ -41,6 +41,11 @@ export async function PUT(request: Request, context: any) {
             latitude: LayerrGroup.latitude,
             zoom: LayerrGroup.zoom,
             bearing: LayerrGroup.bearing,
+            topLeftBoundLatitude: LayerrGroup.topLeftBoundLatitude,
+            topLeftBoundLongitude: LayerrGroup.topLeftBoundLongitude,
+            bottomRightBoundLatitude: LayerrGroup.topLeftBoundLatitude,
+            bottomRightBoundLongitude: LayerrGroup.bottomRightBoundLongitude,
+            zoomToBounds: LayerrGroup.zoomToBounds,
             infoId: LayerrGroup.infoId ?? ''
         }
     })

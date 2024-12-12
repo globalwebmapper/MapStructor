@@ -148,22 +148,26 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                                 </div>
                             )
                         }
-                        <div className="tooltip-container" data-title="Zoom to Layer">
-                            <FontAwesomeIcon
-                            className="zoom-to-layer"
-                            color="blue"
-                            icon={getFontawesomeIcon(FontAwesomeLayerIcons.CROSSHAIRS)}
-                            onClick={() => {
-                                props.mapZoomCallback({
-                                    center: props.item.center,
-                                    zoom: props.item.zoom,
-                                    speed: 0.2,
-                                    curve: 1,
-                                    duration: 2500,
-                                })
-                            }}
-                            />
-                        </div>
+                        {
+                            (props.item.center != null && props.item.zoom != null) && (
+                                <div className="tooltip-container" data-title="Zoom to Layer">
+                                    <FontAwesomeIcon
+                                    className="zoom-to-layer"
+                                    color="blue"
+                                    icon={getFontawesomeIcon(FontAwesomeLayerIcons.CROSSHAIRS)}
+                                    onClick={() => {
+                                        props.mapZoomCallback({
+                                            center: props.item.center ?? [0, 0],
+                                            zoom: props.item.zoom ?? 0,
+                                            speed: 0.2,
+                                            curve: 1,
+                                            duration: 2500,
+                                        })
+                                    }}
+                                    />
+                                </div>
+                            )
+                        }
                     </div>
                 </div>
             </div>

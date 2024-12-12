@@ -16,15 +16,20 @@ const MapForm = (props: MapFormProps) => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      longitude:               props.mapConfig?.longitude ?? 0,
-      latitude:                props.mapConfig?.latitude ?? 0,
-      mapId:                   props.mapConfig?.mapId ?? '',
-      mapName:                 props.mapConfig?.mapName ?? '',
-      groupId:                 props.groupName,
-      zoom:                    props.mapConfig?.zoom ?? 0,
-      bearing:                 props.mapConfig?.bearing ?? 0,
-      styleId:                 props.mapConfig?.styleId ?? '',
-      infoId:                  props.mapConfig?.infoId ?? '',
+      longitude:                      props.mapConfig?.longitude ?? 0,
+      latitude:                       props.mapConfig?.latitude ?? 0,
+      mapId:                          props.mapConfig?.mapId ?? '',
+      mapName:                        props.mapConfig?.mapName ?? '',
+      groupId:                        props.groupName,
+      zoom:                           props.mapConfig?.zoom ?? 0,
+      bearing:                        props.mapConfig?.bearing ?? 0,
+      topLeftBoundLatitude:           props.mapConfig?.topLeftBoundLatitude ?? undefined,
+      topLeftBoundLongitude:          props.mapConfig?.topLeftBoundLongitude ?? undefined,
+      bottomRightBoundLatitude:       props.mapConfig?.bottomRightBoundLatitude ?? undefined,
+      bottomRightBoundLongitude:      props.mapConfig?.bottomRightBoundLongitude ?? undefined,
+      zoomToBounds:                   props.mapConfig?.zoomToBounds ?? false,
+      styleId:                        props.mapConfig?.styleId ?? '',
+      infoId:                         props.mapConfig?.infoId ?? '',
     },
     
     onSubmit: async (values) => {
@@ -39,7 +44,7 @@ const MapForm = (props: MapFormProps) => {
                     'authorization': props.authToken ?? '',
                     'Content-Type': 'application/json',
                   },
-                  body: JSON.stringify(values),
+                  body: JSON.stringify({values}),
                 });
                 alert('Map added successfully');
                 formik.resetForm();
@@ -62,7 +67,7 @@ const MapForm = (props: MapFormProps) => {
                         'authorization': props.authToken,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(values)
+                    body: JSON.stringify({...values})
                   });
                   alert(`Map Updated`);
                   props.afterSubmit();
@@ -89,7 +94,7 @@ const MapForm = (props: MapFormProps) => {
                         'authorization': props.authToken,
                         'Content-Type': 'application/json',
                       },
-                      body: JSON.stringify(values)
+                      body: JSON.stringify({...values})
                     });
                     alert(`Map Deleted`);
                     props.afterSubmit();
@@ -126,6 +131,16 @@ const labelStyling: CSSProperties = {
     color: '#333'
 };
 
+const checkboxStyling: CSSProperties = {
+  padding: "8px",
+  border: "1px solid #ccc",
+  borderRadius: "4px",
+  width: "20%",
+  height: "25px",
+  boxSizing: "border-box",
+  cursor: "pointer",
+};
+
 const buttonStyling: CSSProperties = {
     backgroundColor: '#007BFF',
     color: 'white',
@@ -158,29 +173,140 @@ return (
             <input type="text" id="mapName" name="mapName" onChange={formik.handleChange} value={formik.values.mapName} style={boxStyling} />
         </div>
         
-        <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="longitude" style={labelStyling}>Longitude:</label>
-            <input type="number" id="longitude" name="longitude" onChange={formik.handleChange} value={formik.values.longitude} style={boxStyling} />
+        <div style={{ marginBottom: "15px" }}>
+          <label style={labelStyling}>Zoom Settings</label>
+          <p>Longitude/Latitude are used to zoom to center, Bounds are used to zoom to bounds.</p>
         </div>
-        
-        <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="latitude" style={labelStyling}>Latitude:</label>
-            <input type="number" id="latitude" name="latitude" onChange={formik.handleChange} value={formik.values.latitude} style={boxStyling} />
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="longitude" style={labelStyling}>
+            Longitude:
+          </label>
+          <input
+            type="number"
+            id="longitude"
+            name="longitude"
+            onChange={formik.handleChange}
+            value={formik.values.longitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="latitude" style={labelStyling}>
+            Latitude:
+          </label>
+          <input
+            type="number"
+            id="latitude"
+            name="latitude"
+            onChange={formik.handleChange}
+            value={formik.values.latitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="topLeftBoundLatitude" style={labelStyling}>
+            West Bound:
+          </label>
+          <input
+            type="number"
+            id="topLeftBoundLatitude"
+            name="topLeftBoundLatitude"
+            onChange={formik.handleChange}
+            value={formik.values.topLeftBoundLatitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="topLeftBoundLongitude" style={labelStyling}>
+            South Bound:
+          </label>
+          <input
+            type="number"
+            id="topLeftBoundLongitude"
+            name="topLeftBoundLongitude"
+            onChange={formik.handleChange}
+            value={formik.values.topLeftBoundLongitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="bottomRightBoundLatitude" style={labelStyling}>
+            East Bound:
+          </label>
+          <input
+            type="number"
+            id="bottomRightBoundLatitude"
+            name="bottomRightBoundLatitude"
+            onChange={formik.handleChange}
+            value={formik.values.bottomRightBoundLatitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="bottomRightBoundLongitude" style={labelStyling}>
+            North Bound:
+          </label>
+          <input
+            type="number"
+            id="bottomRightBoundLongitude"
+            name="bottomRightBoundLongitude"
+            onChange={formik.handleChange}
+            value={formik.values.bottomRightBoundLongitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="zoom" style={labelStyling}>
+            Zoom:
+          </label>
+          <input
+            type="number"
+            id="zoom"
+            name="zoom"
+            onChange={formik.handleChange}
+            value={formik.values.zoom ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="bearing" style={labelStyling}>
+            Bearing:
+          </label>
+          <input
+            type="number"
+            id="bearing"
+            name="bearing"
+            onChange={formik.handleChange}
+            value={formik.values.bearing ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: '30px' }}>
+            <label style={labelStyling}>
+                Where Should This Zoom To?
+            </label>
+            <label htmlFor="zoomToBounds" style={labelStyling}>
+            <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', true)} checked={formik.values.zoomToBounds} style={checkboxStyling} />
+                Zoom to Bounds
+            </label>
+            <label htmlFor="zoomToBounds" style={labelStyling}>
+                <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', false)} checked={!formik.values.zoomToBounds} style={checkboxStyling} />
+                Zoom to Center
+            </label>
         </div>
         
         <div style={{ marginBottom: '15px' }}>
             <label htmlFor="mapId" style={labelStyling}>Map ID:</label>
             <input type="text" id="mapId" name="mapId" onChange={formik.handleChange} value={formik.values.mapId} style={boxStyling} />
-        </div>
-
-        <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="zoom" style={labelStyling}>Zoom:</label>
-            <input type="number" id="zoom" name="zoom" onChange={formik.handleChange} value={formik.values.zoom} style={boxStyling} />
-        </div>
-
-        <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="bearing" style={labelStyling}>Bearing:</label>
-            <input type="number" id="bearing" name="bearing" onChange={formik.handleChange} value={formik.values.bearing} style={boxStyling} />
         </div>
 
         <div style={{ marginBottom: '15px' }}>

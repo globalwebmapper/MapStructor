@@ -12,9 +12,11 @@ export type SectionLayerItem = {
     label: string,
     iconColor: IconColors | string,
     iconType: FontAwesomeLayerIcons,
-    center: [long: number, lat: number],
-    zoom: number,
-    bearing: number,
+    center?: [long: number, lat: number],
+    bounds?: [[long1: number, lat1: number], [long2: number, lat2: number]],
+    zoom?: number,
+    bearing?: number,
+    zoomToBounds?: boolean,
     isSolid: boolean,
     layerId?: string,
 }
@@ -27,7 +29,9 @@ export type SectionLayerGroup = {
     isSolid: boolean,
     items: SectionLayerItem[],
     center?: [long: number, lat: number],
+    bounds?: [[long1: number, lat1: number], [long2: number, lat2: number]],
     zoom?: number,
+    zoomToBounds?: boolean,
     bearing?: number,
     infoId?: string
 }

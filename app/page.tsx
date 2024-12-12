@@ -965,6 +965,20 @@ export default function Home() {
                     iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                     isSolid: true,
                     center: [+(y.longitude ?? 0), +(y.latitude ?? 0)],
+                    zoomToBounds: y.zoomToBounds ?? false,
+                    bounds:
+                    y.topLeftBoundLongitude &&
+                    y.topLeftBoundLatitude &&
+                    y.bottomRightBoundLongitude &&
+                    y.bottomRightBoundLatitude
+                      ? [
+                          [y.topLeftBoundLongitude, y.topLeftBoundLatitude],
+                          [
+                            y.bottomRightBoundLongitude,
+                            y.bottomRightBoundLatitude,
+                          ],
+                        ]
+                      : undefined,
                     bearing: y.bearing ?? 0,
                     zoom: y.zoom ?? 0,
                     infoId: y.infoId ?? '',
@@ -976,9 +990,23 @@ export default function Home() {
                             id: z.id,
                             layerId: z.id,
                             label: z.label,
-                            center: [z.longitude ?? 0, z.latitude ?? 0],
-                            zoom: z.zoom ?? 0,
-                            bearing: z.bearing ?? 0,
+                            center: z.longitude != null && z.latitude != null ? [z.longitude, z.latitude] : undefined,
+                            zoomToBounds: z.zoomToBounds ?? false,
+                            bounds:
+                              z.topLeftBoundLongitude &&
+                              z.topLeftBoundLatitude &&
+                              z.bottomRightBoundLongitude &&
+                              z.bottomRightBoundLatitude
+                                ? [
+                                    [z.topLeftBoundLongitude, z.topLeftBoundLatitude],
+                                    [
+                                      z.bottomRightBoundLongitude,
+                                      z.bottomRightBoundLatitude,
+                                    ],
+                                  ]
+                                : undefined,
+                            zoom: z.zoom ?? undefined,
+                            bearing: z.bearing ?? undefined,
                             iconColor: z.iconColor ?? IconColors.YELLOW,
                             iconType: z.iconType
                               ? parseFromString(z.iconType)
@@ -1007,7 +1035,6 @@ export default function Home() {
         "Content-Type": "application/json",
       },
     }).then((layerResponse) => {
-      console.log("asdfasdfasdfwefefw");
       layerResponse.json()?.then((parsed) => {
         parsed.LayerData;
         console.log(parsed.LayerData);
@@ -1036,11 +1063,26 @@ export default function Home() {
                     name: grp.groupName,
                     label: grp.label,
                     maps: (grp as any).maps.map((x: PrismaMap) => {
+                      console.log("ZOOOOOM", x.zoomToBounds ?? false, x)
                       let newDBMap: MapItem = {
                         id: x.id,
                         mapId: x.mapId,
                         groupId: x.groupId,
                         center: [x.longitude, x.latitude],
+                        zoomToBounds: x.zoomToBounds ?? false,
+                        bounds:
+                          x.topLeftBoundLongitude &&
+                          x.topLeftBoundLatitude &&
+                          x.bottomRightBoundLongitude &&
+                          x.bottomRightBoundLatitude
+                            ? [
+                                [x.topLeftBoundLongitude, x.topLeftBoundLatitude],
+                                [
+                                  x.bottomRightBoundLongitude,
+                                  x.bottomRightBoundLatitude,
+                                ],
+                              ]
+                            : undefined,
                         zoom: x.zoom,
                         bearing: x.bearing,
                         styleId: x.styleId,
@@ -1510,20 +1552,25 @@ export default function Home() {
                   afterClose={afterLayerFormModalCloseLayers}
                   openWindow={beforeModalOpen}
                   mapZoomCallback={(zoomProps: MapZoomProps) => {
-                    currBeforeMap.current?.easeTo({
-                      center: zoomProps.center,
-                      zoom: zoomProps.zoom,
-                      speed: zoomProps.speed,
-                      curve: zoomProps.curve,
-                      duration: zoomProps.duration,
-                      easing(t) {
-                        return t;
-                      },
-                    });
-                    if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                      router.push(
-                        `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/0`
-                      );
+                    if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: 0});
+                    } else if (zoomProps.center) {
+                      currBeforeMap.current?.easeTo({
+                        center: zoomProps.center,
+                        zoom: zoomProps.zoom,
+                        bearing: 0,
+                        speed: zoomProps.speed,
+                        curve: zoomProps.curve,
+                        duration: zoomProps.duration,
+                        easing(t) {
+                          return t;
+                        },
+                      });
+                      if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                        router.push(
+                          `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/0`
+                        );
+                      }
                     }
                   }}
                   getLayerSectionsCallback={getLayerSections}
@@ -1670,20 +1717,25 @@ export default function Home() {
                 }}
                 mapGroups={mappedFilterItemGroups}
                 mapZoomCallback={(zoomProps: MapZoomProps) => {
-                  currBeforeMap.current?.easeTo({
-                    center: zoomProps.center,
-                    zoom: zoomProps.zoom,
-                    speed: zoomProps.speed,
-                    curve: zoomProps.curve,
-                    duration: zoomProps.duration,
-                    easing(t) {
-                      return t;
-                    },
-                  });
-                  if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                    router.push(
-                      `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/0`
-                    );
+                  if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                    currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: 0 });
+                  } else if (zoomProps.center) {
+                    currBeforeMap.current?.easeTo({
+                      center: zoomProps.center,
+                      zoom: zoomProps.zoom,
+                      speed: zoomProps.speed,
+                      bearing: 0,
+                      curve: zoomProps.curve,
+                      duration: zoomProps.duration,
+                      easing(t) {
+                        return t;
+                      },
+                    });
+                    if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                      router.push(
+                        `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/0`
+                      );
+                    }
                   }
                 }}
               />

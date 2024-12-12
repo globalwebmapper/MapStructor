@@ -102,6 +102,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
             await fetch('/api/LayerData/' + id)
             .then((response) => {
             response.json()?.then(parsed => {
+                console.log('get layers')
                 setLayer(parsed.layerData);
             })
         });

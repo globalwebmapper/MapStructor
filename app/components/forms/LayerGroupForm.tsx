@@ -3,7 +3,7 @@ import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { LayerGroup } from "@prisma/client";
 import { useFormik } from "formik";
-import { CSSProperties, useState } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 
 type NewLayerGroupFormProps = {
     sectionLayerId: string;
@@ -30,6 +30,16 @@ const boxStyling: CSSProperties = {
     color: '#333',
   };
 
+  const checkboxStyling: CSSProperties = {
+    padding: "8px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    width: "20%",
+    height: "25px",
+    boxSizing: "border-box",
+    cursor: "pointer",
+  };
+
   const buttonStyling: CSSProperties = {
     backgroundColor: '#007BFF',
     color: 'white',
@@ -47,6 +57,8 @@ const boxStyling: CSSProperties = {
 
 const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
     const [submitType, setSubmitType] = useState<"POST" | "UPDATE" | "DELETE">();
+    console.log('AHHHH', props.layerGroup);
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -55,6 +67,11 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
             latitude: props.layerGroup?.latitude ?? '',
             zoom: props.layerGroup?.zoom ?? '',
             bearing: props.layerGroup?.bearing ?? '',
+            topLeftBoundLatitude: props.layerGroup?.topLeftBoundLatitude ?? null,
+            topLeftBoundLongitude: props.layerGroup?.topLeftBoundLongitude ?? null,
+            bottomRightBoundLatitude: props.layerGroup?.bottomRightBoundLatitude ?? null,
+            bottomRightBoundLongitude: props.layerGroup?.bottomRightBoundLongitude ?? null,
+            zoomToBounds: props.layerGroup?.zoomToBounds ?? false,
             infoId: props.layerGroup?.infoId ?? ''
         },
           
@@ -66,10 +83,16 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                     layerSectionId: props.sectionLayerId,
                     longitude: values.longitude,
                     latitude: values.latitude,
+                    topLeftBoundLatitude: values.topLeftBoundLatitude,
+                    topLeftBoundLongitude: values.topLeftBoundLongitude,
+                    bottomRightBoundLatitude: values.bottomRightBoundLatitude,
+                    bottomRightBoundLongitude: values.bottomRightBoundLongitude,
+                    zoomToBounds: values.zoomToBounds ?? false,
                     zoom: values.zoom as number,
                     bearing: values.bearing as number,
                     infoId: values.infoId
                 }
+                console.log(resultingLayerGroup);
                 if(submitType === "POST")
                     {
                       try 
@@ -162,50 +185,136 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                     style={boxStyling}
                 />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="longitude" style={labelStyling}>Longitude:</label>
-                <input
-                    type="text"
-                    id="longitude"
-                    name="longitude"
-                    onChange={formik.handleChange}
-                    value={formik.values.longitude}
-                    style={boxStyling}
-                />
-                </div>
-                <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="latitude" style={labelStyling}>Latitude:</label>
-                <input
-                    type="text"
-                    id="latitude"
-                    name="latitude"
-                    onChange={formik.handleChange}
-                    value={formik.values.latitude}
-                    style={boxStyling}
-                />
-              </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="latitude" style={labelStyling}>Zoom:</label>
-                <input
-                    type="number"
-                    id="zoom"
-                    name="zoom"
-                    onChange={formik.handleChange}
-                    value={formik.values.zoom}
-                    style={boxStyling}
-                />
-              </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="bearing" style={labelStyling}>Bearing:</label>
-                <input
-                    type="number"
-                    id="bearing"
-                    name="bearing"
-                    onChange={formik.handleChange}
-                    value={formik.values.bearing}
-                    style={boxStyling}
-                />
-              </div>
+                <div style={{ marginBottom: "15px" }}>
+          <label style={labelStyling}>Zoom Settings</label>
+          <p>Longitude/Latitude are used to zoom to center, Bounds are used to zoom to bounds.</p>
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="longitude" style={labelStyling}>
+            Longitude:
+          </label>
+          <input
+            type="number"
+            id="longitude"
+            name="longitude"
+            onChange={formik.handleChange}
+            value={formik.values.longitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="latitude" style={labelStyling}>
+            Latitude:
+          </label>
+          <input
+            type="number"
+            id="latitude"
+            name="latitude"
+            onChange={formik.handleChange}
+            value={formik.values.latitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="topLeftBoundLatitude" style={labelStyling}>
+            West Bound:
+          </label>
+          <input
+            type="number"
+            id="topLeftBoundLatitude"
+            name="topLeftBoundLatitude"
+            onChange={formik.handleChange}
+            value={formik.values.topLeftBoundLatitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="topLeftBoundLongitude" style={labelStyling}>
+            South Bound:
+          </label>
+          <input
+            type="number"
+            id="topLeftBoundLongitude"
+            name="topLeftBoundLongitude"
+            onChange={formik.handleChange}
+            value={formik.values.topLeftBoundLongitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="bottomRightBoundLatitude" style={labelStyling}>
+            East Bound:
+          </label>
+          <input
+            type="number"
+            id="bottomRightBoundLatitude"
+            name="bottomRightBoundLatitude"
+            onChange={formik.handleChange}
+            value={formik.values.bottomRightBoundLatitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="bottomRightBoundLongitude" style={labelStyling}>
+            North Bound:
+          </label>
+          <input
+            type="number"
+            id="bottomRightBoundLongitude"
+            name="bottomRightBoundLongitude"
+            onChange={formik.handleChange}
+            value={formik.values.bottomRightBoundLongitude ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="zoom" style={labelStyling}>
+            Zoom:
+          </label>
+          <input
+            type="number"
+            id="zoom"
+            name="zoom"
+            onChange={formik.handleChange}
+            value={formik.values.zoom ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="bearing" style={labelStyling}>
+            Bearing:
+          </label>
+          <input
+            type="number"
+            id="bearing"
+            name="bearing"
+            onChange={formik.handleChange}
+            value={formik.values.bearing ?? undefined}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: '30px' }}>
+            <label style={labelStyling}>
+                Where Should This Zoom To?
+            </label>
+            <label htmlFor="zoomToBounds" style={labelStyling}>
+            <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', true)} checked={formik.values.zoomToBounds} style={checkboxStyling} />
+                Zoom to Bounds
+            </label>
+            <label htmlFor="zoomToBounds" style={labelStyling}>
+                <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', false)} checked={!formik.values.zoomToBounds} style={checkboxStyling} />
+                Zoom to Center
+            </label>
+        </div>
               <div style={{ marginBottom: '15px' }}>
                 <label htmlFor="infoId" style={labelStyling}>Drupal Info Id:</label>
                 <input

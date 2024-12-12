@@ -16,4 +16,8 @@ export enum FontAwesomeLayerIcons {
     UP_ARROW,
     DOWN_ARROW,
     LINK,
+    CIRCLE,
+    SOLID_PLAY_CIRCLE,
+    SOLID_SQUARE,
+    SOLID_LABELS
 }
