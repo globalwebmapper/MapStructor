@@ -1074,7 +1074,7 @@ export default function Home() {
                         id: x.id,
                         mapId: x.mapId,
                         groupId: x.groupId,
-                        center: [x.longitude, x.latitude],
+                        center: x.longitude && x.latitude && x.longitude > 0 && x.latitude > 0 ? [x.longitude, x.latitude] : null,
                         zoomToBounds: x.zoomToBounds ?? false,
                         bounds:
                           x.topLeftBoundLongitude &&
@@ -1709,11 +1709,11 @@ export default function Home() {
                       : beforeMapItem.zoom,
                   center: [
                     hashParams?.at(1) != null
-                      ? +(hashParams.at(1) ?? beforeMapItem.center[0])
-                      : beforeMapItem.center[0],
+                      ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
+                      : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
                     hashParams?.at(2) != null
-                      ? +(hashParams.at(2) ?? beforeMapItem.center[1])
-                      : beforeMapItem.center[1],
+                      ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
+                      : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
                   ],
                   bearing:
                     hashParams?.at(3) != null

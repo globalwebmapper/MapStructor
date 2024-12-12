@@ -3,7 +3,7 @@ export type MapItem = {
     name: string,
     groupId: string,
     mapId: string,
-    center: [long: number, lat: number],
+    center: [long: number, lat: number] | null,
     bounds?: [[long1: number, lat1: number], [long2: number, lat2: number]],
     zoomToBounds?: boolean,
     zoom: number,

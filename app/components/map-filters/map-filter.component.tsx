@@ -117,7 +117,7 @@ const MapFilterComponent = (props: MapFilterComponentProps) => {
                                     icon={getFontawesomeIcon(FontAwesomeLayerIcons.CROSSHAIRS)}
                                     onClick={() => {
                                         props.mapZoomCallback({
-                                            center: props.map.center,
+                                            center: props.map.center ?? undefined,
                                             zoom: props.map.zoom,
                                             speed: 0.2,
                                             curve: 1,
