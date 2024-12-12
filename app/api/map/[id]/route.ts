@@ -38,15 +38,21 @@ export async function PUT(request: Request, context: any) {
       where: {id: params.id},
       data: {
         mapId: inmap.mapId,
-        longitude: inmap.longitude,
-        latitude: inmap.latitude,
+        longitude: inmap.longitude ? (typeof(inmap.longitude) == 'string' ?
+          parseFloat(inmap.longitude) : inmap.longitude) : null,
+        latitude: inmap.latitude ? (typeof(inmap.latitude) == 'string' ?
+          parseFloat(inmap.latitude) : inmap.latitude) : null,
         mapName: inmap.mapName,
         zoom: inmap.zoom,
         bearing: inmap.bearing,
-        topLeftBoundLatitude: inmap.topLeftBoundLatitude,
-        topLeftBoundLongitude: inmap.topLeftBoundLongitude,
-        bottomRightBoundLatitude: inmap.topLeftBoundLatitude,
-        bottomRightBoundLongitude: inmap.bottomRightBoundLongitude,
+        topLeftBoundLatitude: inmap.topLeftBoundLatitude ? (typeof(inmap.topLeftBoundLatitude) == 'string' ?
+          parseFloat(inmap.topLeftBoundLatitude) : inmap.topLeftBoundLatitude) : null,
+        topLeftBoundLongitude: inmap.topRightBoundLongitude ? (typeof(inmap.topRightBoundLongitude) == 'string' ?
+          parseFloat(inmap.topRightBoundLongitude) : inmap.topRightBoundLongitude) : null,
+        bottomRightBoundLatitude: inmap.bottomRightBoundLatitude ? (typeof(inmap.bottomRightBoundLatitude) == 'string' ?
+          parseFloat(inmap.bottomRightBoundLatitude) : inmap.bottomRightBoundLatitude) : null,
+        bottomRightBoundLongitude: inmap.bottomRightBoundLongitude ? (typeof(inmap.bottomRightBoundLongitude) == 'string' ?
+          parseFloat(inmap.bottomRightBoundLongitude) : inmap.bottomRightBoundLongitude) : null,
         zoomToBounds: inmap.zoomToBounds,
         styleId: inmap.styleId,
         groupId: inmap.groupId,

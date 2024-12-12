@@ -16,8 +16,8 @@ const MapForm = (props: MapFormProps) => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      longitude:                      props.mapConfig?.longitude ?? 0,
-      latitude:                       props.mapConfig?.latitude ?? 0,
+      longitude:                      props.mapConfig?.longitude ?? undefined,
+      latitude:                       props.mapConfig?.latitude ?? undefined,
       mapId:                          props.mapConfig?.mapId ?? '',
       mapName:                        props.mapConfig?.mapName ?? '',
       groupId:                        props.groupName,
@@ -44,7 +44,7 @@ const MapForm = (props: MapFormProps) => {
                     'authorization': props.authToken ?? '',
                     'Content-Type': 'application/json',
                   },
-                  body: JSON.stringify({values}),
+                  body: JSON.stringify(values),
                 });
                 alert('Map added successfully');
                 formik.resetForm();
@@ -67,7 +67,7 @@ const MapForm = (props: MapFormProps) => {
                         'authorization': props.authToken,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({...values})
+                    body: JSON.stringify(values)
                   });
                   alert(`Map Updated`);
                   props.afterSubmit();
@@ -94,7 +94,7 @@ const MapForm = (props: MapFormProps) => {
                         'authorization': props.authToken,
                         'Content-Type': 'application/json',
                       },
-                      body: JSON.stringify({...values})
+                      body: JSON.stringify(values)
                     });
                     alert(`Map Deleted`);
                     props.afterSubmit();

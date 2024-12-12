@@ -964,7 +964,13 @@ export default function Home() {
                     iconColor: (y as any).iconColor ?? IconColors.YELLOW,
                     iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                     isSolid: true,
-                    center: [+(y.longitude ?? 0), +(y.latitude ?? 0)],
+                    center: 
+                            y.longitude != null
+                            && y.latitude != null
+                            && y.longitude.length > 0
+                            && y.latitude.length > 0 ? 
+                              [+(y.longitude ?? 0), +(y.latitude ?? 0)] :
+                              undefined,
                     zoomToBounds: y.zoomToBounds ?? false,
                     bounds:
                     y.topLeftBoundLongitude &&

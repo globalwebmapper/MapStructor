@@ -37,14 +37,18 @@ export async function PUT(request: Request, context: any) {
         data: {
             name: LayerrGroup.name,
             layerSectionId: LayerrGroup.layerSectionId,
-            longitude: LayerrGroup.longitude,
-            latitude: LayerrGroup.latitude,
+            longitude: LayerrGroup.longitude == '' ? null : LayerrGroup.longitude,
+            latitude: LayerrGroup.latitude == '' ? null : LayerrGroup.latitude,
             zoom: LayerrGroup.zoom,
             bearing: LayerrGroup.bearing,
-            topLeftBoundLatitude: LayerrGroup.topLeftBoundLatitude,
-            topLeftBoundLongitude: LayerrGroup.topLeftBoundLongitude,
-            bottomRightBoundLatitude: LayerrGroup.topLeftBoundLatitude,
-            bottomRightBoundLongitude: LayerrGroup.bottomRightBoundLongitude,
+            topLeftBoundLatitude: LayerrGroup.topLeftBoundLatitude ? (typeof(LayerrGroup.topLeftBoundLatitude) == 'string' ?
+                parseFloat(LayerrGroup.topLeftBoundLatitude) : LayerrGroup.topLeftBoundLatitude) : null,
+            topLeftBoundLongitude:  LayerrGroup.topLeftBoundLongitude ? (typeof(LayerrGroup.topLeftBoundLongitude) == 'string' ?
+                parseFloat(LayerrGroup.topLeftBoundLongitude) : LayerrGroup.topLeftBoundLongitude) : null,
+            bottomRightBoundLatitude: LayerrGroup.bottomRightBoundLatitude ? (typeof(LayerrGroup.bottomRightBoundLatitude) == 'string' ?
+                parseFloat(LayerrGroup.bottomRightBoundLatitude) : LayerrGroup.bottomRightBoundLatitude) : null,
+            bottomRightBoundLongitude: LayerrGroup.bottomRightBoundLongitude ? (typeof(LayerrGroup.bottomRightBoundLongitude) == 'string' ?
+                parseFloat(LayerrGroup.bottomRightBoundLongitude) : LayerrGroup.bottomRightBoundLongitude) : null,
             zoomToBounds: LayerrGroup.zoomToBounds,
             infoId: LayerrGroup.infoId ?? ''
         }

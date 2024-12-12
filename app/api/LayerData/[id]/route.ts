@@ -36,12 +36,16 @@ export async function PUT(request: Request, context: any) {
             iconColor: Layerr.iconColor,
             iconType: Layerr.iconType,
             label: Layerr.label,
-            longitude: Layerr.longitude,
-            latitude: Layerr.latitude,
-            topLeftBoundLatitude: Layerr.topLeftBoundLatitude,
-            topLeftBoundLongitude: Layerr.topLeftBoundLongitude,
-            bottomRightBoundLatitude: Layerr.topLeftBoundLatitude,
-            bottomRightBoundLongitude: Layerr.bottomRightBoundLongitude,
+            longitude: Layerr.longitude ? (typeof(Layerr.longitude) == 'string' ? parseFloat(Layerr.longitude) : Layerr.longitude) : null,
+            latitude: Layerr.latitude ? (typeof(Layerr.latitude) == 'string' ? parseFloat(Layerr.latitude) : Layerr.latitude) : null,
+            topLeftBoundLatitude: Layerr.topLeftBoundLatitude ? (typeof(Layerr.topLeftBoundLatitude) == 'string' ?
+                parseFloat(Layerr.topLeftBoundLatitude) : Layerr.topLeftBoundLatitude) : null,
+            topLeftBoundLongitude: Layerr.topLeftBoundLongitude ? (typeof(Layerr.topLeftBoundLongitude) == 'string' ?
+                parseFloat(Layerr.topLeftBoundLongitude) : Layerr.topLeftBoundLongitude) : null,
+            bottomRightBoundLatitude: Layerr.bottomRightBoundLatitude ? (typeof(Layerr.bottomRightBoundLatitude) == 'string' ?
+                parseFloat(Layerr.bottomRightBoundLatitude) : Layerr.bottomRightBoundLatitude) : null,
+            bottomRightBoundLongitude: Layerr.bottomRightBoundLongitude ? (typeof(Layerr.bottomRightBoundLongitude) == 'string' ?
+                parseFloat(Layerr.bottomRightBoundLongitude) : Layerr.bottomRightBoundLongitude) : null,
             zoomToBounds: Layerr.zoomToBounds,
             zoom: Layerr.zoom,
             bearing: Layerr.bearing,

@@ -63,8 +63,8 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
         enableReinitialize: true,
         initialValues: {
             name: props.layerGroup?.name ?? '',
-            longitude: props.layerGroup?.longitude ?? '',
-            latitude: props.layerGroup?.latitude ?? '',
+            longitude: props.layerGroup?.longitude ?? null,
+            latitude: props.layerGroup?.latitude ?? null,
             zoom: props.layerGroup?.zoom ?? '',
             bearing: props.layerGroup?.bearing ?? '',
             topLeftBoundLatitude: props.layerGroup?.topLeftBoundLatitude ?? null,
@@ -81,8 +81,8 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                 const resultingLayerGroup = {
                     name: values.name,
                     layerSectionId: props.sectionLayerId,
-                    longitude: values.longitude,
-                    latitude: values.latitude,
+                    longitude: values.longitude + '',
+                    latitude: values.latitude + '',
                     topLeftBoundLatitude: values.topLeftBoundLatitude,
                     topLeftBoundLongitude: values.topLeftBoundLongitude,
                     bottomRightBoundLatitude: values.bottomRightBoundLatitude,
