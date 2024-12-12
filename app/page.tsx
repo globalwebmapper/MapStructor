@@ -104,6 +104,8 @@ export default function Home() {
   const [layerOrder, setLayerOrder] = useState<PrismaLayer[]>([]);
   const [currAuthToken, setCurrAuthToken] = useState<string>("");
   const [inPreviewMode, setInPreviewMode] = useState<boolean>(false);
+  const activePopupsBefore = useRef<Map<string, mapboxgl.Popup>>(new Map());
+  const activePopupsAfter = useRef<Map<string, mapboxgl.Popup>>(new Map());
 
   const moveLayerUp = (l1: PrismaLayer) => {
 
@@ -570,7 +572,9 @@ export default function Home() {
     var popUpType: PopupType;
     var clickVisible: boolean = popUpVisible;
     var previousNid: number | string | undefined;
+    var newNid: number | string | undefined;
     var previousName: string | undefined;
+    var newName: string | undefined;
     let beforeHoverPopup = new mapboxgl.Popup({
       closeOnClick: false,
       closeButton: false,
@@ -592,42 +596,75 @@ export default function Home() {
     popUpType = layerConfig.clickStyle as PopupType;
     return (e: any) => {
       if (e.type === "click" && layerConfig.click) {
+        let nIdPropNames: string[] = ['drupalNid', 'nid', 'node_id', 'node', 'NID_num'];
+        const nidVals = nIdPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
+        const unknowNid = nidVals.length > 0 ? nidVals[0] : undefined;
+        
+        if(typeof unknowNid === 'number')
+        {
+          newNid = unknowNid;
+        }
+        else
+        {
+          const match = unknowNid.match(/\d+/);
+          if(match)
+          {
+            newNid = parseInt(match[0], 10);
+          }
+          else
+          {
+            newNid = undefined;
+          }
+        }
+        console.log("Nid value:");
+        console.log(newNid);
+        let namePropNames: string[] = ['name', 'Name', 'NAME', 'name_txt', 'OwnerName', 'to'];
+        const nameVals = namePropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
+        newName = nameVals.length > 0 ? nameVals[0] : undefined;
         if (beforeClickHoverPopUp.isOpen() || afterClickHoverPopUp.isOpen()) {
           beforeClickHoverPopUp.remove();
           afterClickHoverPopUp.remove();
+          activePopupsBefore.current.delete(layerConfig.id);
+          activePopupsAfter.current.delete(layerConfig.id);
         }
         beforeClickHoverPopUp
           .setHTML(hoverStyleString)
           .setLngLat(e.lngLat)
           .addTo(beforeMap.current!);
+        activePopupsBefore.current.set(layerConfig.id, beforeClickHoverPopUp);
         afterClickHoverPopUp
           .setHTML(hoverStyleString)
           .setLngLat(e.lngLat)
           .addTo(afterMap.current!);
+        activePopupsAfter.current.set(layerConfig.id, afterClickHoverPopUp);
         if (
           clickVisible &&
           previousNid &&
-          previousNid === e.features![0].properties!.nid
+          previousNid === newNid
         ) {
           clickVisible = false;
           setPopUpVisible(clickVisible);
           beforeClickHoverPopUp.remove();
           afterClickHoverPopUp.remove();
+          activePopupsBefore.current.delete(layerConfig.id);
+          activePopupsAfter.current.delete(layerConfig.id);
         } else if (
           clickVisible &&
           previousName &&
-          previousName === e.features![0].properties!.name
+          previousName === newName
         ) {
           clickVisible = false;
           setPopUpVisible(clickVisible);
           beforeClickHoverPopUp.remove();
           afterClickHoverPopUp.remove();
+          activePopupsBefore.current.delete(layerConfig.id);
+          activePopupsAfter.current.delete(layerConfig.id);
         } else {
-          previousName = e.features![0].properties!.name ?? undefined;
-          previousNid = e.features![0].properties!.nid ?? undefined;
+          previousName = newName;
+          previousNid = newNid;
           setPopUp({
             layerName: layerConfig.clickHeader,
-            nid: e.features![0].properties!.nid ?? undefined,
+            nid: newNid,
             type: popUpType,
           });
           clickVisible = true;
@@ -643,81 +680,60 @@ export default function Home() {
             hoverStyleString += "<b>" + item.label + ":</b> ";
           }
           if (item.type === "NAME") {
-            /**
-             * NAME INFORMATION IMPORTED FROM MENY
-             * e.features[0].properties.name
-             * e.features[0].properties.Name
-             * e.features[0].properties.NAME
-             * e.features[0].properties.To
-             */
-            if (e.features[0].properties.name !== undefined) {
-              hoverStyleString += e.features[0].properties.name + "<br>";
-            } else if (e.features[0].properties.Name !== undefined) {
-              hoverStyleString += e.features[0].properties.Name + "<br>";
-            } else if (e.features[0].properties.NAME !== undefined) {
-              hoverStyleString += e.features[0].properties.NAME + "<br>";
-            } else if (e.features[0].properties.To !== undefined) {
-              hoverStyleString += e.features[0].properties.To + "<br>";
+            let namePropNames: string[] = ['name', 'Name', 'NAME', 'name_txt', 'OwnerName', 'to'];
+            const nameVals = namePropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
+            const name: string = nameVals.length > 0 ? nameVals[0] : undefined;
+            if(name)
+            {
+              hoverStyleString += name + "<br>";
             }
           } else if (item.type === "LOT") {
-            /**
-             * LOT INFORMATION IMPORTED FROM MENY
-             * e.features[0].properties.LOT2
-             * e.features[0].properties.TAXLOT
-             * e.features[0].properties.Lot
-             * e.features[0].properties.dutchlot
-             * e.features[0].properties.lot2
-             */
-            if (e.features[0].properties.LOT2 !== undefined) {
-              hoverStyleString += e.features[0].properties.LOT2 + "<br>";
-            } else if (e.features[0].properties.TAXLOT !== undefined) {
-              hoverStyleString += e.features[0].properties.TAXLOT + "<br>";
-            } else if (e.features[0].properties.Lot !== undefined) {
-              hoverStyleString += e.features[0].properties.Lot + "<br>";
-            } else if (e.features[0].properties.dutchlot !== undefined) {
-              hoverStyleString += e.features[0].properties.dutchlot + "<br>";
-            } else if (e.features[0].properties.lot2 !== undefined) {
-              hoverStyleString += e.features[0].properties.lot2 + "<br>";
+            let lotPropNames: string[] = ['LOT2', 'TAXLOT', 'Lot', 'dutchlot', 'lot2'];
+            const lotVals = lotPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
+            const lot: string = lotVals.length > 0 ? lotVals[0] : undefined;
+            if(lot)
+            {
+              hoverStyleString += lot + "<br>";
             }
           } else if (item.type === "DATE-START") {
-            /**
-             * DATE START INFORMATION IMPORTED FROM MENY
-             * e.features[0].properties.day1
-             * e.features[0].properties.year1
-             */
-            if (
-              e.features[0].properties.day1 !== undefined &&
-              e.features[0].properties.year1 !== undefined
-            ) {
-              hoverStyleString +=
-                e.features[0].properties.day1 +
-                ", " +
-                e.features[0].properties.year1 +
-                "<br>";
+            let dayStartPropNames: string[] = ['day1'];
+            const dayStartVals = dayStartPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
+            const dayStart: string = dayStartVals.length > 0 ? dayStartVals[0] : undefined;
+            let yearStartPropNames: string[] = ['year1'];
+            const yearStartVals = yearStartPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
+            const yearStart: string = yearStartVals.length > 0 ? yearStartVals[0] : undefined;
+            if(dayStart)
+            {
+              hoverStyleString += dayStart + ", ";
             }
+            if(yearStart)
+            {
+              hoverStyleString += yearStart;
+            }
+            hoverStyleString += "<br>";
           } else if (item.type === "DATE-END") {
-            /**
-             * DATE END INFORMATION IMPORTED FROM MENY
-             * e.features[0].properties.day2
-             * e.features[0].properties.year2
-             */
-            if (
-              e.features[0].properties.day2 !== undefined &&
-              e.features[0].properties.year2 !== undefined
-            ) {
-              hoverStyleString +=
-                e.features[0].properties.day2 +
-                ", " +
-                e.features[0].properties.year2 +
-                "<br>";
+            let dayEndPropNames: string[] = ['day2'];
+            const dayEndVals = dayEndPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
+            const dayEnd: string = dayEndVals.length > 0 ? dayEndVals[0] : undefined;
+            let yearEndPropNames: string[] = ['year2'];
+            const yearEndVals = yearEndPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
+            const yearEnd: string = yearEndVals.length > 0 ? yearEndVals[0] : undefined;
+            if(dayEnd)
+            {
+              hoverStyleString += dayEnd + ", ";
             }
+            if(yearEnd)
+            {
+              hoverStyleString += yearEnd;
+            }
+            hoverStyleString += "<br>";
           } else if (item.type === "ADDRESS") {
-            /**
-             * ADDRESS INFORMATION IMPORTED FROM MENY
-             * e.features[0].properties.Address
-             */
-            if (e.features[0].properties.Address !== undefined) {
-              hoverStyleString += e.features[0].properties.Address + "<br>";
+            let addressPropNames: string[] = ['Address'];
+            const addressVals = addressPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
+            const address: string = addressVals.length > 0 ? addressVals[0] : undefined;
+            if(address)
+            {
+              hoverStyleString += address + "<br>";
             }
           }
         });
@@ -1346,7 +1362,27 @@ export default function Home() {
           "visibility",
           "none"
         );
-        currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "none");
+        currAfterMap.current!.setLayoutProperty(
+          layer.id, 
+          "visibility", 
+          "none"
+        );
+        const popupBefore = activePopupsBefore.current.get(layer.id);
+        const popupAfter = activePopupsAfter.current.get(layer.id);
+        if (popupBefore) 
+        {
+          popupBefore.remove();
+          activePopupsBefore.current.delete(layer.id);
+        }
+        if (popupAfter) 
+        {
+          popupAfter.remove();
+          activePopupsAfter.current.delete(layer.id);
+        }
+        if(popUpVisible)
+        {
+          setPopUpVisible(false);
+        }
       }
     });
   }, [activeLayerIds, reRenderActiveLayers, hasDoneInitialZoom]);
