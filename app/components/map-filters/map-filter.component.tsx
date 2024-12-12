@@ -120,6 +120,7 @@ const MapFilterComponent = (props: MapFilterComponentProps) => {
                                             center: props.map.center ?? undefined,
                                             zoom: props.map.zoom,
                                             speed: 0.2,
+                                            bearing: props.map.bearing ?? 0,
                                             curve: 1,
                                             duration: 2500,
                                         })

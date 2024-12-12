@@ -17,6 +17,7 @@ export type MapZoomProps = {
     center?: [long: number, lat: number],
     zoomToBounds?: boolean,
     zoom: number,
+    bearing?: number,
     speed: number,
     curve: number,
     duration: number

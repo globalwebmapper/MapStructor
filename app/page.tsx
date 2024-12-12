@@ -1559,12 +1559,12 @@ export default function Home() {
                   openWindow={beforeModalOpen}
                   mapZoomCallback={(zoomProps: MapZoomProps) => {
                     if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: 0});
+                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0});
                     } else if (zoomProps.center) {
                       currBeforeMap.current?.easeTo({
                         center: zoomProps.center,
                         zoom: zoomProps.zoom,
-                        bearing: 0,
+                        bearing: zoomProps.bearing ?? 0,
                         speed: zoomProps.speed,
                         curve: zoomProps.curve,
                         duration: zoomProps.duration,
@@ -1574,7 +1574,7 @@ export default function Home() {
                       });
                       if (zoomProps?.zoom != null && zoomProps?.center != null) {
                         router.push(
-                          `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/0`
+                          `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`
                         );
                       }
                     }
@@ -1724,13 +1724,13 @@ export default function Home() {
                 mapGroups={mappedFilterItemGroups}
                 mapZoomCallback={(zoomProps: MapZoomProps) => {
                   if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                    currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: 0 });
+                    currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
                   } else if (zoomProps.center) {
                     currBeforeMap.current?.easeTo({
                       center: zoomProps.center,
                       zoom: zoomProps.zoom,
                       speed: zoomProps.speed,
-                      bearing: 0,
+                      bearing: zoomProps.bearing ?? 0,
                       curve: zoomProps.curve,
                       duration: zoomProps.duration,
                       easing(t) {
@@ -1739,7 +1739,7 @@ export default function Home() {
                     });
                     if (zoomProps?.zoom != null && zoomProps?.center != null) {
                       router.push(
-                        `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/0`
+                        `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`
                       );
                     }
                   }

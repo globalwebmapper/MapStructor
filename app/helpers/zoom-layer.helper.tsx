@@ -72,12 +72,12 @@ export function addInteractivityToLabel(mapRef: MutableRefObject<Map | null>, la
 
     currMap?.on("click", labelId, function () {
         if(layer.bounds && (layer.zoomToBounds ?? false)) {
-            currMap?.fitBounds(layer.bounds, { bearing: layer.bearing })
+            currMap?.fitBounds(layer.bounds, { bearing: layer.bearing ?? 0 })
         } else if(layer.center) {
             currMap?.easeTo({
                 center: layer.center,
                 zoom: layer.zoom,
-                bearing: layer.bearing,
+                bearing: layer.bearing ?? 0,
                 speed: 0.2,
                 curve: 1,
                 duration: 1000,

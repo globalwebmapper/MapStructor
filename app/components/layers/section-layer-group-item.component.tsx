@@ -159,6 +159,7 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                                         props.mapZoomCallback({
                                             center: props.item.center ?? [0, 0],
                                             zoom: props.item.zoom ?? 0,
+                                            bearing: props.item.bearing ?? 0,
                                             speed: 0.2,
                                             curve: 1,
                                             duration: 2500,

@@ -245,13 +245,15 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                                 className="zoom-to-layer"
                                 color="blue"
                                 icon={faCrosshairs}
-                                onClick={() => props.mapZoomCallback({
+                                onClick={() => {
+                                    props.mapZoomCallback({
                                     center: props.group.center ?? [0, 0],
                                     zoom: props.group.zoom ?? 0,
+                                    bearing: props.group.bearing ?? 0,
                                     speed: 0.2,
                                     curve: 1,
                                     duration: 2500,
-                                })} // Edit zoomFunctions.js to create this function
+                                })}}
                                 />
                         </div>
                         {
