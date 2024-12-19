@@ -38,11 +38,17 @@ type LayerFormProps = {
   authToken: string;
 };
 
+type ZoomLevel = { zoom: number; value: number };
+
 export default function LayerForm(props: LayerFormProps) {
   const [submitType, setSubmitType] = useState<"POST" | "UPDATE" | "DELETE">();
 
   const parsedPaint = props.layerConfig?.paint
     ? JSON.parse(props.layerConfig.paint)
+    : {};
+
+  const parsedLayout = props.layerConfig?.layout
+    ? JSON.parse(props.layerConfig.layout)
     : {};
 
   const formik = useFormik({
@@ -52,14 +58,18 @@ export default function LayerForm(props: LayerFormProps) {
       iconColor: props.layerConfig?.iconColor ?? "#000000",
       iconType: props.layerConfig?.iconType ?? "",
       label: props.layerConfig?.label ?? "",
-      longitude: props.layerConfig?.longitude ? props.layerConfig.longitude : null,
+      longitude: props.layerConfig?.longitude
+        ? props.layerConfig.longitude
+        : null,
       latitude: props.layerConfig?.latitude ? props.layerConfig.latitude : null,
       zoom: props.layerConfig?.zoom,
       bearing: props.layerConfig?.bearing,
       topLeftBoundLatitude: props.layerConfig?.topLeftBoundLatitude ?? null,
       topLeftBoundLongitude: props.layerConfig?.topLeftBoundLongitude ?? null,
-      bottomRightBoundLatitude: props.layerConfig?.bottomRightBoundLatitude ?? null,
-      bottomRightBoundLongitude: props.layerConfig?.bottomRightBoundLongitude ?? null,
+      bottomRightBoundLatitude:
+        props.layerConfig?.bottomRightBoundLatitude ?? null,
+      bottomRightBoundLongitude:
+        props.layerConfig?.bottomRightBoundLongitude ?? null,
       zoomToBounds: props.layerConfig?.zoomToBounds ?? false,
       topLayerClass: props.groupName,
       infoId: props.layerConfig?.infoId ?? "",
@@ -79,21 +89,21 @@ export default function LayerForm(props: LayerFormProps) {
         { label: "", type: "" },
       ],
       fillColor: parsedPaint["fill-color"] ?? "#e3ed58",
-      fillOpacity: 0.5, //parsedPaint["fill-opacity"][4][2] ??
+      fillOpacity: parsedPaint["fill-opacity"] ?? 0.5,
       fillOutlineColor: parsedPaint["fill-outline-color"] ?? "#FF0000",
-      textColor: "#000080",
-      textHaloColor: "#ffffff",
-      textHaloWidth: 2,
+      textColor: parsedPaint["text-color"] ?? "#000080",
+      textHaloColor: parsedPaint["text-halo-color"] ?? "#ffffff",
+      textHaloWidth: parsedPaint["text-halo-width"] ?? 2,
       circleColor: parsedPaint["circle-color"] ?? "#097911", // Default values
-      circleOpacity: 1, //parsedPaint["circle-opacity"][4][2] ??
-      circleRadius: 5, //parsedPaint["circle-radius"] ??
+      circleOpacity: parsedPaint["circle-opacity"] ?? 1,
+      circleRadius: parsedPaint["circle-radius"] ?? 5,
       circleStrokeColor: parsedPaint["circle-stroke-color"] ?? "#0000ee",
       circleStrokeWidth: parsedPaint["circle-stroke-width"] ?? 2,
       lineColor: parsedPaint["line-color"] ?? "#ff9900",
-      lineWidth: 5,
+      lineWidth: parsedPaint["line-width"] ?? 5,
       lineBlur: parsedPaint["line-blur"] ?? 0,
       lineOpacity: parsedPaint["line-opacity"] ?? 1.0,
-      textSizeDefault: 12, // Default text size
+      textSizeDefault: parsedLayout["text-size"] ?? 12,
       useTextSizeZoomStyling: false, // Whether to use zoom-based text size
       useIconSizeZoomStyling: false, // Whether to use zoom-based icon size
       useLineZoomStyling: false,
@@ -107,24 +117,62 @@ export default function LayerForm(props: LayerFormProps) {
         { zoom: 12, value: 0.8 }, // Near fully visible when zoomed in
         { zoom: 15, value: 1 }, // Fully opaque at close zoom levels
       ], // Default for interpolation
-      textZoomLevels: [
-        { zoom: 6, value: 0 },
-        { zoom: 8, value: 7 },
-        { zoom: 15, value: 17 },
-        { zoom: 20, value: 25 },
-      ], // Default for text-size interpolation
-      circleRadiusZoomLevels: [
-        { zoom: 6, value: 0 }, // Circles are invisible when zoomed far out
-        { zoom: 10, value: 3 }, // Circles start to appear at a mid-zoom level
-        { zoom: 14, value: 7 }, // Circles are medium-sized at higher zoom levels
-        { zoom: 18, value: 12 },
-      ], // Default for circle-radius interpolation
-      lineWidthZoomLevels: [
-        { zoom: 6, value: 0 }, // Fully invisible at low zoom levels
-        { zoom: 8, value: 0.5 }, // Thin lines become slightly visible
-        { zoom: 12, value: 1.5 }, // Medium width at a moderately zoomed-in level
-        { zoom: 15, value: 2.5 }, // Wider lines at closer zoom levels
-      ],
+      textZoomLevels:
+        parsedLayout["text-size"] &&
+        Array.isArray(parsedLayout["text-size"]) &&
+        parsedLayout["text-size"][0] === "interpolate"
+          ? parsedLayout["text-size"]
+              .slice(4) // Skip "interpolate", "linear", and "zoom"
+              .reduce<ZoomLevel[]>((acc, curr, index, arr) => {
+                if (index % 2 === 0 && arr[index + 1] !== undefined) {
+                  acc.push({
+                    zoom: curr as number,
+                    value: arr[index + 1] as number,
+                  });
+                }
+                return acc;
+              }, [])
+          : [
+              { zoom: 6, value: 0 },
+              { zoom: 8, value: 7 },
+              { zoom: 15, value: 17 },
+              { zoom: 20, value: 25 },
+            ],
+
+      circleRadiusZoomLevels:
+        parsedPaint["circle-radius"] &&
+        Array.isArray(parsedPaint["circle-radius"]) &&
+        parsedPaint["circle-radius"][0] === "interpolate"
+          ? parsedPaint["circle-radius"]
+              .slice(4)
+              .reduce((acc: any[], curr: any, index: number, arr: any[]) => {
+                if (index % 2 === 0)
+                  acc.push({ zoom: curr, value: arr[index + 1] });
+                return acc;
+              }, [])
+          : [
+              { zoom: 6, value: 0 }, // Circles are invisible when zoomed far out
+              { zoom: 10, value: 3 }, // Circles start to appear at a mid-zoom level
+              { zoom: 14, value: 7 }, // Circles are medium-sized at higher zoom levels
+              { zoom: 18, value: 12 },
+            ], // Default for circle-radius interpolation
+      lineWidthZoomLevels:
+        parsedPaint["line-width"] &&
+        Array.isArray(parsedPaint["line-width"]) &&
+        parsedPaint["line-width"][0] === "interpolate"
+          ? parsedPaint["line-width"]
+              .slice(4)
+              .reduce((acc: any[], curr: any, index: number, arr: any[]) => {
+                if (index % 2 === 0)
+                  acc.push({ zoom: curr, value: arr[index + 1] });
+                return acc;
+              }, [])
+          : [
+              { zoom: 6, value: 0 },
+              { zoom: 8, value: 0.5 },
+              { zoom: 12, value: 1.5 },
+              { zoom: 15, value: 2.5 },
+            ],
       layout: {
         "text-field":
           (props.layerConfig?.layout as any)?.["text-field"] ?? "{name}",
@@ -140,9 +188,9 @@ export default function LayerForm(props: LayerFormProps) {
                 ),
               ]
             : (props.layerConfig as any)?.textSizeDefault ?? 12),
-        // "text-offset": (props.layerConfig?.layout as any)?.["text-offset"] ?? [
-        //   0, 0,
-        // ],
+        "text-offset": (props.layerConfig?.layout as any)?.["text-offset"] ?? [
+          0, 1,
+        ],
         "icon-image": (props.layerConfig as any)?.layout?.["icon-image"] ?? "",
         "icon-size":
           (props.layerConfig as any)?.layout?.["icon-size"] ??
@@ -160,6 +208,7 @@ export default function LayerForm(props: LayerFormProps) {
     },
 
     onSubmit: async (values) => {
+      console.log("Values before submission:", values);
       const paint: Record<string, any> = {};
       const layout: Record<string, any> = values.layout || {};
 
@@ -188,18 +237,28 @@ export default function LayerForm(props: LayerFormProps) {
         layout["visibility"] = "visible";
         layout["text-font"] = ["Asap Medium"]; // Adjust font family as needed
         layout["text-field"] = values.layout["text-field"] ?? "{name}"; // Default text field
-        // layout["text-offset"] = values.layout["text-offset"] ?? [0, 0]; // Default text offset
+        layout["text-offset"] = values.layout["text-offset"] ?? [0, 0]; // Default text offset
 
-        layout["text-size"] = values.textZoomLevels?.length
+        layout["text-size"] = values.useTextSizeZoomStyling
           ? [
               "interpolate",
               ["linear"],
               ["zoom"],
               ...values.textZoomLevels
-                .sort((a, b) => a.zoom - b.zoom) // Sort by ascending zoom levels
+                .filter(
+                  (level) =>
+                    level.zoom !== null &&
+                    level.zoom !== undefined &&
+                    level.value !== null &&
+                    level.value !== undefined
+                ) // Filter out invalid entries
+                .sort((a, b) => a.zoom - b.zoom) // Ensure ascending order
                 .flatMap((level) => [level.zoom, level.value]),
             ]
           : values.textSizeDefault ?? 12;
+
+        console.log("Transformed layout['text-size']:", layout["text-size"]);
+
         layout["icon-image"] = values.layout["icon-image"] || "default-icon"; // Default icon name
         layout["icon-size"] = values.useIconSizeZoomStyling
           ? [
@@ -222,14 +281,16 @@ export default function LayerForm(props: LayerFormProps) {
             ["case", ["boolean", ["feature-state", "hover"], false], 0.5, 1],
           ]),
         ];
-        paint["circle-radius"] = [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          ...values.circleRadiusZoomLevels
-            .sort((a, b) => a.zoom - b.zoom) // Sort by ascending zoom levels
-            .flatMap((level) => [level.zoom, level.value]),
-        ];
+        paint["circle-radius"] = values.useCircleZoomStyling
+          ? [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              ...values.circleRadiusZoomLevels
+                .sort((a, b) => a.zoom - b.zoom) // Sort by ascending zoom levels
+                .flatMap((level) => [level.zoom, level.value]),
+            ]
+          : values.circleRadius ?? 5;
         paint["circle-stroke-color"] = values.circleStrokeColor ?? "#000000";
         paint["circle-stroke-width"] = values.circleStrokeWidth ?? 1;
         if (values.hover) {
@@ -252,14 +313,16 @@ export default function LayerForm(props: LayerFormProps) {
         }
       } else if (values.type === "line") {
         paint["line-color"] = values.lineColor ?? "#ff9900";
-        paint["line-width"] = [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          ...values.lineWidthZoomLevels
-            .sort((a, b) => a.zoom - b.zoom) // Sort by ascending zoom levels
-            .flatMap((level) => [level.zoom, level.value]),
-        ];
+        paint["line-width"] = values.useLineZoomStyling
+          ? [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              ...values.lineWidthZoomLevels
+                .sort((a, b) => a.zoom - b.zoom) // Sort by ascending zoom levels
+                .flatMap((level) => [level.zoom, level.value]),
+            ]
+          : values.lineWidth ?? 5;
         paint["line-blur"] = values.lineBlur ?? 0;
         paint["line-opacity"] = values.lineOpacity ?? 1.0;
       }
@@ -276,6 +339,8 @@ export default function LayerForm(props: LayerFormProps) {
         layout: JSON.stringify(layout),
       };
 
+      console.log("Final layerData before API call:", layerData);
+
       if (submitType === "POST") {
         try {
           await fetch("api/LayerData", {
@@ -284,7 +349,7 @@ export default function LayerForm(props: LayerFormProps) {
               authorization: props.authToken ?? "",
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({...layerData}),
+            body: JSON.stringify({ ...layerData }),
           });
           alert("Layer added successfully");
           formik.resetForm();
@@ -293,7 +358,7 @@ export default function LayerForm(props: LayerFormProps) {
           alert(`Error: ${error.message}`);
         }
       } else if (submitType === "UPDATE") {
-        console.log({...layerData})
+        console.log({ ...layerData });
         if (props.layerConfig) {
           try {
             await fetch("/api/LayerData/" + props.layerConfig.id, {
@@ -302,7 +367,7 @@ export default function LayerForm(props: LayerFormProps) {
                 authorization: props.authToken,
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({...layerData}),
+              body: JSON.stringify({ ...layerData }),
             });
             alert(`Layer Updated`);
             props.afterSubmit();
@@ -321,7 +386,7 @@ export default function LayerForm(props: LayerFormProps) {
                 authorization: props.authToken ?? "",
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({...layerData}),
+              body: JSON.stringify({ ...layerData }),
             });
             alert(`Layer Deleted`);
             props.afterSubmit();
@@ -334,6 +399,8 @@ export default function LayerForm(props: LayerFormProps) {
       }
     },
   });
+
+  console.log("Initial Values:", formik.initialValues);
 
   const boxStyling: CSSProperties = {
     padding: "8px",
@@ -444,7 +511,10 @@ export default function LayerForm(props: LayerFormProps) {
 
         <div style={{ marginBottom: "15px" }}>
           <label style={labelStyling}>Zoom Settings</label>
-          <p>Longitude/Latitude are used to zoom to center, Bounds are used to zoom to bounds.</p>
+          <p>
+            Longitude/Latitude are used to zoom to center, Bounds are used to
+            zoom to bounds.
+          </p>
         </div>
 
         <div style={{ marginBottom: "15px" }}>
@@ -559,18 +629,30 @@ export default function LayerForm(props: LayerFormProps) {
           />
         </div>
 
-        <div style={{ marginBottom: '30px' }}>
-            <label style={labelStyling}>
-                Where Should This Zoom To?
-            </label>
-            <label htmlFor="zoomToBounds" style={labelStyling}>
-            <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', true)} checked={formik.values.zoomToBounds} style={checkboxStyling} />
-                Zoom to Bounds
-            </label>
-            <label htmlFor="zoomToBounds" style={labelStyling}>
-                <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', false)} checked={!formik.values.zoomToBounds} style={checkboxStyling} />
-                Zoom to Center
-            </label>
+        <div style={{ marginBottom: "30px" }}>
+          <label style={labelStyling}>Where Should This Zoom To?</label>
+          <label htmlFor="zoomToBounds" style={labelStyling}>
+            <input
+              type="radio"
+              id="zoomToBounds"
+              name="zoomToBounds"
+              onClick={() => formik.setFieldValue("zoomToBounds", true)}
+              checked={formik.values.zoomToBounds}
+              style={checkboxStyling}
+            />
+            Zoom to Bounds
+          </label>
+          <label htmlFor="zoomToBounds" style={labelStyling}>
+            <input
+              type="radio"
+              id="zoomToBounds"
+              name="zoomToBounds"
+              onClick={() => formik.setFieldValue("zoomToBounds", false)}
+              checked={!formik.values.zoomToBounds}
+              style={checkboxStyling}
+            />
+            Zoom to Center
+          </label>
         </div>
 
         {/* Got rid of this cause I don't think we need to show this
@@ -809,7 +891,7 @@ export default function LayerForm(props: LayerFormProps) {
                 style={boxStyling}
               />
             </div>
-            {/* <div style={{ marginBottom: "15px" }}>
+            <div style={{ marginBottom: "15px" }}>
               <label htmlFor="text-offset" style={labelStyling}>
                 Text Offset:
               </label>
@@ -859,7 +941,7 @@ export default function LayerForm(props: LayerFormProps) {
                   style={boxStyling}
                 />
               </div>
-            </div> */}
+            </div>
             <div style={{ marginBottom: "15px" }}>
               <label htmlFor="textHaloColor" style={labelStyling}>
                 Text Halo Color:
@@ -938,58 +1020,67 @@ export default function LayerForm(props: LayerFormProps) {
             {formik.values.useTextSizeZoomStyling && (
               <FieldArray
                 name="textZoomLevels"
-                render={(arrayHelpers) => (
-                  <div style={{ marginBottom: "15px" }}>
-                    <label style={labelStyling}>
-                      Zoom
-                      level&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                      Text Size{" "}
-                    </label>
-                    {formik.values.textZoomLevels.map((level, index) => (
-                      <div key={index} style={{ display: "flex", gap: "10px" }}>
-                        <input
-                          type="number"
-                          name={`textZoomLevels[${index}].zoom`}
-                          placeholder="Zoom"
-                          onChange={formik.handleChange}
-                          value={level.zoom}
-                          min="0"
-                          max="22"
-                          style={boxStyling}
-                        />
-                        <input
-                          type="number"
-                          name={`textZoomLevels[${index}].value`}
-                          placeholder="Text Size"
-                          onChange={formik.handleChange}
-                          value={level.value}
-                          min="0"
-                          step="0.1"
-                          style={boxStyling}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => arrayHelpers.remove(index)}
-                          style={{
-                            ...removeButtonStyle,
-                            marginTop: "6px",
-                            position: "relative",
-                            top: "-6px",
-                          }}
+                render={(arrayHelpers) => {
+                  console.log(
+                    "Current textZoomLevels:",
+                    formik.values.textZoomLevels
+                  );
+                  return (
+                    <div style={{ marginBottom: "15px" }}>
+                      <label style={labelStyling}>
+                        Zoom
+                        level&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        Text Size
+                      </label>
+                      {formik.values.textZoomLevels.map((level, index) => (
+                        <div
+                          key={index}
+                          style={{ display: "flex", gap: "10px" }}
                         >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => arrayHelpers.push({ zoom: 0, value: 0 })}
-                      style={addButtonStyle}
-                    >
-                      Add New Zoom Level
-                    </button>
-                  </div>
-                )}
+                          <input
+                            type="number"
+                            name={`textZoomLevels[${index}].zoom`}
+                            placeholder="Zoom"
+                            onChange={formik.handleChange}
+                            value={level.zoom ?? ""}
+                            min="0"
+                            max="22"
+                            style={boxStyling}
+                          />
+                          <input
+                            type="number"
+                            name={`textZoomLevels[${index}].value`}
+                            placeholder="Text Size"
+                            onChange={formik.handleChange}
+                            value={level.value ?? ""}
+                            min="0"
+                            step="0.1"
+                            style={boxStyling}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => arrayHelpers.remove(index)}
+                            style={{
+                              ...removeButtonStyle,
+                              marginTop: "6px",
+                              position: "relative",
+                              top: "-6px",
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => arrayHelpers.push({ zoom: 0, value: 0 })}
+                        style={addButtonStyle}
+                      >
+                        Add New Zoom Level
+                      </button>
+                    </div>
+                  );
+                }}
               />
             )}
             {/* Use Zoom Styling for Icon Size
