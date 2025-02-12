@@ -33,7 +33,15 @@ type SectionLayerProps = {
 }
 
 const SectionLayerComponent = (props: SectionLayerProps) => {
-    const [layerIsOpen, setLayerIsOpen] = useState<boolean>(false);
+    // NEW IMPLEMENTATION - Have Manhattan layer expanded by default
+    // List of layers that should be expanded by default
+    const defaultOpenLayerNames = ["Manhattan"];
+    const [layerIsOpen, setLayerIsOpen] = useState(
+        defaultOpenLayerNames.includes(props.layer.label) // Ensure `label` holds the correct layer name
+    );
+    // OLD IMPLEMENTATION - All layers closed by default
+    // const [layerIsOpen, setLayerIsOpen] = useState<boolean>(true);
+
     const [editOpen, setEditOpen] = useState<boolean>(false);
     const [editSectionOpen, setEditSectionOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
