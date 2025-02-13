@@ -22,7 +22,7 @@ export async function PUT(request: Request, context: any) {
             message: "Not Authorized",
             error: "Auth Token Invaild",
         }, {status: 401});
-      }
+    }
     const { params } = context;
     const Layerr = await request.json()
     const prisma = new PrismaClient();
@@ -47,6 +47,7 @@ export async function PUT(request: Request, context: any) {
             bottomRightBoundLongitude: Layerr.bottomRightBoundLongitude ? (typeof(Layerr.bottomRightBoundLongitude) == 'string' ?
                 parseFloat(Layerr.bottomRightBoundLongitude) : Layerr.bottomRightBoundLongitude) : null,
             zoomToBounds: Layerr.zoomToBounds,
+            enableByDefault: Layerr.enableByDefault,
             zoom: Layerr.zoom,
             bearing: Layerr.bearing,
             groupName: Layerr.groupName,
@@ -79,7 +80,7 @@ export async function DELETE(request: Request, context: any) {
             message: "Not Authorized",
             error: "Auth Token Invaild",
         }, {status: 401});
-      }
+    }
     const {params} = context;
     const prisma = new PrismaClient();
     await prisma.layerData.delete({

@@ -22,6 +22,7 @@ type SectionLayerGroupItemProps = {
 }
 
 const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
+    const [isChecked, setIsChecked] = useState(props.item.enableByDefault ?? false);
     const [checkbox, setCheckbox] = useState<boolean>(false);
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
 
@@ -35,18 +36,24 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
     const handleLayerChange = () => {
         if(props.item.layerId)
         {
-            if (props.activeLayers.includes(props.item.layerId)) 
+            if (props.activeLayers.includes(props.item.layerId))
             {
                 props.activeLayerCallback(props.activeLayers.filter((d) => d !== props.item.layerId));
-            } 
-            else 
+            }
+            else
             {
                 props.activeLayerCallback([...props.activeLayers, props.item.layerId]);
             }
         }
+        setIsChecked((prev) => !prev);
     }
 
-
+    const handleLayerByDefault = () => {
+        if(props.item.layerId && props.item.enableByDefault)
+        {
+            props.activeLayerCallback([...props.activeLayers, props.item.layerId]);
+        }
+    }
 
 
     const UpLayerData = async (id: string) => {
@@ -56,7 +63,7 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                 headers: {
                     authorization: props.authToken,
                     "Content-Type": "application/json",
-                  },
+                },
             });
         }
         catch(err) {
@@ -71,7 +78,7 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                 headers: {
                     authorization: props.authToken,
                     "Content-Type": "application/json",
-                  },
+                },
             });
         }
         catch(err) {
@@ -79,26 +86,31 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
         }
     }
 
+    useEffect(() => {
+        handleLayerByDefault();
+    }, []);
+
+
 
     return (
         <>
-            <div className="layer-list-row">
+            <div className="layer-list-row" id={"Layer Group Row"}>
                 <input
-                type="checkbox"
-                id={`section-layer-group-item-${props.item?.id ?? ""}`}
-                style={{
-                    marginLeft: "20px",
-                    marginRight: "5px"
-                }}
-                checked={props.activeLayers.includes(props.item.layerId!)}
-                onChange={handleLayerChange}
+                    type="checkbox"
+                    id={`section-layer-group-item-${props.item?.id ?? ""}`}
+                    style={{
+                        marginLeft: "20px",
+                        marginRight: "5px"
+                    }}
+                    checked={isChecked}
+                    onChange={handleLayerChange}
                 />
 
                 <label htmlFor={`section-layer-group-item-${props.item?.id ?? ""}`}>
-                <FontAwesomeIcon icon={getFontawesomeIcon(props.item.iconType, props.item.isSolid)} style={{
-                    color: props.item.iconColor
-                }} /> {props.item.label}
-                <div className="dummy-label-layer-space"></div> 
+                    <FontAwesomeIcon icon={getFontawesomeIcon(props.item.iconType, props.item.isSolid)} style={{
+                        color: props.item.iconColor
+                    }} /> {props.item.label}
+                    <div className="dummy-label-layer-space"></div>
                 </label>
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
@@ -106,14 +118,14 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                             showEditorOptions && (
                                 <div className="tooltip-container" data-title="Edit Layer">
                                     <FontAwesomeIcon
-                                    className="edit-button"
-                                    color="black"
-                                    icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
-                                    onClick={() => {
-                                        props.openWindow();
-                                        props.fetchLayerDataCallback(props.item.layerId ?? '');
-                                        props.editFormVisibleCallback(true);
-                                    }}
+                                        className="edit-button"
+                                        color="black"
+                                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
+                                        onClick={() => {
+                                            props.openWindow();
+                                            props.fetchLayerDataCallback(props.item.layerId ?? '');
+                                            props.editFormVisibleCallback(true);
+                                        }}
                                     />
                                 </div>
                             )
@@ -121,11 +133,11 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                         {
                             showEditorOptions && (
                                 <div className="tooltip-container" data-title="Move Up">
-                                    <FontAwesomeIcon 
-                                    className="decrement-order"
-                                    color="black"
-                                    icon={getFontawesomeIcon(FontAwesomeLayerIcons.UP_ARROW)}
-                                    onClick={async() => {
+                                    <FontAwesomeIcon
+                                        className="decrement-order"
+                                        color="black"
+                                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.UP_ARROW)}
+                                        onClick={async() => {
                                             await UpLayerData(props.item.id)
                                             props.afterSubmit()
                                         }}
@@ -136,11 +148,11 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                         {
                             showEditorOptions && (
                                 <div className="tooltip-container" data-title="Move Down">
-                                    <FontAwesomeIcon 
-                                    className="increment-order"
-                                    color="black"
-                                    icon={getFontawesomeIcon(FontAwesomeLayerIcons.DOWN_ARROW)}
-                                    onClick={async() => {
+                                    <FontAwesomeIcon
+                                        className="increment-order"
+                                        color="black"
+                                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.DOWN_ARROW)}
+                                        onClick={async() => {
                                             await DownLayerData(props.item.id)
                                             props.afterSubmit()
                                         }}
@@ -152,19 +164,19 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                             (props.item.center != null && props.item.zoom != null) && (
                                 <div className="tooltip-container" data-title="Zoom to Layer">
                                     <FontAwesomeIcon
-                                    className="zoom-to-layer"
-                                    color="blue"
-                                    icon={getFontawesomeIcon(FontAwesomeLayerIcons.CROSSHAIRS)}
-                                    onClick={() => {
-                                        props.mapZoomCallback({
-                                            center: props.item.center ?? [0, 0],
-                                            zoom: props.item.zoom ?? 0,
-                                            bearing: props.item.bearing ?? 0,
-                                            speed: 0.2,
-                                            curve: 1,
-                                            duration: 2500,
-                                        })
-                                    }}
+                                        className="zoom-to-layer"
+                                        color="blue"
+                                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.CROSSHAIRS)}
+                                        onClick={() => {
+                                            props.mapZoomCallback({
+                                                center: props.item.center ?? [0, 0],
+                                                zoom: props.item.zoom ?? 0,
+                                                bearing: props.item.bearing ?? 0,
+                                                speed: 0.2,
+                                                curve: 1,
+                                                duration: 2500,
+                                            })
+                                        }}
                                     />
                                 </div>
                             )

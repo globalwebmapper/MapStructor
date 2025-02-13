@@ -41,6 +41,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
     const [modalBodyText, setModalBodyText] = useState<string>('');
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
+    const [isChecked, setIsChecked] = useState<boolean>(false);
 
     const closeWindow = () => {
         props.afterClose()
@@ -66,11 +67,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                     if(response.ok) {
                         response.json().then((jsonResult: {title: string, id: string, body: string }[]) => {
                             if(jsonResult != null && jsonResult.length > 0) {
-                                // NEW IMPLENTATION - Replace the [unicode + chars] with just '&' since that's what we want
-                                let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title.replace('\u0026amp;', '&') ?? '';
-                                // OLD IMPLEMENTATION - There was a bug where there was unicode showing up in "Original Grants &amp; Farms"
-                                // let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title ?? '';
-                                
+                                let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title ?? '';
                                 let modalBody: string = jsonResult.find(x => x.id == props.group.infoId)?.body ?? '';
                                 setModalHeaderText(modalHeader);
                                 setModalBodyText(modalBody);
@@ -86,7 +83,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
     useEffect(() => {
         console.log(modalHeaderText, modalBodyText)
     }, [modalBodyText, modalHeaderText])
-    
+
     const toggleGroup = (e: any) => {
         if(props.group.items.length > 0) {
             setLayerIsOpen(!layerIsOpen)
@@ -155,26 +152,41 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
             setIsLoading(false);
         }
     }
-    
+
     const handleCheckboxChange = () => {
         setcheckboxValue(!checkboxValue);
         let updatedLayerIds: (string | undefined)[];
-        if (checkboxValue) 
+        if (checkboxValue)
         {
             updatedLayerIds = props.activeLayers.filter(
                 (layerId) => !props.group.items.some((item) => item.layerId === layerId)
             );
-        } 
-        else 
+        }
+        else
         {
             const layerIdsToAdd = props.group.items
                 .filter((item) => item.layerId && !props.activeLayers.includes(item.layerId))
                 .map((item) => item.layerId);
-    
+
                 updatedLayerIds = [...props.activeLayers, ...layerIdsToAdd];
         }
-    
+
         props.activeLayerCallback(updatedLayerIds as string[]);
+    }
+
+    useEffect(() => {
+        handleLayerByDefault();
+    }, []);
+
+    const handleLayerByDefault = () => {
+        let updatedLayerIds: (string | undefined)[];
+        props.group.items.forEach(item => {
+            if(item.enableByDefault){
+                setIsChecked(true);
+                handleCheckboxChange();
+            }
+        });
+
     }
 
     return (
@@ -186,15 +198,15 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                     paddingRight: "5px",
                     marginRight: "5px"
                 }}
-                checked={checkboxValue}
+                checked={isChecked}
                 onChange={handleCheckboxChange}
                 id={`section-layer-group-${props.group?.id ?? ""}`}
                 />
-                <FontAwesomeIcon id={props.group.items.length > 0 ? 'group-layer-plus-minus-icon' : ""} onClick={toggleGroup} icon={layerIsOpen ? getFontawesomeIcon(FontAwesomeLayerIcons.MINUS_SQUARE, true) : getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)} 
+                <FontAwesomeIcon id={props.group.items.length > 0 ? 'group-layer-plus-minus-icon' : ""} onClick={toggleGroup} icon={layerIsOpen ? getFontawesomeIcon(FontAwesomeLayerIcons.MINUS_SQUARE, true) : getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}
                 style={{color: props.group.items.length > 0 ? IconColors.DARK_GREY : props.group.iconColor, paddingRight: "5px"}}/>
                 <label htmlFor={`section-layer-group-${props.group?.id ?? ""}`}>
                 {props.group.label}
-                <div className="dummy-label-layer-space"></div> 
+                <div className="dummy-label-layer-space"></div>
                 </label>
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
@@ -216,8 +228,8 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                         }
                         {
                             showEditorOptions && (
-                                <div className="tooltip-container" data-title="Move Up">        
-                                <FontAwesomeIcon 
+                                <div className="tooltip-container" data-title="Move Up">
+                                <FontAwesomeIcon
                                     className="decrement-order"
                                     color="black"
                                     icon={getFontawesomeIcon(FontAwesomeLayerIcons.UP_ARROW)}
@@ -232,7 +244,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                         {
                             showEditorOptions && (
                                 <div className="tooltip-container" data-title="Move Down">
-                                <FontAwesomeIcon 
+                                <FontAwesomeIcon
                                     className="increment-order"
                                     color="black"
                                     icon={getFontawesomeIcon(FontAwesomeLayerIcons.DOWN_ARROW)}
@@ -302,15 +314,15 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                     <NewSectionLayerGroupItem
                     inPreviewMode={props.inPreviewMode}
                     authToken={props.authToken}
-                    beforeOpen={props.beforeOpen} 
-                    afterClose={props.afterClose} 
-                    groupName={props.group.id} 
+                    beforeOpen={props.beforeOpen}
+                    afterClose={props.afterClose}
+                    groupName={props.group.id}
                     sectionName={props.sectionName}>
                     </NewSectionLayerGroupItem>
                 )
             }
             {
-                editOpen && 
+                editOpen &&
                 (
                     <Modal
                         style={{
@@ -335,9 +347,9 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                         ) : (
                             <LayerForm
                             authToken={props.authToken}
-                            groupName={props.group.id} 
-                            sectionName={props.sectionName} 
-                            layerConfig={layer} 
+                            groupName={props.group.id}
+                            sectionName={props.sectionName}
+                            layerConfig={layer}
                             afterSubmit={() => {
                                 props.removeMapLayerCallback(layer?.id ?? '');
                                 closeEdit();
@@ -345,7 +357,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                             </LayerForm>
                         )
                     }
-                    </Modal> 
+                    </Modal>
                 )
             }
             {
