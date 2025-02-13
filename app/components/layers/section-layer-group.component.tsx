@@ -66,7 +66,11 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                     if(response.ok) {
                         response.json().then((jsonResult: {title: string, id: string, body: string }[]) => {
                             if(jsonResult != null && jsonResult.length > 0) {
-                                let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title ?? '';
+                                // NEW IMPLENTATION - Replace the [unicode + chars] with just '&' since that's what we want
+                                let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title.replace('\u0026amp;', '&') ?? '';
+                                // OLD IMPLEMENTATION - There was a bug where there was unicode showing up in "Original Grants &amp; Farms"
+                                // let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title ?? '';
+                                
                                 let modalBody: string = jsonResult.find(x => x.id == props.group.infoId)?.body ?? '';
                                 setModalHeaderText(modalHeader);
                                 setModalBodyText(modalBody);
