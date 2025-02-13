@@ -904,7 +904,6 @@ export default function Home() {
                   zoom: lbl.zoom ?? undefined,
                   bearing: lbl.bearing ?? undefined,
                   zoomToBounds: false,
-                  enableByDefault: false,
                   textStyling: {
                     useTextSizeZoomStyling: lbl.useTextSizeZoomStyling,
                     textSizeDefault: lbl.textSizeDefault,
@@ -1001,7 +1000,6 @@ export default function Home() {
                               [+(y.longitude ?? 0), +(y.latitude ?? 0)] :
                               undefined,
                       zoomToBounds: y.zoomToBounds ?? false,
-                      enableByDefault: y.enableByDefault ?? false,
                       bounds:
                           y.topLeftBoundLongitude &&
                           y.topLeftBoundLatitude &&

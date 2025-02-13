@@ -516,9 +516,8 @@ export default function LayerForm(props: LayerFormProps) {
                 type="checkbox"
                 id="enableByDefault"
                 name="enableByDefault"
-                onChange={formik.handleChange}
+                onClick={() => formik.setFieldValue("enableByDefault", !formik.values.enableByDefault)}
                 checked={formik.values.enableByDefault}
-                value={formik.values.enableByDefault}
                 style={checkboxStyling}
             />
           </div>
