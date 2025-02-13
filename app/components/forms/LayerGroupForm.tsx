@@ -59,14 +59,42 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
     const [submitType, setSubmitType] = useState<"POST" | "UPDATE" | "DELETE">();
     console.log('AHHHH', props.layerGroup);
 
+  //need to add a check in here to verify lat, long, bearing, and zoom are non null before allowing submission
+  //find submit button and set as deactivated until necessary fields are filled and have correct value types
+
+  const validate = (values:any) => {
+    const errors: Record<string, string> = {};
+
+    if (!values.name) {
+      errors.name = "Name is required.";
+    }
+
+    if (values.longitude === null || values.longitude === undefined || isNaN(values.longitude)) {
+      errors.longitude = "Longitude must be a valid number.";
+    }
+
+    if (values.latitude === null || values.latitude === undefined || isNaN(values.latitude)) {
+      errors.latitude = "Latitude must be a valid number.";
+    }
+
+    if (values.zoom === null || values.zoom === undefined || isNaN(values.zoom)) {
+      errors.zoom = "Zoom must be a valid number";
+    }
+
+    if (values.bearing === null || values.bearing === undefined || isNaN(values.bearing)) {
+      errors.bearing = "Bearing must be a valid number.";
+    }
+    return errors;
+  } 
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             name: props.layerGroup?.name ?? '',
             longitude: props.layerGroup?.longitude ?? null,
             latitude: props.layerGroup?.latitude ?? null,
-            zoom: props.layerGroup?.zoom ?? '',
-            bearing: props.layerGroup?.bearing ?? '',
+            zoom: props.layerGroup?.zoom ?? null,
+            bearing: props.layerGroup?.bearing ?? null,
             topLeftBoundLatitude: props.layerGroup?.topLeftBoundLatitude ?? null,
             topLeftBoundLongitude: props.layerGroup?.topLeftBoundLongitude ?? null,
             bottomRightBoundLatitude: props.layerGroup?.bottomRightBoundLatitude ?? null,
@@ -74,7 +102,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
             zoomToBounds: props.layerGroup?.zoomToBounds ?? false,
             infoId: props.layerGroup?.infoId ?? ''
         },
-          
+        validate,
         onSubmit: async (values) => {
           console.log(values);
             if(values.name?.length > 0) {
@@ -184,6 +212,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                     value={formik.values.name}
                     style={boxStyling}
                 />
+                 {formik.errors.name && <div style={{ color: "red" }}>{formik.errors.name}</div>}
                 </div>
                 <div style={{ marginBottom: "15px" }}>
           <label style={labelStyling}>Zoom Settings</label>
@@ -202,6 +231,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
             value={formik.values.longitude ?? undefined}
             style={boxStyling}
           />
+          {formik.errors.longitude && <div style={{ color: "red" }}>{formik.errors.longitude}</div>}
         </div>
 
         <div style={{ marginBottom: "15px" }}>
@@ -216,6 +246,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
             value={formik.values.latitude ?? undefined}
             style={boxStyling}
           />
+          {formik.errors.latitude && <div style={{ color: "red" }}>{formik.errors.latitude}</div>}
         </div>
 
         <div style={{ marginBottom: "15px" }}>
@@ -286,6 +317,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
             value={formik.values.zoom ?? undefined}
             style={boxStyling}
           />
+          {formik.errors.zoom && <div style={{ color: "red" }}>{formik.errors.zoom}</div>}
         </div>
 
         <div style={{ marginBottom: "15px" }}>
@@ -300,6 +332,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
             value={formik.values.bearing ?? undefined}
             style={boxStyling}
           />
+          {formik.errors.bearing && <div style={{ color: "red" }}>{formik.errors.bearing}</div>}
         </div>
 
         <div style={{ marginBottom: '30px' }}>
@@ -307,11 +340,11 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                 Where Should This Zoom To?
             </label>
             <label htmlFor="zoomToBounds" style={labelStyling}>
-            <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', true)} checked={formik.values.zoomToBounds} style={checkboxStyling} />
+            <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', true)}  onChange={() => {}} checked={formik.values.zoomToBounds} style={checkboxStyling} />
                 Zoom to Bounds
             </label>
             <label htmlFor="zoomToBounds" style={labelStyling}>
-                <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', false)} checked={!formik.values.zoomToBounds} style={checkboxStyling} />
+                <input type="radio" id="zoomToBounds" name="zoomToBounds" onClick={() => formik.setFieldValue('zoomToBounds', false)} onChange={() => {}} checked={!formik.values.zoomToBounds} style={checkboxStyling} />
                 Zoom to Center
             </label>
         </div>
@@ -365,9 +398,19 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
           ) : (
             <>
               <button
-                style={buttonStyling}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = buttonHoverStyling.backgroundColor!)}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = buttonStyling.backgroundColor!)}
+                style={{...buttonStyling, backgroundColor: !formik.isValid || !formik.dirty ? 'grey' : buttonStyling.backgroundColor,
+                  cursor: !formik.isValid || !formik.dirty ? 'not-allowed' : 'pointer'
+              }}
+                disabled={!formik.isValid || !formik.dirty}
+                onMouseEnter={(e) => {
+                  if (formik.isValid && formik.dirty) {
+                  (e.currentTarget.style.backgroundColor = buttonHoverStyling.backgroundColor!)}
+                }}
+                onMouseLeave={(e) => {
+                  if (formik.isValid && formik.dirty) {
+                  (e.currentTarget.style.backgroundColor = buttonStyling.backgroundColor!)}
+                  else {e.currentTarget.style.backgroundColor = 'grey';}
+                }}
                 onClick={async (e) => {
                   e.preventDefault();
                   setSubmitType("POST");
