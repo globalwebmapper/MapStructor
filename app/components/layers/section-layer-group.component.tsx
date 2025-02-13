@@ -67,7 +67,11 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                     if(response.ok) {
                         response.json().then((jsonResult: {title: string, id: string, body: string }[]) => {
                             if(jsonResult != null && jsonResult.length > 0) {
-                                let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title ?? '';
+                                // NEW IMPLEMENTATION - Replace '&amp;' with '&'
+                                let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title.replace('\u0026amp;', '&') ?? '';
+                                // OLD IMPLTEMENTATION - Bug with "Orignial Grants &amp; Farms"
+                                //let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title ?? '';
+                                
                                 let modalBody: string = jsonResult.find(x => x.id == props.group.infoId)?.body ?? '';
                                 setModalHeaderText(modalHeader);
                                 setModalBodyText(modalBody);
