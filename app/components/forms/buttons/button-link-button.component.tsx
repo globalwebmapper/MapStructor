@@ -62,7 +62,7 @@ export default function ButtonLinkButton({
           }}
         >
           <FontAwesomeIcon
-            icon={getFontawesomeIcon(FontAwesomeLayerIcons.LINK)}
+            icon={getFontawesomeIcon(FontAwesomeLayerIcons.GLOBE)}
             style={{ marginRight: "5px", color: "inherit" }} 
           />
           {buttonLink.label} {}
