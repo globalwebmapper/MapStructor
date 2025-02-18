@@ -2,7 +2,7 @@ import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "@/app/models/
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState, useContext, useEffect } from "react";
 import { faMinusSquare, faPlusSquare, faPlayCircle } from "@fortawesome/free-regular-svg-icons";
-import SectionLayerGroupComponent from "./section-layer-group.component";
+import ExpandableLayerGroup from "./layer-group.component";
 import NewSectionLayerGroup from "../new-section-layer-group.component";
 import { MapZoomProps } from "@/app/models/maps/map.model";
 import NewLayerGroupForm from "../forms/LayerGroupForm";
@@ -15,8 +15,7 @@ import NewLayerSectionForm from "../forms/NewLayerSectionForm";
 import { IconColors } from "@/app/models/colors.model";
 import {CSSTransition} from 'react-transition-group';
 
-
-type SectionLayerProps = {
+type LayerGroupSectionProps = { // Props for ExpandableLayerGroupSection
     layersHeader: string,
     layer: SectionLayer,
     activeLayerCallback: (activeLayers: string[]) => void,
@@ -32,7 +31,8 @@ type SectionLayerProps = {
     inPreviewMode: boolean
 }
 
-const SectionLayerComponent = (props: SectionLayerProps) => {
+// Renamed from SectionLayerComponent to ExpandableLayerGroupSection for clarity
+const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     // NEW IMPLEMENTATION - Have Manhattan layer expanded by default
     // List of layers that should be expanded by default
     const defaultOpenLayerNames = ["Manhattan"];
@@ -278,7 +278,7 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
                 <div ref={nodeRef} className="layersection">
                     {
                         props.layer.groups.map((grp, idx) => (
-                            <SectionLayerGroupComponent
+                            <ExpandableLayerGroup
                                 inPreviewMode={props.inPreviewMode}
                                 authToken={props.authToken}
                                 key={`section-layer-component-${idx}`}
@@ -336,4 +336,4 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
     )
 }
 
-export default SectionLayerComponent;
+export default ExpandableLayerGroupSection;
