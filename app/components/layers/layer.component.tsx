@@ -42,8 +42,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
     }, [props.authToken, props.inPreviewMode])
 
     /**
-     * Handles the layer toggle event by adding or removing the layer from the active layer list.
-     * It also toggles the checkbox state.
+     * Handles the checkbox toggle event by adding or removing the layer from the active layer list.
      */
     const toggleLayerVisibility = () => {
         if (props.item.layerId) {
@@ -60,16 +59,17 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
      * Ensures that a layer is added to the active layers list by default if it is marked
      * as enabled by default.
      */
-    const activateDefaultLayer = () => {
-        if (props.item.layerId && props.item.enableByDefault)
-        {
-            props.activeLayerCallback([...props.activeLayers, props.item.layerId]);
-        }
-    }
+    // Unnecessary with updated code
+    // const activateDefaultLayer = () => {
+    //     if (props.item.layerId && props.item.enableByDefault)
+    //     {
+    //         props.activeLayerCallback([...props.activeLayers, props.item.layerId]);
+    //     }
+    // }
 
-    useEffect(() => {
-        activateDefaultLayer();
-    }, []);
+    // useEffect(() => {
+    //     activateDefaultLayer();
+    // }, []);
 
     /**
      * Moves the layer up in the layer group by one spot, causing it to be rendered after the layer now below.
@@ -120,7 +120,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                     marginLeft: "20px",
                     marginRight: "5px"
                 }}
-                
+                // NEW IMPLEMENTATION - If a layer's ID is in the active layers list, the checkbox is checked
                 checked={props.activeLayers.includes(props.item?.layerId ?? '')} 
                 onChange={toggleLayerVisibility}
             />
