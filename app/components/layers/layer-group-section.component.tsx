@@ -15,8 +15,7 @@ import NewLayerSectionForm from "../forms/NewLayerSectionForm";
 import { IconColors } from "@/app/models/colors.model";
 import {CSSTransition} from 'react-transition-group';
 
-
-type LayerGroupSectionProps = {
+type LayerGroupSectionProps = { // Props for ExpandableLayerGroupSection
     layersHeader: string,
     layer: SectionLayer,
     activeLayerCallback: (activeLayers: string[]) => void,
@@ -32,7 +31,7 @@ type LayerGroupSectionProps = {
     inPreviewMode: boolean
 }
 
-
+// Renamed from SectionLayerComponent to ExpandableLayerGroupSection for clarity
 const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     // NEW IMPLEMENTATION - Have Manhattan layer expanded by default
     // List of layers that should be expanded by default
@@ -286,7 +285,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                                 activeLayers={props.activeLayers}
                                 activeLayerCallback={props.activeLayerCallback}
                                 layersHeader={props.layersHeader}
-                                layerGroup={grp}
+                                group={grp}
                                 openWindow={props.openWindow}
                                 beforeOpen={props.beforeOpen}
                                 afterClose={props.afterClose}
@@ -295,8 +294,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                                 fetchLayerGroupCallback={fetchLayerGroup}
                                 editFormVisibleCallback={setEditOpen}
                                 removeMapLayerCallback={props.removeMapLayerCallback}
-                                afterSubmit={props.afterSubmit}
-                            />
+                                afterSubmit={props.afterSubmit}/>
                         ))
                     }
                     <NewSectionLayerGroup

@@ -10,14 +10,14 @@ import { layer } from "@fortawesome/fontawesome-svg-core";
 
 type LayerProps = {
     item: SectionLayerItem,
-    updateActiveLayers: (activeLayers: string[]) => void,
+    activeLayerCallback: (activeLayers: string[]) => void,
     activeLayers: string[],
     openWindow: () => void,
     editFormVisibleCallback: (isOpen: boolean) => void,
     mapZoomCallback:(zoomProps: MapZoomProps) => void,
     fetchLayerDataCallback: (id: string) => void,
     afterSubmit: () => void,
-    layerGroupIsVisible: boolean, // True if layer group is visible, false otherwise
+    // Removed upperCheckbox - not needed
     authToken: string,
     inPreviewMode: boolean
 }
@@ -26,21 +26,8 @@ type LayerProps = {
  * Layer is a functional component that renders a single graphical
  * layer within a layer group. It provides features such as toggling the visibility of 
  * the layer, changing the layer's appearance, and rearranging the layer's order within its layer group.
- *
- * Props:
- * - item: An object of type SectionLayerItem representing the layer data.
- * - activeLayerCallback: A function to update the list of active layers.
- * - activeLayers: An array of currently active layer IDs.
- * - openWindow: A function to open the edit form modal.
- * - editFormVisibleCallback: A function to update the visibility of the edit form.
- * - mapZoomCallback: A function to trigger zooming to the layer’s location.
- * - fetchLayerDataCallback: A function to fetch data for the specified layer.
- * - afterSubmit: A function to be called after submitting changes.
- * - upperCheckBox: A boolean indicating the state of an upper checkbox.
- * - authToken: A string representing the authentication token.
- * - inPreviewMode: A boolean indicating if the component is in preview mode.
  */
-const Layer = (props: LayerProps) => {
+const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComponent to simply Layer for clarity.
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
 
     /**
@@ -61,10 +48,10 @@ const Layer = (props: LayerProps) => {
     const toggleLayerVisibility = () => {
         if (props.item.layerId) {
             if (props.activeLayers.includes(props.item.layerId)) {
-                props.updateActiveLayers(props.activeLayers.filter((layerId) => layerId !== props.item.layerId));
+                props.activeLayerCallback(props.activeLayers.filter((layerId) => layerId !== props.item.layerId));
             }
             else {
-                props.updateActiveLayers([...props.activeLayers, props.item.layerId]);
+                props.activeLayerCallback([...props.activeLayers, props.item.layerId]);
             }
         }
     }
@@ -76,7 +63,7 @@ const Layer = (props: LayerProps) => {
     const activateDefaultLayer = () => {
         if (props.item.layerId && props.item.enableByDefault)
         {
-            props.updateActiveLayers([...props.activeLayers, props.item.layerId]);
+            props.activeLayerCallback([...props.activeLayers, props.item.layerId]);
         }
     }
 
@@ -133,7 +120,8 @@ const Layer = (props: LayerProps) => {
                     marginLeft: "20px",
                     marginRight: "5px"
                 }}
-                checked={props.activeLayers.includes(props.item?.layerId ?? '')}
+                
+                checked={props.activeLayers.includes(props.item?.layerId ?? '')} 
                 onChange={toggleLayerVisibility}
             />
             <label htmlFor={`section-layer-group-item-${props.item?.id ?? ""}`}>
