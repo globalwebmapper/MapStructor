@@ -18,7 +18,7 @@ import {
 import { IconColors } from "./models/colors.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
-import SectionLayerComponent from "./components/layers/section-layer.component";
+import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import { CSSTransition } from "react-transition-group";
 import mapboxgl, { FilterSpecification, LngLatLike } from "mapbox-gl";
@@ -1355,20 +1355,12 @@ export default function Home() {
     if (currBeforeMap === null || currAfterMap === null) return;
 
     currLayers.forEach((layer) => {
-      if (
+      if ( 
           activeLayerIds.includes(layer.id) &&
           currBeforeMap.current?.getLayer(layer.id)
       ) {
-        currBeforeMap.current!.setLayoutProperty(
-            layer.id,
-            "visibility",
-            "visible"
-        );
-        currAfterMap.current!.setLayoutProperty(
-            layer.id,
-            "visibility",
-            "visible"
-        );
+        currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
+        currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
       } else {
         currBeforeMap.current!.setLayoutProperty(
             layer.id,
@@ -1590,7 +1582,7 @@ export default function Home() {
             <>
               {(currSectionLayers ?? []).map((secLayer, idx) => {
                 return (
-                    <SectionLayerComponent
+                    <ExpandableLayerGroupSection
                         key={"section-layer-component-" + idx}
                         inPreviewMode={inPreviewMode}
                         authToken={currAuthToken}
