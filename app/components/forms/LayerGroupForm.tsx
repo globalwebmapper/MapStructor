@@ -99,6 +99,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
             topLeftBoundLongitude: props.layerGroup?.topLeftBoundLongitude ?? null,
             bottomRightBoundLatitude: props.layerGroup?.bottomRightBoundLatitude ?? null,
             bottomRightBoundLongitude: props.layerGroup?.bottomRightBoundLongitude ?? null,
+            enableByDefault: props.layerGroup?.enableByDefault ?? false,
             zoomToBounds: props.layerGroup?.zoomToBounds ?? false,
             infoId: props.layerGroup?.infoId ?? ''
         },
