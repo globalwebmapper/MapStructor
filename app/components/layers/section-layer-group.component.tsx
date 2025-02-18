@@ -372,13 +372,25 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                                 zIndex: "1000",
                             },
                             content: {
-                                width: '50%',
-                                right: '25%'
-                            }
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                padding: '15px',
+                                background: 'rgb(255, 255, 255)',
+                                opacity: '0.9',
+                                border: '1px solid rgb(0, 0, 0)',
+                                borderRadius: '4px',
+                                width: 'fit-content',
+                                maxWidth: '75vw',
+                                height: 'fit-content',
+                                outline: 'none',
+                            },
                         }}
                         isOpen={modalOpen}
                         onRequestClose={closeWindow}
                         contentLabel={modalHeaderText}
+                        
                     >
                         <div className="modal-header">
                             <h1>
