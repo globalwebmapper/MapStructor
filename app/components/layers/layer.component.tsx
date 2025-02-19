@@ -181,27 +181,27 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                             </div>
                         )
                     }
-                    {
-                        (props.item.center != null && props.item.zoom != null) && (
-                            <div className="tooltip-container" data-title="Zoom to Layer">
-                                <FontAwesomeIcon
-                                    className="zoom-to-layer"
-                                    color="blue"
-                                    icon={getFontawesomeIcon(FontAwesomeLayerIcons.CROSSHAIRS)}
-                                    onClick={() => {
-                                        props.mapZoomCallback({
-                                            center: props.item.center ?? [0, 0],
-                                            zoom: props.item.zoom ?? 0,
-                                            bearing: props.item.bearing ?? 0,
-                                            speed: 0.2,
-                                            curve: 1,
-                                            duration: 2500,
-                                        })
-                                    }}
-                                />
-                            </div>
-                        )
-                    }
+                    {/*Remove Zoom to Layer crosshair.  Comment out because might want to be optional MichaelG-scrum14 {*/}
+                        {/*    (props.item.center != null && props.item.zoom != null) && (*/}
+                        {/*        <div className="tooltip-container" data-title="Zoom to Layer">*/}
+                        {/*            <FontAwesomeIcon*/}
+                        {/*                className="zoom-to-layer"*/}
+                        {/*                color="blue"*/}
+                        {/*                icon={getFontawesomeIcon(FontAwesomeLayerIcons.CROSSHAIRS)}*/}
+                        {/*                onClick={() => {*/}
+                        {/*                    props.mapZoomCallback({*/}
+                        {/*                        center: props.item.center ?? [0, 0],*/}
+                        {/*                        zoom: props.item.zoom ?? 0,*/}
+                        {/*                        bearing: props.item.bearing ?? 0,*/}
+                        {/*                        speed: 0.2,*/}
+                        {/*                        curve: 1,*/}
+                        {/*                        duration: 2500,*/}
+                        {/*                    })*/}
+                        {/*                }}*/}
+                        {/*            />*/}
+                        {/*        </div>*/}
+                        {/*    )*/}
+                        {/*}*/}
                 </div>
             </div>
         </div>
