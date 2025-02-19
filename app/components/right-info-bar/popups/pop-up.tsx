@@ -1,85 +1,76 @@
 import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
 import { useState, useEffect } from "react";
+// import moment from "moment";
 
 const SliderPopUp = (props: GenericPopUpProps & { currDate?: moment.Moment }) => {
-    const [renderedEntity, setRenderedEntity] = useState(null);
-    const nid: number | string | null = props.nid ?? null;
-    
+  const [renderedEntity, setRenderedEntity] = useState<string>("");
 
-useEffect(() => {
-    if (!nid || !props.currDate) return;
+  // Format the current date string; if not provided, remain empty.
+  const formattedDate = props.currDate ? props.currDate.format("YYYYMMDD") : "";
 
-    console.log("Fetching new pop-up data for nid:", nid, "with currDate:", props.currDate.format("YYYYMMDD"));
+  useEffect(() => {
+    if (!props.nid || !formattedDate) return;
 
-    fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}&date=${props.currDate.format("YYYYMMDD")}`)
-        .then((buffer) => buffer.json())
-        .then((res) => {
+    // Build the URL and force a no-cache request with a unique parameter.
+    const url = `https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${props.nid}&date=${formattedDate}&_=${Date.now()}`;
+    console.log("Fetching pop-up data from:", url);
 
-            setRenderedEntity(res[0]?.rendered_entity || "No data available");
-        })
-        .catch(() => setRenderedEntity("Error loading data"));
-}, [nid, props.currDate]);
+    fetch(url, { cache: "no-store" })
+      .then((response) => response.json())
+      .then((res) => {
+        // Get the raw HTML from the response.
+        let html: string = res[0]?.rendered_entity || "No data available";
+        const prefix = "https://encyclopedia.nahc-mapping.org";
+        const pattern = /(<a\s+href=")([^"]+)(")/g;
+        // Prepend a header with the layer name.
+        let modifiedHtmlString = `<h3 id="popupHeader">${props.layerName}</h3><hr><br/>` + html
+          .replace(pattern, (_: any, p1: string, p2: string, p3: string) => {
+            return p2.startsWith("http")
+              ? p1 + p2 + p3
+              : p1 + prefix + p2 + p3;
+          })
+          .replace(/(<a\s+[^>]*)(>)/g, (_: any, p1: string, p2: string) => {
+            return p1 + ' target="_blank"' + p2;
+          })
+          .replace(/(<img.*src=")([^"]+)(")/g, (_: any, p1: string, p2: string, p3: string) => {
+            return p2.startsWith("http")
+              ? p1 + p2 + p3
+              : p1 + prefix + p2 + p3;
+          });
 
-
-    if (renderedEntity) {
-        const html: string = renderedEntity;
-        var prefix = "https://encyclopedia.nahc-mapping.org";
-        var pattern = /(<a\s+href=")([^"]+)(")/g;
-        var modifiedHtmlString = "<h3 id='popupHeader'>" + props.layerName + "</h3><hr><br/>";
-
-        modifiedHtmlString += html
-            .replace(pattern, (_: any, p1: any, p2: any, p3: any) => {
-                if (p2.slice(0, 4) === "http") {
-                    return p1 + p2 + p3;
-                }
-                return p1 + prefix + p2 + p3;
-            })
-            .replace(/(<a\s+[^>]*)(>)/g, (_: any, p1: any, p2: any) => {
-                return p1 + ' target="_blank"' + p2;
-            })
-            .replace(/(<img.*src=")([^"]+)(")/g, (_: any, p1: any, p2: any, p3: any) => {
-                if (p2.slice(0, 4) === "http") {
-                    return p1 + p2 + p3;
-                }
-                return p1 + prefix + p2 + p3;
-            });
-
-        let parser: DOMParser = new DOMParser();
-        let doc: Document = parser.parseFromString(modifiedHtmlString, 'text/html');
-        let elements: NodeListOf<Element> = doc.querySelectorAll('.field.field--name-title.field--type-string.field--label-hidden');
-
-        elements.forEach((element: Element) => {
-            let text: string = element.textContent ?? '';
-            if (text) {
-                let newText: string = text.substring(text.lastIndexOf('_') + 1);
-                element.textContent = newText;
-            }
+        // Parse the HTML so we can adjust any targeted elements.
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(modifiedHtmlString, "text/html");
+        doc.querySelectorAll(".field.field--name-title.field--type-string.field--label-hidden").forEach(element => {
+          const text = element.textContent || "";
+          if (text) {
+            element.textContent = text.substring(text.lastIndexOf("_") + 1);
+          }
         });
 
         modifiedHtmlString = doc.body.innerHTML;
+        setRenderedEntity(modifiedHtmlString);
+      })
+      .catch((error) => {
+        console.error("Error fetching pop-up data:", error);
+        setRenderedEntity("Error loading data");
+      });
+  }, [props.nid, formattedDate, props.layerName]);
 
-    return (
-      <div id='rightInfoBar' className='rightInfoBarBorder'>
-          {renderedEntity === null ? (
-              <div id={props.type + "SliderPopup"}>Loading...</div>
-          ) : (
-              <div
-                  key={props.nid + "-" + props.currDate?.format("YYYYMMDD")} // 🔹 Force React to re-render
-                  id={props.type + "SliderPopup"}
-                  dangerouslySetInnerHTML={{ __html: renderedEntity }}
-              />
-          )}
-      </div>
-    );
-
-
-    } else {
-        return (
-            <div id='rightInfoBar' className='rightInfoBarBorder'>
-                <div id={props.type + "SliderPopup"}></div>
-            </div>
-        );
-    }
+  return (
+    // IMPORTANT: Ensure that your CSS for this container does not block your map events.
+    // For example, if needed, adjust the z-index or pointer-events.
+    <div id="rightInfoBar" className="rightInfoBarBorder" style={{ zIndex: 10 }}>
+      {renderedEntity === "" ? (
+        <div id={`${props.type}SliderPopup`}>Loading...</div>
+      ) : (
+        <div
+          id={`${props.type}SliderPopup`}
+          dangerouslySetInnerHTML={{ __html: renderedEntity }}
+        />
+      )}
+    </div>
+  );
 };
 
 export default SliderPopUp;
