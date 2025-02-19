@@ -1,7 +1,7 @@
 import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "@/app/models/layers/layer.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useContext, useEffect, useState } from "react";
-import SectionLayerGroupItemComponent from "./section-layer-group-item.component";
+import Layer from "./layer.component";
 import { faCrosshairs, faInfoCircle, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
@@ -13,12 +13,12 @@ import LayerForm from "../forms/LayerForm";
 import Modal from 'react-modal';
 import Loader from "../loading/loading.component";
 
-type SectionLayerGroupsProps = {
+type LayerGroupProps = { // Props for ExpandableLayerGroup
     layersHeader: string,
     sectionName: string,
-    group: SectionLayerGroup,
+    group: SectionLayerGroup, // TS model of layer group
     activeLayerCallback: (activeLayers: string[]) => void,
-    activeLayers: string[],
+    activeLayers: string[], // Database IDs of active layers
     openWindow: () => void,
     beforeOpen: () => void,
     afterClose: () => void,
@@ -31,31 +31,43 @@ type SectionLayerGroupsProps = {
     inPreviewMode: boolean
 }
 
-const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
-    const [layerIsOpen, setLayerIsOpen] = useState<boolean>(false);
+/**
+ * SectionLayerGroupComponent is a component that displays a layer group with a checkbox 
+ * and a plus/minus icon. If the group has items, it will display the items when the plus 
+ * icon is clicked. Below any items, it will display a "New Layer" button.
+ */
+const ExpandableLayerGroup = (props: LayerGroupProps) => {
+    const [layerGroupIsExpanded, setLayerGroupExpanded] = useState<boolean>(false); // Renamed from layerIsOpen to layerGroupIsExpanded for clarity
+    // NEW IMPLEMENTATION - The state of the HTML checkbox (checked) is bound to layerGroupIsVisible
+    // When the checkbox is toggled, layerGroupIsVisible is set to the opposite of its current value
+    // When 
+    const [layerGroupIsVisible, setLayerGroupVisible] = useState<boolean>(false); // State to track layer group visibility (false if layer is hidden)
     const [editOpen, setEditOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [checkboxValue, setcheckboxValue] = useState<boolean>(false);
     const [layer, setLayer] = useState<PrismaLayer>();
     const [modalHeaderText, setModalHeaderText] = useState<string>('');
     const [modalBodyText, setModalBodyText] = useState<string>('');
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
-    const [isChecked, setIsChecked] = useState<boolean>(false);
 
+    /**
+     * Closes the info modal by calling the afterClose callback and setting the modal state to closed.
+     */
     const closeWindow = () => {
         props.afterClose()
         setModalOpen(false)
     }
-
+    
     useEffect(() => {
         const isAuthed: boolean = (props.authToken ?? '') != '';
         const inPreviewMode: boolean = props.inPreviewMode ?? false;
 
+        // The user must be authorized and not in preview mode to see the edit options
         setShowEditorOptions(isAuthed && !inPreviewMode);
     }, [props.authToken, props.inPreviewMode])
 
     useEffect(() => {
+        // If the group has a valid info ID and the modal header text or body text is empty, fetch the info text
         if(props.group.infoId != null && props.group.infoId.length > 0) {
             if(modalHeaderText == null || modalHeaderText.length == 0 || modalBodyText == null || modalBodyText.length == 0) {
                 fetch('https://encyclopedia.nahc-mapping.org/info-text-export', {
@@ -70,7 +82,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                                 // NEW IMPLEMENTATION - Replace '&amp;' with '&'
                                 let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title.replace('\u0026amp;', '&') ?? '';
                                 // OLD IMPLTEMENTATION - Bug with "Orignial Grants &amp; Farms"
-                                //let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title ?? '';
+                                // let modalHeader: string = jsonResult.find(x => x.id == props.group.infoId)?.title ?? '';
                                 
                                 let modalBody: string = jsonResult.find(x => x.id == props.group.infoId)?.body ?? '';
                                 setModalHeaderText(modalHeader);
@@ -84,22 +96,31 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
         }
     })
 
-    useEffect(() => {
-        console.log(modalHeaderText, modalBodyText)
-    }, [modalBodyText, modalHeaderText])
-
+    /**
+     * Expands or collapses the layer group.
+     */
     const toggleGroup = (e: any) => {
         if(props.group.items.length > 0) {
-            setLayerIsOpen(!layerIsOpen)
+            setLayerGroupExpanded(!layerGroupIsExpanded)
         }
         e.stopPropagation();
     }
 
+    /**
+     * Closes the edit modal by calling the afterClose callback and resetting the layer state.
+     */
     const closeEdit = () => {
         props.afterClose();
         setEditOpen(false);
         setLayer(undefined);
     }
+
+    /**
+     * Fetches layer data from the server using the provided ID.
+     * Updates the layer state with the retrieved data upon success.
+     * 
+     * @param id The ID of the layer data to fetch.
+     */
 
     const fetchLayerData = async (id: string) => {
         setIsLoading(true);
@@ -119,7 +140,11 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
         }
     };
 
-    const UpLayerGroup = async (id: string) => {
+    /**
+     * Moves the layer group up in the section by calling the API endpoint /api/LayerGroup/Rearrange/Down/:id.
+     * @param id The ID of the layer group to move up in the section.
+     */
+    const moveLayerGroupUp = async (id: string) => {
         setIsLoading(true);
         try {
             await fetch('/api/LayerGroup/Rearrange/Up/' + id, {
@@ -138,7 +163,11 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
         }
     }
 
-    const DownLayerGroup = async (id: string) => {
+    /**
+     * Moves the layer group down in the section by calling the API endpoint /api/LayerGroup/Rearrange/Down/:id.
+     * @param id The ID of the layer group to move down in the section.
+     */
+    const moveLayerGroupDown = async (id: string) => {
         setIsLoading(true);
         try {
             await fetch('/api/LayerGroup/Rearrange/Down/' + id, {
@@ -157,56 +186,66 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
         }
     }
 
-    const handleCheckboxChange = () => {
-        setcheckboxValue(!checkboxValue);
+    /**
+     * NEW IMPLEMENTATION
+     * Sets the layer group's visibility based on whether any of the active layers are in this group.
+     */
+    useEffect(() => {
+        const someLayersActive = props.group.items.some(item =>
+            item.layerId && props.activeLayers.includes(item.layerId)
+        );
+
+        setLayerGroupVisible(someLayersActive);
+    }, [props.activeLayers, props.group.items])
+
+    /**
+     * Toggles the visibility of the layer group by adding or removing the layer group's layers from the active layer list.
+     */
+    const toggleLayerGroupVisibility = () => { // Renamed from handleCheckboxChange for clarity
         let updatedLayerIds: (string | undefined)[];
-        if (checkboxValue)
+        if (layerGroupIsVisible)
         {
-            updatedLayerIds = props.activeLayers.filter(
-                (layerId) => !props.group.items.some((item) => item.layerId === layerId)
+            // Remove all of this group's layer IDs from the active layer list
+            updatedLayerIds = props.activeLayers.filter(layerId => 
+                !props.group.items.some((item) => item.layerId === layerId)
             );
         }
         else
         {
-            const layerIdsToAdd = props.group.items
-                .filter((item) => item.layerId && !props.activeLayers.includes(item.layerId))
-                .map((item) => item.layerId);
-
-                updatedLayerIds = [...props.activeLayers, ...layerIdsToAdd];
+            // Add all of this group's layer IDs to the active layer list
+            updatedLayerIds = [...props.activeLayers, ...props.group.items.map(item => item.layerId)];
         }
 
         props.activeLayerCallback(updatedLayerIds as string[]);
+        setLayerGroupVisible(!layerGroupIsVisible);
     }
 
     useEffect(() => {
-        handleLayerByDefault();
+        activateDefaultLayerGroup();
     }, []);
 
-    const handleLayerByDefault = () => {
-        let updatedLayerIds: (string | undefined)[];
+    const activateDefaultLayerGroup = () => {
         props.group.items.forEach(item => {
-            if(item.enableByDefault){
-                setIsChecked(true);
-                handleCheckboxChange();
+            if (item.enableByDefault) {
+                toggleLayerGroupVisibility(); // Removed state change as state is updated in toggle method
             }
         });
-
     }
 
     return (
         <>
             <div className="layer-list-row">
                 <input
-                type="checkbox"
-                style={{
-                    paddingRight: "5px",
-                    marginRight: "5px"
-                }}
-                checked={isChecked}
-                onChange={handleCheckboxChange}
-                id={`section-layer-group-${props.group?.id ?? ""}`}
+                    id={`section-layer-group-${props.group?.id ?? ""}`}
+                    type="checkbox"
+                    style={{
+                        paddingRight: "5px",
+                        marginRight: "5px"
+                    }}
+                    checked={layerGroupIsVisible}
+                    onChange={toggleLayerGroupVisibility}
                 />
-                <FontAwesomeIcon id={props.group.items.length > 0 ? 'group-layer-plus-minus-icon' : ""} onClick={toggleGroup} icon={layerIsOpen ? getFontawesomeIcon(FontAwesomeLayerIcons.MINUS_SQUARE, true) : getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}
+                <FontAwesomeIcon id={props.group.items.length > 0 ? 'group-layer-plus-minus-icon' : ""} onClick={toggleGroup} icon={layerGroupIsExpanded ? getFontawesomeIcon(FontAwesomeLayerIcons.MINUS_SQUARE, true) : getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}
                 style={{color: props.group.items.length > 0 ? IconColors.DARK_GREY : props.group.iconColor, paddingRight: "5px"}}/>
                 <label htmlFor={`section-layer-group-${props.group?.id ?? ""}`}>
                 {props.group.label}
@@ -238,7 +277,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                                     color="black"
                                     icon={getFontawesomeIcon(FontAwesomeLayerIcons.UP_ARROW)}
                                     onClick={async() => {
-                                            await UpLayerGroup(props.group.id)
+                                            await moveLayerGroupUp(props.group.id)
                                             props.afterSubmit()
                                         }}
                                     />
@@ -253,7 +292,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                                     color="black"
                                     icon={getFontawesomeIcon(FontAwesomeLayerIcons.DOWN_ARROW)}
                                     onClick={async() => {
-                                            await DownLayerGroup(props.group.id)
+                                            await moveLayerGroupDown(props.group.id)
                                             props.afterSubmit()
                                         }}
                                     />
@@ -292,10 +331,10 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 </div>
             </div>
             {
-                layerIsOpen && props.group.items.map((item, idx) => {
+                layerGroupIsExpanded && props.group.items.map((item, idx) => {
                     return (
                         <>
-                            <SectionLayerGroupItemComponent
+                            <Layer
                                 inPreviewMode={props.inPreviewMode}
                                 authToken={props.authToken}
                                 key={'seclaygroupitem' + idx}
@@ -307,13 +346,13 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                                 mapZoomCallback={props.mapZoomCallback}
                                 fetchLayerDataCallback={fetchLayerData}
                                 afterSubmit={props.afterSubmit}
-                                upperCheckBox={checkboxValue}/>
+                            />
                         </>
                     )
                 })
             }
             {
-                (layerIsOpen || props.group?.items?.length == 0) &&
+                (layerGroupIsExpanded || props.group?.items?.length == 0) &&
                 (
                     <NewSectionLayerGroupItem
                     inPreviewMode={props.inPreviewMode}
@@ -372,13 +411,25 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                                 zIndex: "1000",
                             },
                             content: {
-                                width: '50%',
-                                right: '25%'
-                            }
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                padding: '15px',
+                                background: 'rgb(255, 255, 255)',
+                                opacity: '0.9',
+                                border: '1px solid rgb(0, 0, 0)',
+                                borderRadius: '4px',
+                                width: 'fit-content',
+                                maxWidth: '75vw',
+                                height: 'fit-content',
+                                outline: 'none',
+                            },
                         }}
                         isOpen={modalOpen}
                         onRequestClose={closeWindow}
                         contentLabel={modalHeaderText}
+                        
                     >
                         <div className="modal-header">
                             <h1>
@@ -394,4 +445,4 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
     )
 }
 
-export default SectionLayerGroupComponent;
+export default ExpandableLayerGroup;
