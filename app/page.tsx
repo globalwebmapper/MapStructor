@@ -751,7 +751,8 @@ export default function Home() {
         });
         hoverStyleString += "</div>";
         if (e.features?.length) {
-          if (hoveredId !== null) {
+          console.log("Hovered feature ID:", hoveredId);
+          if (hoveredId !== null && hoveredId !== undefined) {
             beforeMap.current!.setFeatureState(
                 {
                   source: layerConfig.id,
@@ -1577,9 +1578,11 @@ export default function Home() {
               unmountOnExit
           >
             <SliderPopUp
+                key={popUp.nid + "-" + currDate?.format("YYYYMMDD")}
                 layerName={popUp.layerName}
                 nid={popUp.nid}
                 type={popUp.type}
+                currDate={currDate}
             />
           </CSSTransition>
 
