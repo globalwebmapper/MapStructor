@@ -44,7 +44,11 @@ const MapFilterComponent = (props: MapFilterComponentProps) => {
                     if(response.ok) {
                         response.json().then((jsonResult: {title: string, id: string, body: string }[]) => {
                             if(jsonResult != null && jsonResult.length > 0) {
-                                let modalHeader: string = jsonResult.find(x => x.id == props.map.infoId)?.title ?? '';
+                                // NEW IMPLEMENTATION - Replace '&amp;' with '&'
+                                let modalHeader: string = jsonResult.find(x => x.id == props.map.infoId)?.title.replace('\u0026amp;', '&') ?? '';
+                                // OLD IMPLTEMENTATION - Bug with "Orignial Grants &amp; Farms, Stokes 1914-1916"
+                                //let modalHeader: string = jsonResult.find(x => x.id == props.map.infoId)?.title ?? '';
+
                                 let modalBody: string = jsonResult.find(x => x.id == props.map.infoId)?.body ?? '';
                                 setModalHeaderText(modalHeader);
                                 setModalBodyText(modalBody);
@@ -159,8 +163,20 @@ const MapFilterComponent = (props: MapFilterComponentProps) => {
                                 zIndex: "1000",
                             },
                             content: {
-                                width: '50%',
-                                right: '25%'
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                padding: '15px',
+                                background: 'rgb(255, 255, 255)',
+                                opacity: '0.9',
+                                border: '1px solid rgb(0, 0, 0)',
+                                borderRadius: '4px',
+                                width: 'fit-content',
+                                maxWidth: '90vw',
+                                height: 'fit-content',
+                                maxHeight: '75vh',
+                                outline: 'none',
                             }
                         }}
                         isOpen={modalOpen}

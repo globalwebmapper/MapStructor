@@ -29,7 +29,15 @@ type MapFiltersGroupComponentProps = {
 }
 
 const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
-    const [layerIsOpen, setLayerIsOpen] = useState<boolean>(false);
+    // NEW IMPLEMENTATION - Have Manhattan layer expanded by default
+    // List of layers that should be open by default
+    const defaultOpenLayerNames = ["1600 | Castello Plan"];
+    const [layerIsOpen, setLayerIsOpen] = useState(
+        defaultOpenLayerNames.includes(props.group.label) // Ensure `label` holds the correct layer name
+    );
+    // OLD IMPLEMENTATION - All layers closed by default
+    //const [layerIsOpen, setLayerIsOpen] = useState<boolean>(false);
+
     const nodeRef = useRef<HTMLDivElement | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [mapGroup, setMapGroup] = useState<PrismaMapGroup>();

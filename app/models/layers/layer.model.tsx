@@ -17,6 +17,7 @@ export type SectionLayerItem = {
     zoom?: number,
     bearing?: number,
     zoomToBounds?: boolean,
+    enableByDefault?: boolean
     isSolid: boolean,
     layerId?: string,
 }

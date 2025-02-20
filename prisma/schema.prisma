@@ -155,6 +155,7 @@ model LayerData {
   bottomRightBoundLatitude    Float?
   bottomRightBoundLongitude   Float?
   zoomToBounds                Boolean?
+  enableByDefault             Boolean?
   groupName                   LayerGroup? @relation(fields: [topLayerClass], references: [id], onDelete: Cascade, onUpdate: Cascade)
   topLayerClass               String?     @db.ObjectId
   infoId                      String?
