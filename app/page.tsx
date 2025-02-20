@@ -1573,7 +1573,7 @@ export default function Home() {
               unmountOnExit
           >
           <SliderPopUp
-              key={`${popUp.nid}-${formattedDate}`}
+              key={`${popUp.nid}-${currDate?.format("YYYYMMDD") || "default"}`}
               layerName={popUp.layerName}
               nid={popUp.nid}
               type={popUp.type}

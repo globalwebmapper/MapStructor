@@ -4,23 +4,29 @@ import { useState, useEffect } from "react";
 
 const SliderPopUp = (props: GenericPopUpProps & { currDate?: moment.Moment }) => {
   const [renderedEntity, setRenderedEntity] = useState<string>("");
+
+  // Create a formatted date string.
   const formattedDate = props.currDate ? props.currDate.format("YYYYMMDD") : "";
-  
-  // Debug: log the current props
+
+  // Debug: Log the current props
   console.log("SliderPopUp rendered with currDate:", props.currDate, "formatted:", formattedDate);
 
   useEffect(() => {
     console.log("useEffect triggered with nid:", props.nid, "formattedDate:", formattedDate);
     if (!props.nid || !formattedDate) return;
 
+    // Clear the current content to force a loading state.
+    setRenderedEntity("");
+
     const url = `https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${props.nid}&date=${formattedDate}&_=${Date.now()}`;
     console.log("Fetching pop-up data from:", url);
 
     fetch(url, { cache: "no-store" })
-      .then((response) => response.json())
-      .then((res) => {
+      .then(response => response.json())
+      .then(res => {
         console.log("Raw API response:", res);
 
+        // Extract the HTML from the API response.
         let html: string = res[0]?.rendered_entity || "No data available";
         const prefix = "https://encyclopedia.nahc-mapping.org";
         const pattern = /(<a\s+href=")([^"]+)(")/g;
@@ -40,19 +46,22 @@ const SliderPopUp = (props: GenericPopUpProps & { currDate?: moment.Moment }) =>
               : p1 + prefix + p2 + p3;
           });
 
+        // Use a DOMParser to modify specific parts of the HTML.
         const parser = new DOMParser();
         const doc = parser.parseFromString(modifiedHtmlString, "text/html");
-        doc.querySelectorAll(".field.field--name-title.field--type-string.field--label-hidden").forEach(element => {
-          const text = element.textContent || "";
-          if (text) {
-            element.textContent = text.substring(text.lastIndexOf("_") + 1);
-          }
-        });
+        doc.querySelectorAll(".field.field--name-title.field--type-string.field--label-hidden")
+          .forEach(element => {
+            const text = element.textContent || "";
+            if (text) {
+              element.textContent = text.substring(text.lastIndexOf("_") + 1);
+            }
+          });
         modifiedHtmlString = doc.body.innerHTML;
         console.log("Modified HTML for infobox:", modifiedHtmlString);
+
         setRenderedEntity(modifiedHtmlString);
       })
-      .catch((error) => {
+      .catch(error => {
         console.error("Error fetching pop-up data:", error);
         setRenderedEntity("Error loading data");
       });
