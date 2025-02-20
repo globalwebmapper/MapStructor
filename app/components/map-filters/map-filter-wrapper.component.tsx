@@ -109,6 +109,7 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
     <>
       <div>
         <p className="title">MAPS</p>
+
         <MapFilterComponent
           afterClose={props.afterClose}
           mapZoomCallback={props.mapZoomCallback}
@@ -124,8 +125,11 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
           authToken={props.authToken}
           showEditorOptions={showEditorOptions}
         ></MapFilterComponent>
+
+        {/* Group of map filters */}
         <div id="maps-group">
-          {props.mapGroups.map((m, idx) => (
+          {/* OLD IMPLEMENTATION -- Just rendered all map filters without the 3D New Amsterdam button
+          props.mapGroups.map((m, idx) => (
             <MapFiltersGroupComponent
               inPreviewMode={props.inPreviewMode}
               authToken={props.authToken}
@@ -138,12 +142,89 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
               group={m}
               showEditorOptions={showEditorOptions}
             ></MapFiltersGroupComponent>
+          ))*/}
+
+          {/* NEW IMPLEMENTATION -- Add the 3D New Amsterdam button after the Castello Plan map filter */}
+
+          {/* Render 1600 | Castello Plan */}
+          {props.mapGroups.length > 0 && (
+            <MapFiltersGroupComponent
+              inPreviewMode={props.inPreviewMode}
+              authToken={props.authToken}
+              beforeOpen={props.beforeOpen}
+              afterClose={props.afterClose}
+              mapZoomCallback={props.mapZoomCallback}
+              key={`map-filters-group-0`}
+              beforeMapCallback={props.beforeMapCallback}
+              afterMapCallback={props.afterMapCallback}
+              group={props.mapGroups[0]}
+              showEditorOptions={showEditorOptions}
+            />
+          )}
+
+          {/* Insert the 3D New Amsterdam button */}
+          <center
+            style={{
+              paddingTop: "20px"
+            }}
+          >
+            <a
+              href={"https://sandcastle.cesium.com/standalone.html#c=jVJtb9owEP4rJz5UIFUOL2q1drQaCxsKamCloYUqX0xiiMGxg+1Aw9T/PueFrVTdtE+W7567e57nzrJgIDHXYBNF03j4ADgIiFKgBWQilUAFB6wU0crnJQY5gqOQLHHKdK8Ae2JDONyAXyPZMFoMAjqmQ2d6cFoj6iiHTy4C27l0Nsns0R5eIQPahoNNDqLz9jMbxe7etZsXcy+M7rz7zsib6/n6O3Vps+n2e4ex52Ru/2s07k/pnT1Mnk0z13P3I89t5//57J6O19/ao8OmM1pvDm5/coWSUG6n6/XlUwtPPwnRfpqpcNuyqe1EQzqZKD7odWbRYnO1mvu1zz73eSC40rCjZE+kEcPJvjIFPRaxul8Lir8tuMaUE+nXzuGnzwE0kdJEfkixoyGR14D3mB49ReXjnWLQUorYONnLvXXCet4GoJU/jXOfvzYMp5ILUgHhBK2YWBDje6IjjyjdW5lmSlddDV8tU1Lo0DIrWZWCNGXEjDCID0h1+l6Zfk+nddlqNzsXOQuAEx6JpDHVdEcUwmFYr9qXwHJCBT8IEXviLSCHWBb0koRloCMC1RWB0hkjQJdgqskLVfmxHfmTFy2xygVWTItrRGW4mGrqKvsqbaatWU9YLzENODv7RxqZC/8PyPHiH3KqjWJNpcvwm1ip4uRy3rpcVP61Y6Hk1SweAqyDCOpmsUI2/mxSMIKYWFVxAzfg2nmtW0y9zVFfaJwIqSGVrI6QpUmcMKyJshZpsDH8AqXyuq51LOmGdAc0vPngsCFgxmeTWaaMPdAD8Wu3XcvgT8qYwCHlq/GOSIYzA8lpdKPW7V2ZQAh1LfPNh76v1UKwBZZv+ho1kdaJurYshXkYYKWN5pIaCkRsrTBjRGbWLw"}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: "none",
+                flexGrow: 1,
+                marginTop: "20px"
+              }}
+            >
+              <strong>
+                <button
+                  style={{
+                    borderColor: "grey",
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                    borderRadius: "5px",
+                    padding: "1px",
+                    paddingLeft: "5px",
+                    paddingRight: "5px",
+                    marginRight: "5px",
+                    cursor: "pointer",
+                    color: "black"
+                  }}
+                >
+                  <FontAwesomeIcon
+                    icon={getFontawesomeIcon(FontAwesomeLayerIcons.GLOBE)}
+                    style={{ marginRight: "5px", color: "inherit" }} 
+                  />
+                  {"3D New Amsterdam"}
+                </button>
+              </strong>
+            </a>
+          </center>
+
+          {/* Render the rest of the map groups */}
+          {props.mapGroups.slice(1).map((m, idx) => (
+            <MapFiltersGroupComponent
+              inPreviewMode={props.inPreviewMode}
+              authToken={props.authToken}
+              beforeOpen={props.beforeOpen}
+              afterClose={props.afterClose}
+              mapZoomCallback={props.mapZoomCallback}
+              key={`map-filters-group-${idx + 1}`}
+              beforeMapCallback={props.beforeMapCallback}
+              afterMapCallback={props.afterMapCallback}
+              group={m}
+              showEditorOptions={showEditorOptions}
+            />
           ))}
         </div>
+
+        {/* New Group Folder button */}
         {!groupFormOpen && props.authToken !== "" && (
               <div
                 style={{
-                  paddingTop: "5px",
+                  paddingTop: "20px",
                   paddingLeft: "15px",
                   paddingRight: "10px",
                   textAlign: "center",
@@ -172,11 +253,13 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
                 }}
               ></NewMapGroupForm>
             )}
+
+        {/* Zoom to World button */}
         <center
           style={{
-            marginTop: "15px",
+            paddingTop: "20px",
           }}
-        >
+        ><strong>
           <ZoomLabelButton
             inPreviewMode={props.inPreviewMode}
             authToken={props.authToken}
@@ -192,12 +275,13 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
             ></FontAwesomeIcon>
             <strong> Zoom to World</strong>
           </button>
+          </strong>
         </center>
 
         {/* Manage Button Links Section */}
         {
           showEditorOptions && (
-            <center style={{ marginTop: "15px" }}>
+            <center style={{ paddingTop: "20px" }}>
               <button
                 id="button-link"
                 onClick={() => setShowForm((prev) => !prev)}
