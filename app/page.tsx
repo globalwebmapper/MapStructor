@@ -828,6 +828,35 @@ export default function Home() {
     };
   }
 
+  const updateLayer = (layerConfig: PrismaLayer) => {
+    const paint = layerConfig.paint ? JSON.parse(layerConfig.paint) : {};
+    const layout = layerConfig.layout ? JSON.parse(layerConfig.layout) : {};
+    const beforeMap = currBeforeMap.current;
+    const afterMap = currAfterMap.current;
+
+    if (beforeMap?.getLayer(layerConfig.id)) {
+      for (const property in paint) {
+        if (paint[property] === undefined) continue;
+        beforeMap.setPaintProperty(layerConfig.id, property as keyof mapboxgl.AnyPaint, paint[property]);
+      }
+      for (const property in layout) {
+        if (layout[property] === undefined) continue;
+        beforeMap.setLayoutProperty(layerConfig.id, property as keyof mapboxgl.AnyLayout, layout[property]);
+      }
+    }
+
+    if (afterMap?.getLayer(layerConfig.id)) {
+      for (const property in paint) {
+        if (paint[property] === undefined) continue;
+        afterMap.setPaintProperty(layerConfig.id, property as keyof mapboxgl.AnyPaint, paint[property]);
+      }
+      for (const property in layout) {
+        if (layout[property] === undefined) continue;
+        afterMap.setLayoutProperty(layerConfig.id, property as keyof mapboxgl.AnyLayout, layout[property]);
+      }
+    }
+  }
+
   const removeMapLayerBothMaps = (id: string) => {
     removeMapLayer(currBeforeMap, id);
     removeMapLayer(currAfterMap, id);
@@ -1592,7 +1621,7 @@ export default function Home() {
                         }}
                         layersHeader={secLayer.label}
                         layer={secLayer}
-                        afterSubmit={() => {
+                        afterSubmit={() => { // This is called when the layer form is submitted for an edited layer
                           getLayerSections();
                         }}
                         beforeOpen={beforeLayerFormModalOpen}
@@ -1624,6 +1653,9 @@ export default function Home() {
                         removeMapLayerCallback={(id: string) =>
                             removeMapLayerBothMaps(id)
                         }
+                        updateLayer={(layer: PrismaLayer) =>
+                          updateLayer(layer)
+                        }
                     />
                 );
               })}
@@ -1650,7 +1682,7 @@ export default function Home() {
               {groupFormOpen && (
                   <NewLayerSectionForm
                       authToken={currAuthToken}
-                      afterSubmit={() => {
+                      afterSubmit={() => { // This is called when the layer form is submitted for a new layer
                         setGroupFormOpen(false);
                         getLayerSections();
                       }}

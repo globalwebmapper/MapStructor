@@ -143,9 +143,9 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                                     color="black"
                                     icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
                                     onClick={() => {
-                                        props.openWindow();
-                                        props.fetchLayerDataCallback(props.item.layerId ?? '');
-                                        props.editFormVisibleCallback(true);
+                                        props.openWindow(); // Calls beforeModalOpen in page.tsx
+                                        props.fetchLayerDataCallback(props.item.layerId ?? ''); // Updates layer state in layer group with this layer's Prisma model
+                                        props.editFormVisibleCallback(true); // Sets edit form to visible in layer group
                                     }}
                                 />
                             </div>

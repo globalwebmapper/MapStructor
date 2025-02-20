@@ -7,7 +7,8 @@ import NewSectionLayerGroup from "../new-section-layer-group.component";
 import { MapZoomProps } from "@/app/models/maps/map.model";
 import NewLayerGroupForm from "../forms/LayerGroupForm";
 import Modal from 'react-modal';
-import { LayerGroup as PrismaLayerGroup } from '@prisma/client';
+import { LayerGroup as PrismaLayerGroup, LayerData as PrismaLayer
+ } from '@prisma/client';
 import Loader from "../loading/loading.component";
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
@@ -26,6 +27,7 @@ type LayerGroupSectionProps = { // Props for ExpandableLayerGroupSection
     mapZoomCallback:(zoomProps: MapZoomProps) => void,
     getLayerSectionsCallback: () => void,
     removeMapLayerCallback: (id: string) => void,
+    updateLayer: (layer: PrismaLayer) => void,
     afterSubmit: () => void,
     authToken: string,
     inPreviewMode: boolean
@@ -294,6 +296,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                                 fetchLayerGroupCallback={fetchLayerGroup}
                                 editFormVisibleCallback={setEditOpen}
                                 removeMapLayerCallback={props.removeMapLayerCallback}
+                                updateLayer={props.updateLayer}
                                 afterSubmit={props.afterSubmit}/>
                         ))
                     }

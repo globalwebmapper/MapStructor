@@ -26,6 +26,7 @@ type LayerGroupProps = { // Props for ExpandableLayerGroup
     editFormVisibleCallback: (isOpen: boolean) => void,
     fetchLayerGroupCallback: (id: string) => void,
     removeMapLayerCallback: (id: string) => void,
+    updateLayer: (layer: PrismaLayer) => void,
     afterSubmit: () => void,
     authToken: string,
     inPreviewMode: boolean
@@ -112,12 +113,13 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
     const closeEdit = () => {
         props.afterClose();
         setEditOpen(false);
-        setLayer(undefined);
+        setLayer(undefined); // ??
     }
 
     /**
      * Fetches layer data from the server using the provided ID.
      * Updates the layer state with the retrieved data upon success.
+     * This also opens the edit modal by s
      * 
      * @param id The ID of the layer data to fetch.
      */
@@ -231,6 +233,13 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
             }
         });
     }
+
+    // const updateLayer = (updatedLayerData) => {
+    //     const updatedItems = props.group.items.map(item =>
+    //         item.id === updatedLayerData.id? updatedLayerData: item
+    //     );
+    //     props.activeLayerCallback()
+    // }
 
     return (
         <>
@@ -389,13 +398,19 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
                             center={true}/>
                         ) : (
                             <LayerForm
-                            authToken={props.authToken}
-                            groupName={props.group.id}
-                            sectionName={props.sectionName}
-                            layerConfig={layer}
-                            afterSubmit={() => {
-                                props.removeMapLayerCallback(layer?.id ?? '');
-                                closeEdit();
+                                authToken={props.authToken}
+                                groupName={props.group.id}
+                                sectionName={props.sectionName}
+                                layerConfig={layer}
+                                afterSubmit={() => {
+                                    
+                                    // props.removeMapLayerCallback(layer?.id?? ''); // Remove the old layer from the MapBox map
+                                    closeEdit();
+                                    props.afterSubmit();
+                                    // NEW IMPLEMENTATION: update layer removes the layer and re-adds it with its new data
+                                    if (layer) {
+                                        props.updateLayer(layer);
+                                    }
                                 }}>
                             </LayerForm>
                         )
