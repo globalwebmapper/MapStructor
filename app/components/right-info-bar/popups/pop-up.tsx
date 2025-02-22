@@ -1,8 +1,10 @@
 import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const SliderPopUp = (props: GenericPopUpProps) => {
     const [renderedEntities, setRenderedEntities] = useState<{ nid: string | number, content: string }[]>([]);
+    const previousEntitiesRef = useRef<{ nid: string | number, content: string }[]>([]); // Persist previous state
+
     const nid: number | string | null = props.nid ?? null;
 
     useEffect(() => {
@@ -20,13 +22,13 @@ const SliderPopUp = (props: GenericPopUpProps) => {
                 };
 
                 setRenderedEntities((prevEntities) => {
-                    // If it's a land grant, add new entity to the list
                     if (props.type === "land_grant") {
-                        return [...prevEntities, newEntity]; 
+                        const updatedEntities = [...prevEntities, newEntity]; // Stack new land grant
+                        previousEntitiesRef.current = updatedEntities; // Persist stack
+                        return updatedEntities;
+                    } else {
+                        return [newEntity]; // Replace for events
                     }
-
-                    // If it's an event, replace the previous event
-                    return [newEntity];
                 });
             })
             .catch(() => {
@@ -35,11 +37,11 @@ const SliderPopUp = (props: GenericPopUpProps) => {
                     setRenderedEntities([]);
                 }
             });
-    }, [nid]); // Ensure updates only on `nid` change
+    }, [nid]);
 
     return (
         <div id='rightInfoBar' className='rightInfoBarBorder'>
-            {renderedEntities.map((entity) => {
+            {previousEntitiesRef.current.map((entity) => {
                 const prefix = "https://encyclopedia.nahc-mapping.org";
                 let html = entity.content;
 
