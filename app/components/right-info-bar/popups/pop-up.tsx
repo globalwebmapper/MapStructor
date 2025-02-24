@@ -1,82 +1,68 @@
 import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 
 const SliderPopUp = (props: GenericPopUpProps) => {
-    const [renderedEntities, setRenderedEntities] = useState<{ nid: string | number, content: string }[]>([]);
-    const previousEntitiesRef = useRef<{ nid: string | number, content: string }[]>([]); // Persist previous state
-
+    const [renderedEntity, setRenderedEntity] = useState(null);
     const nid: number | string | null = props.nid ?? null;
-
-    useEffect(() => {
-        if (!nid) {
-            console.error("Error: 'nid' is missing. Ensure the feature parameter is provided.");
-            return;
-        }
-
-        fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
-            .then((buffer) => buffer.json())
-            .then((res) => {
-                const newEntity = {
-                    nid: nid,
-                    content: res[0]?.rendered_entity ?? ""
-                };
-
-                setRenderedEntities((prevEntities) => {
-                    if (props.type === "land_grant") {
-                        const updatedEntities = [...prevEntities, newEntity]; // Stack new land grant
-                        previousEntitiesRef.current = updatedEntities; // Persist stack
-                        return updatedEntities;
-                    } else {
-                        return [newEntity]; // Replace for events
-                    }
-                });
+    fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
+    .then((buffer) => buffer.json())
+    .then((res) => {setRenderedEntity(res[0].rendered_entity)})
+    .catch((error) => {
+        setRenderedEntity(null);
+    });
+  
+    if (renderedEntity) {
+          const html: string = renderedEntity;
+          // Define the prefix
+          var prefix = "https://encyclopedia.nahc-mapping.org";
+  
+          // Define the regular expression pattern
+          var pattern = /(<a\s+href=")([^"]+)(")/g;
+          var modifiedHtmlString = "<h3 id='popupHeader'>"+ props.layerName + "</h3><hr><br/>";
+          // Replace href attributes with the prefixed version
+          modifiedHtmlString += html
+            .replace(pattern, (_: any, p1: any, p2: any, p3: any) => {
+              if (p2.slice(0, 4) === "http") {
+                return p1 + p2 + p3;
+              }
+              return p1 + prefix + p2 + p3;
             })
-            .catch(() => {
-                console.error("Error: Failed to fetch data for nid:", nid);
-                if (props.type === "event") {
-                    setRenderedEntities([]);
+            .replace(/(<a\s+[^>]*)(>)/g, (_: any, p1: any, p2: any) => {
+              return p1 + ' target="_blank"' + p2;
+            })
+            .replace(/(<img.*src=")([^"]+)(")/g, (_: any, p1: any, p2: any, p3: any) => {
+                if (p2.slice(0, 4) === "http") {
+                  return p1 + p2 + p3;
                 }
-            });
-    }, [nid]);
+                return p1 + prefix + p2 + p3;
+              });
+              let parser: DOMParser = new DOMParser();
+              let doc: Document = parser.parseFromString(modifiedHtmlString, 'text/html');
+              let elements: NodeListOf<Element> = doc.querySelectorAll('.field.field--name-title.field--type-string.field--label-hidden');
+              elements.forEach((element: Element) => {
+                let text: string = element.textContent ?? '';
 
-    return (
-        <div id='rightInfoBar' className='rightInfoBarBorder'>
-            {previousEntitiesRef.current.map((entity) => {
-                const prefix = "https://encyclopedia.nahc-mapping.org";
-                let html = entity.content;
-
-                if (html) {
-                    html = html
-                        .replace(/(<a\s+href=")([^"]+)(")/g, (_, p1, p2, p3) => p1 + (p2.startsWith("http") ? p2 : prefix + p2) + p3)
-                        .replace(/(<a\s+[^>]*)(>)/g, (_, p1, p2) => p1 + ' target="_blank"' + p2)
-                        .replace(/(<img.*src=")([^"]+)(")/g, (_, p1, p2, p3) => p1 + (p2.startsWith("http") ? p2 : prefix + p2) + p3);
-
-                    let parser = new DOMParser();
-                    let doc = parser.parseFromString(html, 'text/html');
-                    let elements = doc.querySelectorAll('.field.field--name-title.field--type-string.field--label-hidden');
-                    
-                    elements.forEach((element) => {
-                        let text = element.textContent ?? '';
-                        if (text) {
-                            let newText = text.substring(text.lastIndexOf('_') + 1);
-                            element.textContent = newText;
-                        }
-                    });
-
-                    html = doc.body.innerHTML;
+                if (text) {
+                  let newText: string = text.substring(text.lastIndexOf('_') + 1);
+                  element.textContent = newText;
                 }
+              });
 
-                return (
-                    <div key={entity.nid} className="slider-popup">
-                        <h3 id="popupHeader">{props.layerName}</h3>
-                        <hr />
-                        <br />
-                        <div dangerouslySetInnerHTML={{ __html: html }} />
-                    </div>
-                );
-            })}
+              modifiedHtmlString = doc.body.innerHTML;
+      
+              return (
+                <div id ='rightInfoBar' className= 'rightInfoBarBorder'>
+                    <div id={props.type + "SliderPopup"} dangerouslySetInnerHTML={{__html: modifiedHtmlString}}/>
+                </div>
+            );
+    }
+    else
+    {
+        return (
+        <div id ='rightInfoBar' className= 'rightInfoBarBorder'>
+            <div id={props.type + "SliderPopup"}></div>
         </div>
-    );
-};
-
+        );
+    }
+  };
 export default SliderPopUp;
