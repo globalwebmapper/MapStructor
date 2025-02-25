@@ -4,6 +4,7 @@ import { useRef, useState, useContext, useEffect } from "react";
 import { faMinusSquare, faPlusSquare, faPlayCircle } from "@fortawesome/free-regular-svg-icons";
 import ExpandableLayerGroup from "./layer-group.component";
 import NewSectionLayerGroup from "../new-section-layer-group.component";
+import NewStandaloneLayer from '../new-section-layer-stand-alone-component'
 import { MapZoomProps } from "@/app/models/maps/map.model";
 import NewLayerGroupForm from "../forms/LayerGroupForm";
 import Modal from 'react-modal';
@@ -304,6 +305,13 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                         afterClose={props.afterClose}
                         sectionLayerId={props.layer.id}
                     ></NewSectionLayerGroup>
+                    <NewStandaloneLayer
+                        inPreviewMode={props.inPreviewMode}
+                        authToken={props.authToken}
+                        beforeOpen={props.beforeOpen}
+                        afterClose={props.afterClose}
+                        sectionLayerId={props.layer.id}
+                    />
                     {
                         editOpen && (
                             <Modal
