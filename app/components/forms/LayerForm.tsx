@@ -107,9 +107,7 @@ export default function LayerForm(props: LayerFormProps) {
       textSizeDefault: parsedLayout["text-size"] ?? 12,
       useTextSizeZoomStyling: false, // Whether to use zoom-based text size
       useIconSizeZoomStyling: false, // Whether to use zoom-based icon size
-      useLineZoomStyling: parsedPaint["line-width"] && // If the line-width property exists, is an array, and its first value is the interpolate function
-        Array.isArray(parsedPaint["line-width"]) && 
-        parsedPaint["line-width"][0] === "interpolate", 
+      useLineZoomStyling: false,
       useFillZoomStyling: false,
       useCircleZoomStyling: false,
 
