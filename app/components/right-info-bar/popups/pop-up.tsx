@@ -8,7 +8,7 @@ const SliderPopUp = (props: GenericPopUpProps) => {
     const nid: number | string | null = props.nid ?? null;
 
     useEffect(() => {
-        if (nid && nid !== lastNid) {  // Prevent duplicate addition
+        if (nid && nid !== lastNid) {  
             fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
                 .then((buffer) => buffer.json())
                 .then((res) => {
