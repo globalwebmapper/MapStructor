@@ -17,7 +17,7 @@ import {
 } from "./models/layers/layer.model";
 import { IconColors } from "./models/colors.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowCircleLeft, faPlayCircle } from "@fortawesome/free-solid-svg-icons";
 import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import { CSSTransition } from "react-transition-group";

@@ -107,7 +107,9 @@ export default function LayerForm(props: LayerFormProps) {
       textSizeDefault: parsedLayout["text-size"] ?? 12,
       useTextSizeZoomStyling: false, // Whether to use zoom-based text size
       useIconSizeZoomStyling: false, // Whether to use zoom-based icon size
-      useLineZoomStyling: false,
+      useLineZoomStyling: parsedPaint["line-width"] && // If the line-width property exists, is an array, and its first value is the interpolate function
+        Array.isArray(parsedPaint["line-width"]) && 
+        parsedPaint["line-width"][0] === "interpolate", 
       useFillZoomStyling: false,
       useCircleZoomStyling: false,
 
@@ -123,7 +125,7 @@ export default function LayerForm(props: LayerFormProps) {
           Array.isArray(parsedLayout["text-size"]) &&
           parsedLayout["text-size"][0] === "interpolate"
               ? parsedLayout["text-size"]
-                  .slice(4) // Skip "interpolate", "linear", and "zoom"
+                  .slice(3) // Skip "interpolate", "linear", and "zoom" // Changed from 4 to 3 to include first stop (at index 3)
                   .reduce<ZoomLevel[]>((acc, curr, index, arr) => {
                     if (index % 2 === 0 && arr[index + 1] !== undefined) {
                       acc.push({
@@ -162,7 +164,7 @@ export default function LayerForm(props: LayerFormProps) {
           Array.isArray(parsedPaint["line-width"]) &&
           parsedPaint["line-width"][0] === "interpolate"
               ? parsedPaint["line-width"]
-                  .slice(4)
+                  .slice(3) // Changed from 4 to 3 to include the first stop (zoom level)
                   .reduce((acc: any[], curr: any, index: number, arr: any[]) => {
                     if (index % 2 === 0)
                       acc.push({ zoom: curr, value: arr[index + 1] });
@@ -1481,7 +1483,7 @@ export default function LayerForm(props: LayerFormProps) {
                   />
                 </div>
 
-                {/* Checkbox to enable/disable zoom level interpolation */}
+                {/* Checkbox to enable/disable interpolation of zoom level to line width */}
                 <div style={{ marginBottom: "15px" }}>
                   <label style={labelStyling}>
                     Use Zoom Levels for Line Width:
@@ -1491,7 +1493,7 @@ export default function LayerForm(props: LayerFormProps) {
                       id="useLineZoomStyling"
                       name="useLineZoomStyling"
                       onChange={formik.handleChange}
-                      checked={formik.values.useLineZoomStyling}
+                      checked={formik.values.useLineZoomStyling} // This will be unchecked when the form is open because the default value is false
                       style={checkboxStyling}
                   />
                 </div>
@@ -1500,7 +1502,7 @@ export default function LayerForm(props: LayerFormProps) {
                 {formik.values.useLineZoomStyling && (
                     <div style={{ marginBottom: "15px" }}>
                       <label htmlFor="lineWidthZoomLevels" style={labelStyling}>
-                        Line Width (Zoom Levels):
+                        Zoom Level to Line Width in Pixels:
                       </label>
                       <FieldArray
                           name="lineWidthZoomLevels"
