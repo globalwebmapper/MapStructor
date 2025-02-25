@@ -48,6 +48,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [layerGroup, setLayerGroup] = useState<PrismaLayerGroup>();
     const [layerSection, setLayerSection] = useState<PrismaLayerGroup>();
+    const [standAloneLayers, setStandaloneLayers] = useState<SectionLayer[]>([]);
     const nodeRef = useRef<HTMLDivElement | null>(null);
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
 
@@ -101,6 +102,22 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
         nodeRef.current.style.height = "0px";
         }
     };
+
+    //new method for layer data outside of groups
+    const fetchStandaloneLayers = async() => {
+        setIsLoading(true);
+        try{
+            const response = await fetch('api/StandaloneLayers'); //need to create api file
+            const data = await response.json();
+            setStandaloneLayers(data.standaloneLayers);
+        }
+        catch(error){
+            console.log("Error with standalone fetch: ", error);
+        }
+        finally{
+            setIsLoading(false);
+        }
+    }
 
     const fetchLayerSection = async (id: string) => {
         setIsLoading(true);
@@ -312,6 +329,13 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                         afterClose={props.afterClose}
                         sectionLayerId={props.layer.id}
                     />
+                    {
+                        standAloneLayers.map((layer, idx) => (
+                            <div key = {'standalone-layer-${idx}'}>
+                                <FontAwesomeIcon icon={faPlayCircle} />
+                                <span>{layer.label}</span>
+                            </div>))
+                    }
                     {
                         editOpen && (
                             <Modal
