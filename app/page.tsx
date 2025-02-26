@@ -17,7 +17,7 @@ import {
 } from "./models/layers/layer.model";
 import { IconColors } from "./models/colors.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowCircleLeft, faPlayCircle } from "@fortawesome/free-solid-svg-icons";
 import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import { CSSTransition } from "react-transition-group";
@@ -88,6 +88,7 @@ export default function Home() {
   const [defaultBeforeMap, setDefaultBeforeMap] = useState<mapboxgl.Map>();
   const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
   const [currSectionLayers, setSectionLayers] = useState<SectionLayer[]>();
+  const [standAloneLayers, setStandaloneLayers] = useState<SectionLayerItem[]>(); //PrismaLayer[]??
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
   const [hashParams, setHashParams] = useState<string[]>([]);
@@ -259,7 +260,7 @@ export default function Home() {
       setShowLayerOrdering(true);
     }
   };
-
+  
   const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
@@ -1082,6 +1083,44 @@ export default function Home() {
     });
   };
 
+  const getStandaloneLayers = () => {
+    fetch("/api/StandaloneLayers", {
+        method: "GET",
+        headers: {
+            authorization: currAuthToken ?? '',
+            "Content-Type": "application/json",
+        },
+    }).then((response) => {
+        response.json()?.then((parsed) => {
+            if (!!parsed && !!parsed.standaloneLayers && parsed.standaloneLayers.length > 0) {
+                let standaloneLayers: SectionLayerItem[] = parsed.standaloneLayers.map((layer: PrismaLayer) => {
+                    let newLayer: SectionLayerItem = {
+                        id: layer.id,
+                        layerId: layer.id,
+                        label: layer.label,
+                        center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
+                        zoomToBounds: layer.zoomToBounds ?? false,
+                        enableByDefault: layer.enableByDefault ?? false,
+                        bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
+                            ? [
+                                [layer.topLeftBoundLongitude, layer.topLeftBoundLatitude],
+                                [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],
+                              ]
+                            : undefined,
+                        zoom: layer.zoom ?? undefined,
+                        bearing: layer.bearing ?? undefined,
+                        iconColor: layer.iconColor ?? IconColors.YELLOW,
+                        iconType: layer.iconType ? parseFromString(layer.iconType) : FontAwesomeLayerIcons.LINE,
+                        isSolid: false,
+                    };
+                    return newLayer;
+                });
+                setStandaloneLayers(standaloneLayers);
+            }
+        });
+    });
+};
+
   const getMaps = () => {
     fetch("/api/MapGroup", {
       method: "GET",
@@ -1101,6 +1140,7 @@ export default function Home() {
                     id: grp.id,
                     name: grp.groupName,
                     label: grp.label,
+                    //order: grp.order,
                     maps: (grp as any).maps.map((x: PrismaMap) => {
                       console.log("ZOOOOOM", x.zoomToBounds ?? false, x)
                       let newDBMap: MapItem = {
@@ -1187,6 +1227,7 @@ export default function Home() {
     getMaps();
     getLayerSections();
     getZoomLayers();
+    getStandaloneLayers();
   }, []);
 
   useEffect(() => {
@@ -1296,6 +1337,33 @@ export default function Home() {
         };
       };
     }
+
+    // Add scroll event listener to update hashParams
+    const updateHashParams = () => {
+      // Get the hash states
+      const zoom = currBeforeMap.current?.getZoom();
+      const center = currBeforeMap.current?.getCenter();
+      const bearing = currBeforeMap.current?.getBearing();
+      const pitch = currBeforeMap.current?.getPitch();
+
+      // Check each value is defined
+      if (zoom != null && center != null && bearing != null && pitch != null) {
+        // Update the hash in the URL
+        router.push(
+          `${pathname}/#${zoom.toFixed(2)}/${center.lat.toFixed(5)}/${center.lng.toFixed(5)}/${bearing.toFixed(1)}/${pitch.toFixed(0)}`
+        );
+      }
+    };
+
+    // Event listener for map movement
+    currBeforeMap.current?.on('moveend', updateHashParams);
+    currAfterMap.current?.on('moveend', updateHashParams);
+
+    // When movement stops, send the hash params
+    return () => {
+      currBeforeMap.current?.off('moveend', updateHashParams);
+      currAfterMap.current?.off('moveend', updateHashParams);
+    };
   }, [MapboxCompare, hasDoneInitialZoom]);
 
   useEffect(() => {
@@ -1633,6 +1701,12 @@ export default function Home() {
                     />
                 );
               })}
+              {standAloneLayers?.map((layer, idx) => (
+    <div key={`standalone-layer-${idx}`}>
+        <FontAwesomeIcon icon={faPlayCircle} />
+        <span>{layer.label}</span>
+    </div>
+))}
               {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) && (
                   <div
                       style={{
