@@ -1704,26 +1704,7 @@ export default function Home() {
               })}
               
 
-              {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) && (
-                  <div
-                      style={{
-                        paddingTop: "5px",
-                        paddingLeft: "15px",
-                        paddingRight: "10px",
-                        textAlign: "center",
-                      }}
-                  >
-                    <button id="post-button" onClick={() => setGroupFormOpen(true)}>
-                      <FontAwesomeIcon
-                          icon={getFontawesomeIcon(
-                              FontAwesomeLayerIcons.PLUS_SQUARE,
-                              true
-                          )}
-                      ></FontAwesomeIcon>{" "}
-                      New Group Folder
-                    </button>
-                  </div>
-              )}
+
               {(standAloneLayers ?? []).map((layer, idx) => {
                 console.log("Checking layer sections: ",layer);
                     return (
@@ -1781,6 +1762,26 @@ export default function Home() {
                       />
                     );
                   })}
+              {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) && (
+                  <div
+                      style={{
+                        paddingTop: "15px",
+                        paddingLeft: "15px",
+                        paddingRight: "10px",
+                        textAlign: "center",
+                      }}
+                  >
+                    <button id="post-button" onClick={() => setGroupFormOpen(true)}>
+                      <FontAwesomeIcon
+                          icon={getFontawesomeIcon(
+                              FontAwesomeLayerIcons.PLUS_SQUARE,
+                              true
+                          )}
+                      ></FontAwesomeIcon>{" "}
+                      New Group Folder
+                    </button>
+                  </div>
+              )}
               {groupFormOpen && (
                   <NewLayerSectionForm
                       authToken={currAuthToken}
