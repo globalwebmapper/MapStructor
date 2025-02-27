@@ -15,7 +15,7 @@ const SliderPopUp = (props: GenericPopUpProps) => {
                     const newEntity = { nid, content: res[0].rendered_entity };
 
                     setRenderedEntities((prevEntities) => {
-                        if (props.type === "event") {
+                        if (props.type === "blue") {
                             // ✅ Fix: When an event is clicked, clear all land grant pop-ups and show only the event
                             return [newEntity];
                         }

@@ -17,7 +17,7 @@ import {
 } from "./models/layers/layer.model";
 import { IconColors } from "./models/colors.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowCircleLeft, faPlayCircle } from "@fortawesome/free-solid-svg-icons";
 import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import { CSSTransition } from "react-transition-group";
@@ -1340,6 +1340,33 @@ export default function Home() {
         };
       };
     }
+
+    // Add scroll event listener to update hashParams
+    const updateHashParams = () => {
+      // Get the hash states
+      const zoom = currBeforeMap.current?.getZoom();
+      const center = currBeforeMap.current?.getCenter();
+      const bearing = currBeforeMap.current?.getBearing();
+      const pitch = currBeforeMap.current?.getPitch();
+
+      // Check each value is defined
+      if (zoom != null && center != null && bearing != null && pitch != null) {
+        // Update the hash in the URL
+        router.push(
+          `${pathname}/#${zoom.toFixed(2)}/${center.lat.toFixed(5)}/${center.lng.toFixed(5)}/${bearing.toFixed(1)}/${pitch.toFixed(0)}`
+        );
+      }
+    };
+
+    // Event listener for map movement
+    currBeforeMap.current?.on('moveend', updateHashParams);
+    currAfterMap.current?.on('moveend', updateHashParams);
+
+    // When movement stops, send the hash params
+    return () => {
+      currBeforeMap.current?.off('moveend', updateHashParams);
+      currAfterMap.current?.off('moveend', updateHashParams);
+    };
   }, [MapboxCompare, hasDoneInitialZoom]);
 
   useEffect(() => {
