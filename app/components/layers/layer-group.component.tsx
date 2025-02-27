@@ -390,6 +390,7 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
                         ) : (
                             <LayerForm
                             authToken={props.authToken}
+                            standalone={false}  //need to check if this breaks
                             groupName={props.group.id}
                             sectionName={props.sectionName}
                             layerConfig={layer}
