@@ -108,9 +108,6 @@ export default function Home() {
   const activePopupsBefore = useRef<Map<string, mapboxgl.Popup>>(new Map());
   const activePopupsAfter = useRef<Map<string, mapboxgl.Popup>>(new Map());
 
-  const formattedDate = currDate ? currDate.format("YYYYMMDD") : "default";
-
-
   const moveLayerUp = (l1: PrismaLayer) => {
 
     let beforeIndex = layerOrder.findIndex((e) => e.id == l1.id) - 1;
@@ -755,8 +752,7 @@ export default function Home() {
         });
         hoverStyleString += "</div>";
         if (e.features?.length) {
-          console.log("Hovered feature ID:", hoveredId);
-          if (hoveredId !== null && hoveredId !== undefined) {
+          if (hoveredId !== null) {
             beforeMap.current!.setFeatureState(
                 {
                   source: layerConfig.id,
@@ -1640,13 +1636,11 @@ export default function Home() {
               classNames="popup"
               unmountOnExit
           >
-          <SliderPopUp
-              key={`${popUp.nid}-${currDate?.format("YYYYMMDD") || "default"}`}
-              layerName={popUp.layerName}
-              nid={popUp.nid}
-              type={popUp.type}
-              currDate={currDate}
-          />
+            <SliderPopUp
+                layerName={popUp.layerName}
+                nid={popUp.nid}
+                type={popUp.type}
+            />
           </CSSTransition>
 
           <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
