@@ -62,6 +62,7 @@ import "@fontsource/source-sans-pro";
 import "@fontsource/source-sans-pro/400.css"; // Specify weight
 import "./popup.css";
 import { getCookie } from "cookies-next";
+import Layer from "./components/layers/layer.component";
 
 mapboxgl.accessToken =
     "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wMGh2eSJ9.eJnHIk7wriv-Hp02T7mT3g";
@@ -88,7 +89,7 @@ export default function Home() {
   const [defaultBeforeMap, setDefaultBeforeMap] = useState<mapboxgl.Map>();
   const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
   const [currSectionLayers, setSectionLayers] = useState<SectionLayer[]>();
-  const [standAloneLayers, setStandaloneLayers] = useState<SectionLayerItem[]>(); //PrismaLayer[]??
+  const [standAloneLayers, setStandaloneLayers] = useState<PrismaLayer[]>(); //PrismaLayer[]??
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
   const [hashParams, setHashParams] = useState<string[]>([]);
@@ -866,6 +867,12 @@ export default function Home() {
       });
       setLayerOrder(tempLayerOrder);
     }
+    if (standAloneLayers !== null) {
+      console.log("standAloneLayers: ", standAloneLayers);
+      standAloneLayers?.forEach((x: PrismaLayer) => {
+        addMapLayer(currBeforeMap, currAfterMap, x);
+      });
+    }
     console.log("layer order");
     console.log(layerOrder);
   };
@@ -1089,7 +1096,7 @@ export default function Home() {
     }).then((response) => {
         response.json()?.then((parsed) => {
             if (!!parsed && !!parsed.standaloneLayers && parsed.standaloneLayers.length > 0) {
-                let standaloneLayers: SectionLayerItem[] = parsed.standaloneLayers.map((layer: PrismaLayer) => {
+                let standaloneLayers: PrismaLayer[] = parsed.standaloneLayers.map((layer: PrismaLayer) => {
                     let newLayer: SectionLayerItem = {
                         id: layer.id,
                         layerId: layer.id,
@@ -1668,12 +1675,8 @@ export default function Home() {
                     />
                 );
               })}
-              {standAloneLayers?.map((layer, idx) => (
-    <div key={`standalone-layer-${idx}`}>
-        <FontAwesomeIcon icon={faPlayCircle} />
-        <span>{layer.label}</span>
-    </div>
-))}
+              
+
               {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) && (
                   <div
                       style={{
@@ -1694,6 +1697,63 @@ export default function Home() {
                     </button>
                   </div>
               )}
+              {(standAloneLayers ?? []).map((layer, idx) => {
+                console.log("Checking layer sections: ",layer);
+                    return (
+                      <Layer
+                        key={"standalone-layer-component-" + idx}
+                        item={{ ...layer, 
+                          isSolid: false, 
+                          iconType: parseFromString(layer.iconType), 
+                          zoom: layer.zoom ?? 0, 
+                          bearing: layer.bearing ?? 0,
+                          zoomToBounds: layer.zoomToBounds ?? false,
+                          center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
+                          enableByDefault: layer.enableByDefault ?? false,
+                          bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
+                            ? [
+                                [layer.topLeftBoundLongitude, layer.topLeftBoundLatitude],
+                                [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],
+                              ]
+                            : undefined,
+                            standalone: true,
+                            layerSectionId: layer.layerSection ?? undefined,
+                         }}
+                        activeLayers={activeLayerIds}
+                        activeLayerCallback={(newActiveLayers: string[]) => {
+                          setActiveLayerIds(newActiveLayers);
+                        }}
+                        openWindow={() => {}}
+                        editFormVisibleCallback={setModalOpen}
+                        mapZoomCallback={(zoomProps: MapZoomProps) => {
+                          if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                            currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
+                          } else if (zoomProps.center) {
+                            currBeforeMap.current?.easeTo({
+                              center: zoomProps.center,
+                              zoom: zoomProps.zoom,
+                              bearing: zoomProps.bearing ?? 0,
+                              speed: zoomProps.speed,
+                              curve: zoomProps.curve,
+                              duration: zoomProps.duration,
+                              easing(t) {
+                                return t;
+                              },
+                            });
+                            if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                              router.push(
+                                `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`
+                              );
+                            }
+                          }
+                        }}
+                        fetchLayerDataCallback={() => {}}
+                        afterSubmit={() => {}}
+                        authToken={currAuthToken}
+                        inPreviewMode={inPreviewMode}
+                      />
+                    );
+                  })}
               {groupFormOpen && (
                   <NewLayerSectionForm
                       authToken={currAuthToken}

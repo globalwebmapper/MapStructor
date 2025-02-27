@@ -177,6 +177,8 @@ model LayerData {
   zoomLevels                  Json?
   order                       Int
   viewOrder                   Int?
+  standalone                  Boolean     @default(false)
+  layerSection                String?     @db.ObjectId
 }
 
 model ViewOrderCounter {

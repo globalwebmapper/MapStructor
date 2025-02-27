@@ -329,13 +329,13 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                         afterClose={props.afterClose}
                         sectionLayerId={props.layer.id}
                     />
-                    {
+                    {/* {
                         standAloneLayers.map((layer, idx) => (
                             <div key = {'standalone-layer-${idx}'}>
                                 <FontAwesomeIcon icon={faPlayCircle} />
                                 <span>{layer.label}</span>
                             </div>))
-                    }
+                    } */}
                     {
                         editOpen && (
                             <Modal

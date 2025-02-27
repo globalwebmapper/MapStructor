@@ -21,7 +21,15 @@ export async function GET() {
                     }
                 }
             }
-        }
+        },
+        // layers: { // Include standalone layers
+        //     where: {
+        //         standalone: true,
+        //     },
+        //     orderBy: {
+        //         order: 'asc'
+        //     }
+        // }
     }
     }));
 

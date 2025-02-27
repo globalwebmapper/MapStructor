@@ -36,6 +36,7 @@ type LayerFormProps = {
   layerConfig?: PrismaLayer;
   afterSubmit: () => void;
   authToken: string;
+  standalone: boolean;
 };
 
 type ZoomLevel = { zoom: number; value: number };
@@ -206,10 +207,13 @@ export default function LayerForm(props: LayerFormProps) {
                 ]
                 : (props.layerConfig as any)?.iconSizeDefault ?? 0.5),
       },
+      
+      standalone: props.standalone ?? false,
     },
 
     onSubmit: async (values) => {
       console.log("Values before submission:", values);
+      console.log(props.standalone);
       const paint: Record<string, any> = {};
       const layout: Record<string, any> = values.layout || {};
 
@@ -344,7 +348,8 @@ export default function LayerForm(props: LayerFormProps) {
 
       if (submitType === "POST") {
         try {
-          await fetch("api/LayerData", {
+          const endpoint = props.standalone ? "api/StandaloneLayers" : "api/LayerData"
+          await fetch(endpoint, {
             method: "POST",
             headers: {
               authorization: props.authToken ?? "",
