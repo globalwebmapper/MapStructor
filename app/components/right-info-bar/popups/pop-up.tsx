@@ -1,84 +1,66 @@
 import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
 import { useState, useEffect } from "react";
-// import moment from "moment";
 
-const SliderPopUp = (props: GenericPopUpProps & { currDate?: moment.Moment }) => {
-  const [renderedEntity, setRenderedEntity] = useState<string>("");
+const SliderPopUp = (props: GenericPopUpProps) => {
+    const [renderedEntities, setRenderedEntities] = useState<{ nid: number | string, content: string }[]>([]);
+    const [lastNid, setLastNid] = useState<number | string | null>(null); // Track the last added pop-up
 
-  // Create a formatted date string.
-  const formattedDate = props.currDate ? props.currDate.format("YYYYMMDD") : "";
+    const nid: number | string | null = props.nid ?? null;
 
-  // Debug: Log the current props
-  console.log("SliderPopUp rendered with currDate:", props.currDate, "formatted:", formattedDate);
+    useEffect(() => {
+        if (nid && nid !== lastNid) {  
+            fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
+                .then((buffer) => buffer.json())
+                .then((res) => {
+                    const newEntity = { nid, content: res[0].rendered_entity };
 
-  useEffect(() => {
-    console.log("useEffect triggered with nid:", props.nid, "formattedDate:", formattedDate);
-    if (!props.nid || !formattedDate) return;
+                    setRenderedEntities((prevEntities) => {
+                        if (props.type === "blue") {
+                            // ✅ Fix: When an event is clicked, clear all land grant pop-ups and show only the event
+                            return [newEntity];
+                        }
+                        // ✅ Fix: Insert new land grant pop-ups at the TOP, ensuring no duplicate additions
+                        return [newEntity, ...prevEntities.filter(e => e.nid !== nid)];
+                    });
 
-    // Clear the current content to force a loading state.
-    setRenderedEntity("");
+                    setLastNid(nid); // Update last added pop-up
+                })
+                .catch((error) => {
+                    console.error("Error fetching pop-up data:", error);
+                });
+        }
+    }, [nid, props.type, lastNid]);
 
-    const url = `https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${props.nid}&date=${formattedDate}&_=${Date.now()}`;
-    console.log("Fetching pop-up data from:", url);
+    return (
+        <div id="rightInfoBar" className="rightInfoBarBorder">
+            {renderedEntities.map((entity) => {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(entity.content, 'text/html');
 
-    fetch(url, { cache: "no-store" })
-      .then(response => response.json())
-      .then(res => {
-        console.log("Raw API response:", res);
+                // Modify links to open in a new tab
+                let prefix = "https://encyclopedia.nahc-mapping.org";
+                let pattern = /(<a\s+href=")([^"]+)(")/g;
+                let modifiedHtmlString = "<h3 id='popupHeader'>" + props.layerName + "</h3><hr><br/>";
 
-        // Extract the HTML from the API response.
-        let html: string = res[0]?.rendered_entity || "No data available";
-        const prefix = "https://encyclopedia.nahc-mapping.org";
-        const pattern = /(<a\s+href=")([^"]+)(")/g;
+                modifiedHtmlString += doc.body.innerHTML
+                    .replace(pattern, (_: any, p1: any, p2: any, p3: any) => {
+                        if (p2.slice(0, 4) === "http") return p1 + p2 + p3;
+                        return p1 + prefix + p2 + p3;
+                    })
+                    .replace(/(<a\s+[^>]*)(>)/g, (_: any, p1: any, p2: any) => p1 + ' target="_blank"' + p2)
+                    .replace(/(<img.*src=")([^"]+)(")/g, (_: any, p1: any, p2: any, p3: any) => {
+                        if (p2.slice(0, 4) === "http") return p1 + p2 + p3;
+                        return p1 + prefix + p2 + p3;
+                    });
 
-        let modifiedHtmlString = `<h3 id="popupHeader">${props.layerName}</h3><hr><br/>` + html
-          .replace(pattern, (_: any, p1: string, p2: string, p3: string) => {
-            return p2.startsWith("http")
-              ? p1 + p2 + p3
-              : p1 + prefix + p2 + p3;
-          })
-          .replace(/(<a\s+[^>]*)(>)/g, (_: any, p1: string, p2: string) => {
-            return p1 + ' target="_blank"' + p2;
-          })
-          .replace(/(<img.*src=")([^"]+)(")/g, (_: any, p1: string, p2: string, p3: string) => {
-            return p2.startsWith("http")
-              ? p1 + p2 + p3
-              : p1 + prefix + p2 + p3;
-          });
-
-        // Use a DOMParser to modify specific parts of the HTML.
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(modifiedHtmlString, "text/html");
-        doc.querySelectorAll(".field.field--name-title.field--type-string.field--label-hidden")
-          .forEach(element => {
-            const text = element.textContent || "";
-            if (text) {
-              element.textContent = text.substring(text.lastIndexOf("_") + 1);
-            }
-          });
-        modifiedHtmlString = doc.body.innerHTML;
-        console.log("Modified HTML for infobox:", modifiedHtmlString);
-
-        setRenderedEntity(modifiedHtmlString);
-      })
-      .catch(error => {
-        console.error("Error fetching pop-up data:", error);
-        setRenderedEntity("Error loading data");
-      });
-  }, [props.nid, formattedDate, props.layerName]);
-
-  return (
-    <div id="rightInfoBar" className="rightInfoBarBorder" style={{ zIndex: 10 }}>
-      {renderedEntity === "" ? (
-        <div id={`${props.type}SliderPopup`}>Loading...</div>
-      ) : (
-        <div
-          id={`${props.type}SliderPopup`}
-          dangerouslySetInnerHTML={{ __html: renderedEntity }}
-        />
-      )}
-    </div>
-  );
+                return (
+                    <div key={entity.nid} className="popup-container">
+                        <div id={props.type + "SliderPopup"} dangerouslySetInnerHTML={{ __html: modifiedHtmlString }} />
+                    </div>
+                );
+            })}
+        </div>
+    );
 };
 
 export default SliderPopUp;
