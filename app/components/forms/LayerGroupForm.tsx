@@ -61,7 +61,12 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
 
   //need to add a check in here to verify lat, long, bearing, and zoom are non null before allowing submission
   //find submit button and set as deactivated until necessary fields are filled and have correct value types
-
+  
+  /* 
+    The following new method is used to validate input into the layerGroupForm when it pops up in the frontend.
+    It restricts the user to guarantee that necessary fields (Name, Lat, Long, Zoom, and Bearing) are populated.
+    Without these fields populated, there were problems with posting new groups to the database.
+  */
   const validate = (values:any) => {
     const errors: Record<string, string> = {};
 
@@ -199,7 +204,10 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
             }
         }
     });
-
+    /* 
+    Added lines to utilize the validate function previously built in this file. This way the submit button
+    is disabled until all fields are populated, and the correct data types are used.
+  */
     return (
         <form onSubmit={formik.handleSubmit} style={{ margin: '0 auto' }}>
               <div style={{ marginBottom: '15px' }}>

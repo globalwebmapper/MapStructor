@@ -63,7 +63,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
                 onRequestClose={closeWindow}
                 contentLabel='New Layer'
             >
-                <LayerForm authToken={props.authToken} groupName={props.groupName} sectionName={props.sectionName} afterSubmit={closeWindow}></LayerForm>
+                <LayerForm authToken={props.authToken} groupName={props.groupName} standalone = {false} sectionName={props.sectionName} afterSubmit={closeWindow}></LayerForm>
             </Modal>
         </>
     )

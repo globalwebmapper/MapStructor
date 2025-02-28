@@ -1,7 +1,15 @@
 import { LayerData, PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { Auth } from "../auth/auth";
+/*
+    This is the default api file to post and parse standalone layers from the database.
+    It utilizes the set PrismaClient to interact with the data, and only grabs layers which have the 
+    field standalone set to true.
 
+    When posting, the new standalone layer button is selected which automatically assigns a standalone = true 
+    to the layer, and the post method below guarantees that the layer is posted with that field
+    marked as true, since it is set to default to false in any other post method.
+*/
 const prisma = new PrismaClient();
 
 export async function GET() {

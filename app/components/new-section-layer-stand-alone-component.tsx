@@ -7,6 +7,13 @@ import NewStandaloneLayerForm from "./forms/LayerForm";
 import Layer from "./layers/layer.component"; // Import the Layer component
 import { SectionLayerItem } from "../models/layers/layer.model";
 
+/*
+    This is a new button compoent for the "New Standalone Layer" button. 
+    This component will be used to create a new standalone layer.
+    When clicked it opens the default layer form, and upon submission it will utilize
+    the new StandaloneLayer API methods to post a layer with a default Standalone = true.
+*/
+
 type LayerFormButtonProps = {
     sectionLayerId: string,
     beforeOpen: () => void,

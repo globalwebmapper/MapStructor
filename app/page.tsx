@@ -89,7 +89,7 @@ export default function Home() {
   const [defaultBeforeMap, setDefaultBeforeMap] = useState<mapboxgl.Map>();
   const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
   const [currSectionLayers, setSectionLayers] = useState<SectionLayer[]>();
-  const [standAloneLayers, setStandaloneLayers] = useState<PrismaLayer[]>(); //PrismaLayer[]??
+  const [standAloneLayers, setStandaloneLayers] = useState<PrismaLayer[]>(); //addition of standalone layer type for useEffect and display the standalone layers
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
   const [hashParams, setHashParams] = useState<string[]>([]);
@@ -1086,6 +1086,11 @@ export default function Home() {
     });
   };
 
+  /*
+    New function to parse all standalone layers in the database. Utilized the standalone layer api file to
+    bring in information on the layers. The layers are then fed to the frontend in the same format as existing layers
+    so that they display in the same format and with the same icons.
+  */
   const getStandaloneLayers = () => {
     fetch("/api/StandaloneLayers", {
         method: "GET",
@@ -1704,7 +1709,11 @@ export default function Home() {
               })}
               
 
-
+              {/* 
+                This UI implementation is the means by which the actual standalone layers are displayed in the menu. 
+                The method works in the same way as the other parse layers functions, and brings in layers from our standalone api
+                methods. 
+               */}
               {(standAloneLayers ?? []).map((layer, idx) => {
                 console.log("Checking layer sections: ",layer);
                     return (
