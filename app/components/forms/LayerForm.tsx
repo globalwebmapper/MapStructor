@@ -208,7 +208,7 @@ export default function LayerForm(props: LayerFormProps) {
                 : (props.layerConfig as any)?.iconSizeDefault ?? 0.5),
       },
       
-      standalone: props.standalone ?? false,
+      standalone: props.standalone ?? false,  //assigning the standalone as false default, but true if the form was filled from new standalone layer
     },
 
     onSubmit: async (values) => {
@@ -345,7 +345,12 @@ export default function LayerForm(props: LayerFormProps) {
       };
 
       console.log("Final layerData before API call:", layerData);
-
+      /*
+        Edits to the exisitng post method to pull 'standalone' from the props. When the New Standalone Layer button
+        is selected, the layer standalone field is automatically populated with true. Otherwise false. 
+        The edits to the below method allow the endpoint to discern if the layer is of standalone type or not
+        and then call the correct post api method for pushing it to the database.
+      */
       if (submitType === "POST") {
         try {
           const endpoint = props.standalone ? "api/StandaloneLayers" : "api/LayerData"

@@ -103,7 +103,11 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
         }
     };
 
-    //new method for layer data outside of groups
+    /*
+        This new method (not yet called) was added to bring the standalone layers into the layer group component.
+        Allowing them to be displayed in the menu as their own section, independent of the groups present in the 
+        menu as of current.
+    */
     const fetchStandaloneLayers = async() => {
         setIsLoading(true);
         try{
@@ -322,6 +326,8 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                         afterClose={props.afterClose}
                         sectionLayerId={props.layer.id}
                     ></NewSectionLayerGroup>
+                    {/* Added the new standalone layer button component, which allows users to add a new 
+                    section of type standalone into the menu display. */}
                     <NewStandaloneLayer
                         inPreviewMode={props.inPreviewMode}
                         authToken={props.authToken}

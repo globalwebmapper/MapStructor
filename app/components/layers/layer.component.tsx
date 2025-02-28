@@ -184,10 +184,17 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
 
                     {/*Remove Zoom to Layer crosshair.  Comment out because might want to be optional MichaelG-scrum14 {*/}
                     {
+                        /*
+                            Our client did not want the crosshair or info icons on the layers which were not standalone,
+                            so this new method first checks what the standalone field is. If it is false or null, these elements
+                            will not be generated. 
+
+                            If the standalone comes back true, then the standalone layers which display will show the zoom and
+                            information icons so that the user can select and utilize those features.
+                        */
                         props.item.standalone && (
                             <>
                                 {
-                                    //(props.item.center != null && props.item.zoom != null) && 
                                     (
                                         <div className="tooltip-container" data-title="Zoom to Layer">
                                             <FontAwesomeIcon
