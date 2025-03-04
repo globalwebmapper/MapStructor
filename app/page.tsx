@@ -523,6 +523,8 @@ export default function Home() {
       ];
       //Create generic layerhandler for both maps
       const handleEvent = createHandleEvent(beforeMap, afterMap, layerConfig);
+
+      // Added the part after the && to help with "Resource already exists" error
       if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
         if (layerConfig.time) {
           beforeMap.current.addLayer({
@@ -546,6 +548,8 @@ export default function Home() {
             (beforeMap.current as any)._eventHandlers || {};
         (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
       }
+
+      // Added the part after the && to help with "Resource already exists" error
       if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
         if (layerConfig.time) {
           afterMap.current.addLayer({
