@@ -108,6 +108,10 @@ export default function Home() {
   const activePopupsBefore = useRef<Map<string, mapboxgl.Popup>>(new Map());
   const activePopupsAfter = useRef<Map<string, mapboxgl.Popup>>(new Map());
 
+  ///
+  const [selectedDate, setSelectedDate] = useState<moment.Moment | null>(moment("1663-06-01", "YYYY-MM-DD"));
+  ////
+
   const moveLayerUp = (l1: PrismaLayer) => {
 
     let beforeIndex = layerOrder.findIndex((e) => e.id == l1.id) - 1;
@@ -1636,11 +1640,13 @@ export default function Home() {
               classNames="popup"
               unmountOnExit
           >
-            <SliderPopUp
+                <SliderWithDatePanel callback={setSelectedDate} />
+      <SliderPopUp currDate={selectedDate} nid={popUp.nid} layerName={popUp.layerName} type={popUp.type}/>
+            {/* <SliderPopUp
                 layerName={popUp.layerName}
                 nid={popUp.nid}
                 type={popUp.type}
-            />
+            /> */}
           </CSSTransition>
 
           <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
