@@ -1,23 +1,13 @@
 "use client";
 import moment from "moment";
-import {
-  MutableRefObject,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
 import { GenericPopUpProps } from "./models/popups/pop-up.model";
 import SliderPopUp from "./components/right-info-bar/popups/pop-up";
-import {
-  SectionLayer,
-  SectionLayerGroup,
-  SectionLayerItem,
-} from "./models/layers/layer.model";
+import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "./models/layers/layer.model";
 import { IconColors } from "./models/colors.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowCircleLeft, faPlayCircle } from "@fortawesome/free-solid-svg-icons";
+import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import { CSSTransition } from "react-transition-group";
@@ -34,29 +24,16 @@ import {
   LayerData as PrismaLayer,
   LayerGroup as PrismaLayerGroup,
   MapGroup as PrismaMapGroup,
-  hoverItem,
-  LayerData,
+  hoverItem
 } from "@prisma/client";
 import "./popup.css";
 import { PopupType } from "./models/popups/pop-up-type.model";
-import {
-  getFontawesomeIcon,
-  parseFromString,
-} from "./helpers/font-awesome.helper";
+import { getFontawesomeIcon, parseFromString } from "./helpers/font-awesome.helper";
 import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
 import { ZoomLabel } from "./models/zoom-layer.model";
-import {
-  addInteractivityToLabel,
-  createLabel,
-  zoomToWorld,
-} from "./helpers/zoom-layer.helper";
+import { addInteractivityToLabel, zoomToWorld } from "./helpers/zoom-layer.helper";
 import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
-import {
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { ButtonLink } from "@/app/models/button-link.model";
 import "@fontsource/source-sans-pro";
 import "@fontsource/source-sans-pro/400.css"; // Specify weight
@@ -64,8 +41,18 @@ import "./popup.css";
 import { getCookie } from "cookies-next";
 import Layer from "./components/layers/layer.component";
 
-mapboxgl.accessToken =
-    "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wMGh2eSJ9.eJnHIk7wriv-Hp02T7mT3g";
+
+
+
+
+// IMPORTANT: MAPBOX ACCESS TOKEN
+mapboxgl.accessToken = "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wMGh2eSJ9.eJnHIk7wriv-Hp02T7mT3g";
+
+
+
+
+
+// HTML rendering for the page
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
   const [popUp, setPopUp] = useState<GenericPopUpProps>({
@@ -108,6 +95,15 @@ export default function Home() {
   const [inPreviewMode, setInPreviewMode] = useState<boolean>(false);
   const activePopupsBefore = useRef<Map<string, mapboxgl.Popup>>(new Map());
   const activePopupsAfter = useRef<Map<string, mapboxgl.Popup>>(new Map());
+
+
+
+
+
+
+
+
+  
 
   const moveLayerUp = (l1: PrismaLayer) => {
 
@@ -527,7 +523,7 @@ export default function Home() {
       ];
       //Create generic layerhandler for both maps
       const handleEvent = createHandleEvent(beforeMap, afterMap, layerConfig);
-      if (!beforeMap.current?.getLayer(layerConfig.id)) {
+      if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
         if (layerConfig.time) {
           beforeMap.current.addLayer({
             ...(layerStuff as any),
@@ -550,7 +546,7 @@ export default function Home() {
             (beforeMap.current as any)._eventHandlers || {};
         (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
       }
-      if (!afterMap.current?.getLayer(layerConfig.id)) {
+      if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
         if (layerConfig.time) {
           afterMap.current.addLayer({
             ...(layerStuff as any),
