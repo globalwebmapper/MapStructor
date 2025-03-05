@@ -524,55 +524,53 @@ export default function Home() {
       //Create generic layerhandler for both maps
       const handleEvent = createHandleEvent(beforeMap, afterMap, layerConfig);
 
-      // Added the part after the && to help with "Resource already exists" error
-      if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
-        if (layerConfig.time) {
-          beforeMap.current.addLayer({
-            ...(layerStuff as any),
-            filter: dateFilter,
-          });
+      // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
+      beforeMap.current?.on("load", () => {
+        // Added the part after the && to help with "Resource already exists" error
+        if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
+          if (layerConfig.time) {
+            beforeMap.current?.addLayer({
+              ...(layerStuff as any),
+              filter: dateFilter,
+            });
+          }
+          else {
+            beforeMap.current?.addLayer(layerStuff as any);
+          }
+
+          beforeMap.current?.on("mousemove", layerConfig.id, handleEvent);
+          beforeMap.current?.on("mouseleave", layerConfig.id, handleEvent);
+          beforeMap.current?.on("click", layerConfig.id, handleEvent);
+          // Store the reference to the handler in a way you can access it later if needed
+          (beforeMap.current as any)._eventHandlers =
+              (beforeMap.current as any)._eventHandlers || {};
+          (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
+      });
 
+      // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
+      afterMap.current?.on("load", () => {
+        // Added the part after the && to help with "Resource already exists" error
+        if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
+          if (layerConfig.time) {
+            afterMap.current?.addLayer({
+              ...(layerStuff as any),
+              filter: dateFilter,
+            });
+          }
+          else {
+            afterMap.current?.addLayer(layerStuff as any);
+          }
 
-        else {
-          beforeMap.current.addLayer(layerStuff as any);
+          afterMap.current?.on("mousemove", layerConfig.id, handleEvent);
+          afterMap.current?.on("mouseleave", layerConfig.id, handleEvent);
+          afterMap.current?.on("click", layerConfig.id, handleEvent);
+          // Store the reference to the handler in a way you can access it later if needed
+          (afterMap.current as any)._eventHandlers =
+              (afterMap.current as any)._eventHandlers || {};
+          (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
-
-
-
-        beforeMap.current.on("mousemove", layerConfig.id, handleEvent);
-        beforeMap.current.on("mouseleave", layerConfig.id, handleEvent);
-        beforeMap.current.on("click", layerConfig.id, handleEvent);
-        // Store the reference to the handler in a way you can access it later if needed
-        (beforeMap.current as any)._eventHandlers =
-            (beforeMap.current as any)._eventHandlers || {};
-        (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
-      }
-
-      // Added the part after the && to help with "Resource already exists" error
-      if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
-        if (layerConfig.time) {
-          afterMap.current.addLayer({
-            ...(layerStuff as any),
-            filter: dateFilter,
-          });
-        }
-
-
-        else {
-          afterMap.current.addLayer(layerStuff as any);
-        }
-
-
-
-        afterMap.current.on("mousemove", layerConfig.id, handleEvent);
-        afterMap.current.on("mouseleave", layerConfig.id, handleEvent);
-        afterMap.current.on("click", layerConfig.id, handleEvent);
-        // Store the reference to the handler in a way you can access it later if needed
-        (afterMap.current as any)._eventHandlers =
-            (afterMap.current as any)._eventHandlers || {};
-        (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
-      }
+      });
     }
   };
 
