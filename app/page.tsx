@@ -534,9 +534,9 @@ export default function Home() {
         }
 
 
-        // else {
-        //   beforeMap.current.addLayer(layerStuff as any);
-        // }
+        else {
+          beforeMap.current.addLayer(layerStuff as any);
+        }
 
 
 
@@ -559,9 +559,9 @@ export default function Home() {
         }
 
 
-        // else {
-        //   afterMap.current.addLayer(layerStuff as any);
-        // }
+        else {
+          afterMap.current.addLayer(layerStuff as any);
+        }
 
 
 
@@ -1262,7 +1262,7 @@ export default function Home() {
     const defBeforeMap = new mapboxgl.Map({
       ...beforeMapItem,
       container: beforeMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/nittyjee/cjooubzup2kx52sqdf9zmmv2j",
+      style: "mapbox://styles/mapny/clm2yrx1y025401p93v26bhyl",
       zoom: +(hashParams?.at(0) ?? 15.09),
       bearing: +(hashParams?.at(3) ?? 0),
       center: [
@@ -1275,7 +1275,7 @@ export default function Home() {
     const defAfterMap = new mapboxgl.Map({
       ...beforeMapItem,
       container: afterMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/nittyjee/cjowjzrig5pje2rmmnjb5b0y2",
+      style: "mapbox://styles/mapny/clm2yrx1y025401p93v26bhyl",
       zoom: +(hashParams?.at(0) ?? 15.09),
       bearing: +(hashParams?.at(3) ?? 0),
       center: [
