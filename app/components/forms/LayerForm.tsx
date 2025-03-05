@@ -36,6 +36,7 @@ type LayerFormProps = {
   layerConfig?: PrismaLayer;
   afterSubmit: () => void;
   authToken: string;
+  standalone: boolean;
 };
 
 type ZoomLevel = { zoom: number; value: number };
@@ -206,10 +207,13 @@ export default function LayerForm(props: LayerFormProps) {
                 ]
                 : (props.layerConfig as any)?.iconSizeDefault ?? 0.5),
       },
+      
+      standalone: props.standalone ?? false,  //assigning the standalone as false default, but true if the form was filled from new standalone layer
     },
 
     onSubmit: async (values) => {
       console.log("Values before submission:", values);
+      console.log(props.standalone);
       const paint: Record<string, any> = {};
       const layout: Record<string, any> = values.layout || {};
 
@@ -341,10 +345,16 @@ export default function LayerForm(props: LayerFormProps) {
       };
 
       console.log("Final layerData before API call:", layerData);
-
+      /*
+        Edits to the exisitng post method to pull 'standalone' from the props. When the New Standalone Layer button
+        is selected, the layer standalone field is automatically populated with true. Otherwise false. 
+        The edits to the below method allow the endpoint to discern if the layer is of standalone type or not
+        and then call the correct post api method for pushing it to the database.
+      */
       if (submitType === "POST") {
         try {
-          await fetch("api/LayerData", {
+          const endpoint = props.standalone ? "api/StandaloneLayers" : "api/LayerData"
+          await fetch(endpoint, {
             method: "POST",
             headers: {
               authorization: props.authToken ?? "",

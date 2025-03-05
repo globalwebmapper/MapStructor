@@ -4,6 +4,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FontAwesomeLayerIcons } from "../models/font-awesome.model";
 import { getFontawesomeIcon } from "../helpers/font-awesome.helper";
 import NewStandaloneLayerForm from "./forms/LayerForm";
+import Layer from "./layers/layer.component"; // Import the Layer component
+import { SectionLayerItem } from "../models/layers/layer.model";
+
+/*
+    This is a new button compoent for the "New Standalone Layer" button. 
+    This component will be used to create a new standalone layer.
+    When clicked it opens the default layer form, and upon submission it will utilize
+    the new StandaloneLayer API methods to post a layer with a default Standalone = true.
+*/
 
 type LayerFormButtonProps = {
     sectionLayerId: string,
@@ -16,6 +25,8 @@ type LayerFormButtonProps = {
 const NewStandaloneLayer = (props: LayerFormButtonProps) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
+    const [standAloneLayers, setStandAloneLayers] = useState<SectionLayerItem[]>([]); // Add state for standalone layers
+    const [activeLayerIds, setActiveLayerIds] = useState<string[]>([]);
 
     useEffect(() => {
         const isAuthed: boolean = (props.authToken ?? '') != '';
@@ -62,7 +73,14 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
                 onRequestClose={closeWindow}
                 contentLabel='New Standalone Layer'
             >
-                <NewStandaloneLayerForm authToken={props.authToken} groupName = {props.sectionLayerId} sectionName = {props.sectionLayerId}  afterSubmit={closeWindow}></NewStandaloneLayerForm>
+                <NewStandaloneLayerForm 
+                authToken={props.authToken} 
+                standalone={true}
+                groupName = {props.sectionLayerId} 
+                sectionName = {props.sectionLayerId}  
+                afterSubmit={closeWindow}
+                >
+                </NewStandaloneLayerForm>
             </Modal>
         </>
     )

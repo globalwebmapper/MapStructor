@@ -20,6 +20,8 @@ export type SectionLayerItem = {
     enableByDefault?: boolean
     isSolid: boolean,
     layerId?: string,
+    standalone?: boolean,
+    layerSectionId?: string,
 }
 
 export type SectionLayerGroup = {
