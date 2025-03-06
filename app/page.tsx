@@ -1255,6 +1255,7 @@ export default function Home() {
   useEffect(() => {
     if (!MapboxCompare || !comparisonContainerRef.current) return;
     if (beforeMapItem == null || beforeMapItem.bearing == null) return;
+    setMapLoaded(true);
 
     const defBeforeMap = new mapboxgl.Map({
       ...beforeMapItem,
@@ -1282,8 +1283,6 @@ export default function Home() {
       attributionControl: false,
     });
 
-    // Moved to after styling is loaded
-    setMapLoaded(true);
 
     defBeforeMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
     defAfterMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
@@ -1434,43 +1433,62 @@ export default function Home() {
     if (!mapLoaded) return;
     if (currBeforeMap === null || currAfterMap === null) return;
 
-    currLayers.forEach((layer) => {
-      if ( 
-          activeLayerIds.includes(layer.id) &&
-          currBeforeMap.current?.getLayer(layer.id)
-      ) {
-        currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
-        currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
-      } else {
-        currBeforeMap.current!.setLayoutProperty(
-            layer.id,
-            "visibility",
-            "none"
-        );
-        currAfterMap.current!.setLayoutProperty(
-            layer.id,
-            "visibility",
-            "none"
-        );
-        const popupBefore = activePopupsBefore.current.get(layer.id);
-        const popupAfter = activePopupsAfter.current.get(layer.id);
-        if (popupBefore)
-        {
-          popupBefore.remove();
-          activePopupsBefore.current.delete(layer.id);
+    function updateLayerVisibility() {
+      if (!currBeforeMap.current?.isStyleLoaded() || !currAfterMap.current?.isStyleLoaded()) return;
+
+      currLayers.forEach((layer) => {
+        if ( 
+            activeLayerIds.includes(layer.id) &&
+            currBeforeMap.current?.getLayer(layer.id)
+        ) {
+          currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
+          currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
+        } else {
+          currBeforeMap.current!.setLayoutProperty(
+              layer.id,
+              "visibility",
+              "none"
+          );
+          currAfterMap.current!.setLayoutProperty(
+              layer.id,
+              "visibility",
+              "none"
+          );
+          const popupBefore = activePopupsBefore.current.get(layer.id);
+          const popupAfter = activePopupsAfter.current.get(layer.id);
+          if (popupBefore)
+          {
+            popupBefore.remove();
+            activePopupsBefore.current.delete(layer.id);
+          }
+          if (popupAfter)
+          {
+            popupAfter.remove();
+            activePopupsAfter.current.delete(layer.id);
+          }
+          if(popUpVisible)
+          {
+            setPopUpVisible(false);
+          }
         }
-        if (popupAfter)
-        {
-          popupAfter.remove();
-          activePopupsAfter.current.delete(layer.id);
-        }
-        if(popUpVisible)
-        {
-          setPopUpVisible(false);
-        }
-      }
-    });
-  }, [activeLayerIds, reRenderActiveLayers, hasDoneInitialZoom]);
+      });
+    }
+
+    // Run immediately if styles are already loaded
+    if (currBeforeMap.current?.isStyleLoaded() && currAfterMap.current?.isStyleLoaded()) {
+      updateLayerVisibility();
+    }
+
+    // Listen for style loading if not ready yet
+    currBeforeMap.current?.on("styledata", updateLayerVisibility);
+    currAfterMap.current?.on("styledata", updateLayerVisibility);
+
+    // Cleanup function to remove event listeners on unmount
+    return () => {
+      currBeforeMap.current?.off("styledata", updateLayerVisibility);
+      currAfterMap.current?.off("styledata", updateLayerVisibility);
+    };
+  }, [mapLoaded, currBeforeMap, currAfterMap, activeLayerIds, reRenderActiveLayers, hasDoneInitialZoom]);
 
   useEffect(() => {
     if (!currDate) return;
