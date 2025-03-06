@@ -142,21 +142,21 @@ i.fa-info-circle {
 
 .header-right {
   float: right;
-  margin-top: 13px;
+  margin-top: 11px;
   margin-left: 50px;
   margin-right: 9px;
 }
 
 .headerText {
   display: inline-block;
-  margin-top: 19px;
+  margin-top: 15px;
   text-shadow: #717c9b 0px 1px 3px;
   font-size: 1.7em;
   /*Center*/
   margin-left: 10em;
   margin-left: 10px;
   font-family: "Consolas";
-  margin-bottom: 21px;
+  margin-bottom: 25px;
 }
 
 .header a.encyclopedia {
@@ -505,7 +505,7 @@ div#mobi-year {
 }
 
 img#logo-img-wide {
-  padding: 6px 0px 0px 21px;
+  margin: 6px 0px 0px 21px;
   float: left;
   height: 70px;
 }
