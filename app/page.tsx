@@ -524,55 +524,53 @@ export default function Home() {
       //Create generic layerhandler for both maps
       const handleEvent = createHandleEvent(beforeMap, afterMap, layerConfig);
 
-      // Added the part after the && to help with "Resource already exists" error
-      if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
-        if (layerConfig.time) {
-          beforeMap.current.addLayer({
-            ...(layerStuff as any),
-            filter: dateFilter,
-          });
+      // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
+      //beforeMap.current?.on("load", () => {
+        // Added the part after the && to help with "Resource already exists" error
+        if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
+          if (layerConfig.time) {
+            beforeMap.current?.addLayer({
+              ...(layerStuff as any),
+              filter: dateFilter,
+            });
+          }
+          else {
+            beforeMap.current?.addLayer(layerStuff as any);
+          }
+
+          beforeMap.current?.on("mousemove", layerConfig.id, handleEvent);
+          beforeMap.current?.on("mouseleave", layerConfig.id, handleEvent);
+          beforeMap.current?.on("click", layerConfig.id, handleEvent);
+          // Store the reference to the handler in a way you can access it later if needed
+          (beforeMap.current as any)._eventHandlers =
+              (beforeMap.current as any)._eventHandlers || {};
+          (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
+      //});
 
+      // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
+      //afterMap.current?.on("load", () => {
+        // Added the part after the && to help with "Resource already exists" error
+        if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
+          if (layerConfig.time) {
+            afterMap.current?.addLayer({
+              ...(layerStuff as any),
+              filter: dateFilter,
+            });
+          }
+          else {
+            afterMap.current?.addLayer(layerStuff as any);
+          }
 
-        else {
-          beforeMap.current.addLayer(layerStuff as any);
+          afterMap.current?.on("mousemove", layerConfig.id, handleEvent);
+          afterMap.current?.on("mouseleave", layerConfig.id, handleEvent);
+          afterMap.current?.on("click", layerConfig.id, handleEvent);
+          // Store the reference to the handler in a way you can access it later if needed
+          (afterMap.current as any)._eventHandlers =
+              (afterMap.current as any)._eventHandlers || {};
+          (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
-
-
-
-        beforeMap.current.on("mousemove", layerConfig.id, handleEvent);
-        beforeMap.current.on("mouseleave", layerConfig.id, handleEvent);
-        beforeMap.current.on("click", layerConfig.id, handleEvent);
-        // Store the reference to the handler in a way you can access it later if needed
-        (beforeMap.current as any)._eventHandlers =
-            (beforeMap.current as any)._eventHandlers || {};
-        (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
-      }
-
-      // Added the part after the && to help with "Resource already exists" error
-      if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
-        if (layerConfig.time) {
-          afterMap.current.addLayer({
-            ...(layerStuff as any),
-            filter: dateFilter,
-          });
-        }
-
-
-        else {
-          afterMap.current.addLayer(layerStuff as any);
-        }
-
-
-
-        afterMap.current.on("mousemove", layerConfig.id, handleEvent);
-        afterMap.current.on("mouseleave", layerConfig.id, handleEvent);
-        afterMap.current.on("click", layerConfig.id, handleEvent);
-        // Store the reference to the handler in a way you can access it later if needed
-        (afterMap.current as any)._eventHandlers =
-            (afterMap.current as any)._eventHandlers || {};
-        (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
-      }
+      //});
     }
   };
 
@@ -1285,6 +1283,7 @@ export default function Home() {
       attributionControl: false,
     });
 
+
     defBeforeMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
     defAfterMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
@@ -1434,43 +1433,62 @@ export default function Home() {
     if (!mapLoaded) return;
     if (currBeforeMap === null || currAfterMap === null) return;
 
-    currLayers.forEach((layer) => {
-      if ( 
-          activeLayerIds.includes(layer.id) &&
-          currBeforeMap.current?.getLayer(layer.id)
-      ) {
-        currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
-        currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
-      } else {
-        currBeforeMap.current!.setLayoutProperty(
-            layer.id,
-            "visibility",
-            "none"
-        );
-        currAfterMap.current!.setLayoutProperty(
-            layer.id,
-            "visibility",
-            "none"
-        );
-        const popupBefore = activePopupsBefore.current.get(layer.id);
-        const popupAfter = activePopupsAfter.current.get(layer.id);
-        if (popupBefore)
-        {
-          popupBefore.remove();
-          activePopupsBefore.current.delete(layer.id);
+    function updateLayerVisibility() {
+      if (!currBeforeMap.current?.isStyleLoaded() || !currAfterMap.current?.isStyleLoaded()) return;
+
+      currLayers.forEach((layer) => {
+        if ( 
+            activeLayerIds.includes(layer.id) &&
+            currBeforeMap.current?.getLayer(layer.id)
+        ) {
+          currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
+          currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
+        } else {
+          currBeforeMap.current!.setLayoutProperty(
+              layer.id,
+              "visibility",
+              "none"
+          );
+          currAfterMap.current!.setLayoutProperty(
+              layer.id,
+              "visibility",
+              "none"
+          );
+          const popupBefore = activePopupsBefore.current.get(layer.id);
+          const popupAfter = activePopupsAfter.current.get(layer.id);
+          if (popupBefore)
+          {
+            popupBefore.remove();
+            activePopupsBefore.current.delete(layer.id);
+          }
+          if (popupAfter)
+          {
+            popupAfter.remove();
+            activePopupsAfter.current.delete(layer.id);
+          }
+          if(popUpVisible)
+          {
+            setPopUpVisible(false);
+          }
         }
-        if (popupAfter)
-        {
-          popupAfter.remove();
-          activePopupsAfter.current.delete(layer.id);
-        }
-        if(popUpVisible)
-        {
-          setPopUpVisible(false);
-        }
-      }
-    });
-  }, [activeLayerIds, reRenderActiveLayers, hasDoneInitialZoom]);
+      });
+    }
+
+    // Run immediately if styles are already loaded
+    if (currBeforeMap.current?.isStyleLoaded() && currAfterMap.current?.isStyleLoaded()) {
+      updateLayerVisibility();
+    }
+
+    // Listen for style loading if not ready yet
+    currBeforeMap.current?.on("styledata", updateLayerVisibility);
+    currAfterMap.current?.on("styledata", updateLayerVisibility);
+
+    // Cleanup function to remove event listeners on unmount
+    return () => {
+      currBeforeMap.current?.off("styledata", updateLayerVisibility);
+      currAfterMap.current?.off("styledata", updateLayerVisibility);
+    };
+  }, [mapLoaded, currBeforeMap, currAfterMap, activeLayerIds, reRenderActiveLayers, hasDoneInitialZoom]);
 
   useEffect(() => {
     if (!currDate) return;
