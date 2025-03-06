@@ -525,7 +525,7 @@ export default function Home() {
       const handleEvent = createHandleEvent(beforeMap, afterMap, layerConfig);
 
       // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
-      beforeMap.current?.on("load", () => {
+      //beforeMap.current?.on("load", () => {
         // Added the part after the && to help with "Resource already exists" error
         if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
           if (layerConfig.time) {
@@ -546,10 +546,10 @@ export default function Home() {
               (beforeMap.current as any)._eventHandlers || {};
           (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
-      });
+      //});
 
       // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
-      afterMap.current?.on("load", () => {
+      //afterMap.current?.on("load", () => {
         // Added the part after the && to help with "Resource already exists" error
         if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
           if (layerConfig.time) {
@@ -570,7 +570,7 @@ export default function Home() {
               (afterMap.current as any)._eventHandlers || {};
           (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
-      });
+      //});
     }
   };
 
@@ -1255,7 +1255,6 @@ export default function Home() {
   useEffect(() => {
     if (!MapboxCompare || !comparisonContainerRef.current) return;
     if (beforeMapItem == null || beforeMapItem.bearing == null) return;
-    setMapLoaded(true);
 
     const defBeforeMap = new mapboxgl.Map({
       ...beforeMapItem,
@@ -1282,6 +1281,9 @@ export default function Home() {
       ],
       attributionControl: false,
     });
+
+    // Moved to after styling is loaded
+    setMapLoaded(true);
 
     defBeforeMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
     defAfterMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
