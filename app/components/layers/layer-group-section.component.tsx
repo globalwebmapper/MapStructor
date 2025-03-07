@@ -16,6 +16,7 @@ import NewLayerSectionForm from "../forms/NewLayerSectionForm";
 import { IconColors } from "@/app/models/colors.model";
 import {CSSTransition} from 'react-transition-group';
 import Layer from "../layers/layer.component";
+import LayerForm from "../forms/LayerForm";
 
 type LayerGroupSectionProps = { // Props for ExpandableLayerGroupSection
     layersHeader: string,
@@ -52,6 +53,8 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const [standAloneLayers, setStandaloneLayers] = useState<PrismaLayer[]>([]);
     const nodeRef = useRef<HTMLDivElement | null>(null);
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
+    const [layerEditOpen, setLayerEditOpen] = useState<boolean>(false);
+    const [currentLayer, setCurrentLayer] = useState<PrismaLayer>();
 
     useEffect(() => {
         const isAuthed: boolean = (props.authToken ?? '') != '';
@@ -65,7 +68,13 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
         props.afterClose();
         setEditOpen(false);
         setLayerGroup(undefined);
-    }
+    };
+
+    const closeLayerEdit = () => {
+        props.afterClose();
+        setLayerEditOpen(false);
+        setCurrentLayer(undefined);
+    };
 
     //handle functions for animation
     const handleEnter = () => {
@@ -130,7 +139,6 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
             });
         };
 
-        console.log("Standalone Layers: ", standAloneLayers);
 
         const toggleStandaloneLayerVisibility = (layerId: string) => {
             let updatedLayerIds: string[];
@@ -380,7 +388,10 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                     activeLayers={props.activeLayers}
                     activeLayerCallback={props.activeLayerCallback}
                     openWindow={props.openWindow}
-                    editFormVisibleCallback={setEditOpen}
+                    editFormVisibleCallback={(isOpen) => {
+                        setLayerEditOpen(isOpen);
+                        setCurrentLayer(layer);
+                    }}
                     mapZoomCallback={props.mapZoomCallback}
                     fetchLayerDataCallback={() => {}}
                     afterSubmit={props.afterSubmit}
@@ -430,6 +441,41 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                                     <NewLayerGroupForm authToken={props.authToken} sectionLayerId={props.layer.id} layerGroup={layerGroup} afterSubmit={closeEdit}></NewLayerGroupForm>
                                     )
                                 }
+                            </Modal>
+                        )
+                    }
+                    {
+                        layerEditOpen && (
+                            <Modal
+                                style={{
+                                    overlay: {
+                                        zIndex: "1000",
+                                    },
+                                    content: {
+                                        width: '30%',
+                                        right: '5px'
+                                    }
+                                }}
+                                isOpen={layerEditOpen}
+                                onRequestClose={closeLayerEdit}
+                                contentLabel='Edit Layer'
+                            >
+                                {isLoading ? (
+                                    <Loader center={true}/>
+                                ) : (
+                                    <LayerForm
+                                        authToken={props.authToken}
+                                        standalone={true}
+                                        layerConfig={currentLayer}
+                                        groupName={props.layer.label}
+                                        sectionName={props.layer.id}
+                                        afterSubmit={() => {
+                                            props.removeMapLayerCallback(currentLayer?.id ?? '');
+                                            closeLayerEdit();
+                                            getStandaloneLayers();
+                                        }}
+                                    />
+                                )}
                             </Modal>
                         )
                     }
