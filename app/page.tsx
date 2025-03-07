@@ -1429,6 +1429,22 @@ export default function Home() {
     hasDoneInitialZoom,
   ]);
 
+//   useEffect(() => {
+//     // Fetch or filter the layers to get the standalone layers
+//     const fetchStandaloneLayers = async () => {
+//         try {
+//             const response = await fetch('/api/layers'); // Replace with your actual API endpoint
+//             const layers = await response.json();
+//             const standaloneLayers = layers.filter((layer: SectionLayerItem) => layer.standalone === true);
+//             setStandaloneLayers(standaloneLayers);
+//         } catch (error) {
+//             console.error('Error fetching standalone layers:', error);
+//         }
+//     };
+
+//     fetchStandaloneLayers();
+// }, []);
+
   useEffect(() => {
     if (!mapLoaded) return;
     if (currBeforeMap === null || currAfterMap === null) return;
@@ -1732,8 +1748,8 @@ export default function Home() {
                 The method works in the same way as the other parse layers functions, and brings in layers from our standalone api
                 methods. 
                */}
-              {(standAloneLayers ?? []).map((layer, idx) => {
-                console.log("Checking layer sections: ",layer);
+              {/* {(standAloneLayers ?? []).map((layer, idx) => {
+                //console.log("Checking layer sections: ",layer);
                     return (
                       <Layer
                         key={"standalone-layer-component-" + idx}
@@ -1788,7 +1804,7 @@ export default function Home() {
                         inPreviewMode={inPreviewMode}
                       />
                     );
-                  })}
+                  })} */}
               {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) && (
                   <div
                       style={{
