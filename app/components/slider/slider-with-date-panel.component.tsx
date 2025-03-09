@@ -7,8 +7,7 @@ import DatePanelComponent from "./date-panel/date-panel.component";
 // Import CSS
 import "../../slider-timeline-date.css";
 
-
-
+// Custom debounce definition
 const debounce = (func: (...args: any[]) => void, delay: number) => {
   let timeoutId: NodeJS.Timeout;
   return (...args: any[]) => {
@@ -22,14 +21,13 @@ type SliderWithDatePanelProps = {
   callback: (date: moment.Moment | null) => void;
 };
 
-
-
 // ---------------------------------------- Main Function ----------------------------------------
-
-
 
 // props is the parameter that is passed with a type of SliderWithDatePanelProps
 const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
+
+  // ---------------------------------------- useState variables ----------------------------------------
+
   // Variable for tracking the date set by the user -- default to 01 Jan 1663
   const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1663-01-01", "YYYY-MM-DD"));
   // Essentially a numerical value for where the slider button is
@@ -45,14 +43,18 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   // Construct the div element for the slider button
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  // ---------------------------------------- static variables ----------------------------------------
+
   // Static variables for dates (based on the original MENY site)
   const minYear = 1626;
   const maxYear = 1700;
   const totalYears = maxYear - minYear + 1;
   const totalDaysInYear = 365; 
 
+  // Static variable for moving the slider button
   const totalSliderSteps = totalYears * totalDaysInYear;
 
+  // Form a date-like value based on the position of the slider button
   const calculateSliderPosition = (date: moment.Moment) => {
     const year = date.year();
     const dayOfYear = date.dayOfYear();
@@ -65,23 +67,56 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   const middleDate = moment(`${middleYear}-01-01`, "YYYY-MM-DD"); 
   const middleSliderPosition = calculateSliderPosition(middleDate);
 
+  // ---------------------------------------- DATE function variables ----------------------------------------
+
+  // Parse the position of the slider button to get the date
   const updateDate = (position: number) => {
+    // Adding day of year doesn't change the year itself
     const yearOffset = position / totalDaysInYear;
+    // Given the offset, calculate the actual year value
     const newYear = minYear + Math.floor(yearOffset);
     const dayOfYear = Math.round((yearOffset % 1) * totalDaysInYear);
     
+    // Check if the date is the max date or not
     const newDate = newYear === maxYear 
       ? moment("1700-01-01", "YYYY-MM-DD") 
-      : moment().year(newYear).dayOfYear(Math.min(dayOfYear + 1, totalDaysInYear));
+      : moment().year(newYear).dayOfYear(Math.min(dayOfYear, totalDaysInYear));
 
+    // Set the current data and trigger a callback
     setCurrDate(newDate);
     props.callback(newDate);
   };
 
+  // ---------------------------------------- TIMELINE CLICK function variables ----------------------------------------
+
+  // When the timeline is clicked and just released, move the slider button to that position
+  const handleTimelineClick = (e: React.MouseEvent) => {
+    // Basically if "TIME SLIDE" is showing, hide it
+    if(showTimeSlideText) {
+      setShowTimeSlideText(false);
+    }
+
+    // Move the slider based on that click
+    const slider = sliderRef.current;
+    if (slider) {
+      const rect = slider.getBoundingClientRect();
+
+      // first param is x position of mouse, second is width of slider
+      moveSlider(e.clientX - rect.left, rect.width);
+    }
+  };
+
+  // ---------------------------------------- SLIDER DRAGGED function variables ----------------------------------------
+
+  // Move the slider button based on the position of it
   const moveSlider = (positionX: number, sliderWidth: number) => {
     let position: number = Math.min((positionX / sliderWidth) * totalSliderSteps, totalSliderSteps - 1);
     position = Math.max(position, 0);
+
+    // After calculating position, update it
     setSliderValue(position);
+
+    // Using the position, update the date
     updateDate(position); 
   };
 
@@ -91,27 +126,38 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
       setShowTimeSlideText(false);
     }
 
+    // If the button is down, the slider button is being dragged (most liekely, but behavior is same regardless)
     setIsDragging(true);
-    setSliderColor("darkorange"); 
+
+    // Move the slider based on the initial click
     const slider = sliderRef.current;
     if (slider) {
       const rect = slider.getBoundingClientRect();
+
+      // first param is x position of mouse, second is width of slider
       moveSlider(e.clientX - rect.left, rect.width);
     }
   };
 
+  // Controls the update of the date via dragging the slider (updates every 6ms)
   const throttledMoveSlider = debounce((e: MouseEvent) => {
+
+    // Move the slider based on the mouse dragging
     if (isDragging && sliderRef.current) {
       const slider = sliderRef.current;
       const rect = slider.getBoundingClientRect();
       moveSlider(e.clientX - rect.left, rect.width);
     }
-  }, 10); 
+  }, 6); 
 
+  // When the mouse is released, the slider button is no longer being dragged
   const handleMouseUp = () => {
     setIsDragging(false);
   };
 
+  // ---------------------------------------- useEffects ----------------------------------------
+
+  // When the mouse is being dragged, you need to have listeners for it being moved or the mouse being released
   useEffect(() => {
     document.addEventListener("mouseup", handleMouseUp);
     document.addEventListener("mousemove", throttledMoveSlider);
@@ -121,29 +167,36 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
     };
   }, [isDragging]);
 
-  const handleTimelineClick = (e: React.MouseEvent) => {
-    if(showTimeSlideText)
-      {
-        setShowTimeSlideText(false);
-      }
-    const slider = sliderRef.current;
-    if (slider) {
-      const rect = slider.getBoundingClientRect();
-      const clickX = e.clientX - rect.left; 
-      moveSlider(clickX, rect.width);
-    }
-  };
-
+  // Whenever the slider position has changed, update the necessary values
   useEffect(() => {
     setSliderValue(middleSliderPosition); 
     updateDate(middleSliderPosition); 
   }, [middleSliderPosition]);
 
+  // ---------------------------------------- CSS event variables ----------------------------------------
 
+  // The 4 functions below deal with the CSS of the timline and slider button when hovered over
+  const hoverTimeline = () => {
+    setTimelineColor("rgb(186, 221, 249)");
+    setSliderColor("red");
+  };
+
+  const offHoverTimeline = () => {
+    setTimelineColor("rgb(209, 236, 255)");
+    setSliderColor("#555555");
+  };
+
+  const hoverSlider = () => {
+    setTimelineColor("rgb(209, 236, 255)");
+    setSliderColor(isDragging ? "#f58400" : "#087CA4");
+  };
+
+  const offHoverSlider = () => {
+    setTimelineColor(isDragging ? "rgb(209, 236, 255)" : "rgb(186, 221, 249)");
+    setSliderColor(isDragging ? "#f58400" : "red");
+  };
 
   // ---------------------------------------- Return Statement ----------------------------------------
-
-
 
   return (
     <div>
@@ -152,14 +205,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
       {/* The whole bottom part -- the timeline */}
       <div id="footer"
-        onMouseEnter={() => {
-          setTimelineColor("rgb(186, 221, 249)");
-          setSliderColor("red");
-        }} 
-        onMouseLeave={() => {
-          setTimelineColor("rgb(209, 236, 255)");
-          setSliderColor("#555555");
-        }}
+        onMouseEnter={hoverTimeline}
+        onMouseLeave={offHoverTimeline}
       >
         <div id="slider"
           style={{
@@ -223,14 +270,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
               left: `${(sliderValue / totalSliderSteps) * 100}%`, 
               backgroundColor: sliderColor 
             }} 
-            onMouseEnter={() => {
-              setTimelineColor("rgb(209, 236, 255)");
-              setSliderColor(isDragging ? "#f58400" : "#087CA4")
-            }} 
-            onMouseLeave={() => {
-              setTimelineColor(isDragging ? "rgb(209, 236, 255)" : "rgb(186, 221, 249)");
-              setSliderColor(isDragging ? "#f58400" : "red")
-            }} 
+            onMouseEnter={hoverSlider} 
+            onMouseLeave={offHoverSlider} 
           ></div>
         </div>
       </div>
