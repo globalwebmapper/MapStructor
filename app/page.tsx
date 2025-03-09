@@ -1273,7 +1273,7 @@ export default function Home() {
     const defAfterMap = new mapboxgl.Map({
       ...beforeMapItem,
       container: afterMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/mapny/clm2yrx1y025401p93v26bhyl",
+      style: "mapbox://styles/mapny/clm2yu5fg022801phfh479c8x",
       zoom: +(hashParams?.at(0) ?? 15.09),
       bearing: +(hashParams?.at(3) ?? 0),
       center: [
