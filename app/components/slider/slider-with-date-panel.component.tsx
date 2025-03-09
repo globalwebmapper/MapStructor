@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from "react"; 
+// Import moment for date manipulation
 import moment from "moment";
 import DatePanelComponent from "./date-panel/date-panel.component";
+
+// Import CSS
 import "../../slider-timeline-date.css";
 
 const debounce = (func: (...args: any[]) => void, delay: number) => {
@@ -16,7 +19,8 @@ type SliderWithDatePanelProps = {
 };
 
 const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
-  const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1663-06-01", "YYYY-MM-DD")); 
+  // Variable for tracking the date set by the user -- default to 01 Jan 1663
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1663-01-01", "YYYY-MM-DD")); 
   const [sliderValue, setSliderValue] = useState<number>(0); 
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [showTimeSlideText, setShowTimeSlideText] = useState<boolean>(true); 
@@ -38,7 +42,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   };
 
   const middleYear = Math.floor((minYear + maxYear) / 2);
-  const middleDate = moment(`${middleYear}-06-01`, "YYYY-MM-DD"); 
+  const middleDate = moment(`${middleYear}-01-01`, "YYYY-MM-DD"); 
   const middleSliderPosition = calculateSliderPosition(middleDate);
 
   const updateDate = (position: number) => {
@@ -116,15 +120,18 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
   return (
     <div>
+      {/* The blue box in the bottom right of the map screen that displays the date */}
       <DatePanelComponent currDate={currDate} />
 
       <div id="footer">
           <div id="slider">
             <div className="timeline" onClick={handleTimelineClick}>
+              {/* Tick #1 -> 1633 */}
               <div className="year">
                 <span id="ruler-date1">1633</span>
                 <span className="timeline-ruler"></span>
               </div>
+              {/* Tick #2 -> 1648 */}
               <div className="year">
                 <span id="ruler-date2">1648</span>
                 <span className="timeline-ruler"></span>
@@ -133,20 +140,24 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
                 showTimeSlideText ? 
                 (
                   <div className="year">
-                    <span id="ruler-date3">&nbsp; ⇦ &nbsp; TIME  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SLIDE &nbsp; ⇨</span>
+                    <span id="ruler-date3">&nbsp; ⇦ &nbsp; TIME &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SLIDE &nbsp; ⇨ &nbsp; &nbsp; &nbsp; &nbsp;</span>
                     <span className="timeline-ruler"></span>
                   </div>
-                ) : (
+                )
+                : // If the time slider has been moved, "TIME SLIDE" text will be hidden and replaced with "1663"
+                (
                   <div className="year">
                     <span id="ruler-date3">1663</span>
                     <span className="timeline-ruler"></span>
                   </div>
                 )
               }
+              {/* Tick #4 -> 1677 */}
               <div className="year">
                 <span id="ruler-date4">1677</span>
                 <span className="timeline-ruler"></span>
               </div>
+              {/* Tick #5 -> 1692 */}
               <div className="year">
                 <span id="ruler-date5">1692</span>
                 <span className="timeline-ruler"></span>
@@ -154,6 +165,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
             </div>
           </div>
 
+        {/* The slider button itself */}
         <div
           id="horizontal-slider"
           ref={sliderRef}
