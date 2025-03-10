@@ -139,7 +139,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
             });
         };
 
-
+        //HERE
         const enableStandAloneLayers = () => {
             standAloneLayers.forEach(layer => {
                 if (layer.id && layer.enableByDefault && !props.activeLayers.includes(layer.id))
@@ -156,6 +156,8 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
         }, 700); // Wait for rendering
     }, [standAloneLayers]);
 
+
+    //TO HERE
 
         const toggleStandaloneLayerVisibility = (layerId: string) => {
             let updatedLayerIds: string[];
