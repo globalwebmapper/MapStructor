@@ -139,6 +139,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
             });
         };
 
+
         const enableStandAloneLayers = () => {
             standAloneLayers.forEach(layer => {
                 if (layer.id && layer.enableByDefault && !props.activeLayers.includes(layer.id))
