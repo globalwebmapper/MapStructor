@@ -184,20 +184,29 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
                     borderColor: "grey",
                     borderWidth: "1px",
                     borderStyle: "solid",
-                    borderRadius: "5px",
+                    borderRadius: "3px",
                     padding: "1px",
                     paddingLeft: "5px",
                     paddingRight: "5px",
                     marginRight: "5px",
                     cursor: "pointer",
-                    color: "black"
+                    color: "black",
+                    fontWeight: "lighter",
+                    fontSize: "0.9em",
+                    backgroundColor: "#ededed",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#dddddd"
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#ededed"
                   }}
                 >
                   <FontAwesomeIcon
                     icon={getFontawesomeIcon(FontAwesomeLayerIcons.GLOBE)}
-                    style={{ marginRight: "5px", color: "inherit" }} 
+                    style={{marginLeft: "8px", marginRight: "5px", color: "inherit",  display: "inline"}}
                   />
-                  {"3D New Amsterdam"}
+                  <p style={{display:"inline-block", padding: "0px 8px 0px 8px"}}>3D New Amsterdam</p>
                 </button>
               </strong>
             </a>
