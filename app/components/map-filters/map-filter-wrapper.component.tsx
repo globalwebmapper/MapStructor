@@ -278,11 +278,33 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
           <button
             onClick={() => props.zoomToWorld()}
             id="zoom-world"
+            style={{
+              borderColor: "grey",
+              borderWidth: "1px",
+              borderStyle: "solid",
+              borderRadius: "3px",
+              padding: "1px",
+              paddingLeft: "5px",
+              paddingRight: "5px",
+              marginRight: "5px",
+              cursor: "pointer",
+              color: "black",
+              fontWeight: "lighter",
+              fontSize: "0.9em",
+              backgroundColor: "#ededed",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#dddddd"
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#ededed"
+            }}
           >
             <FontAwesomeIcon
               icon={getFontawesomeIcon(FontAwesomeLayerIcons.GLOBE)}
+              style={{marginLeft: "8px", marginRight: "5px", color: "inherit",  display: "inline"}}
             ></FontAwesomeIcon>
-            <strong> Zoom to World</strong>
+            <p style={{display:"inline-block", padding: "0px 8px 0px 8px"}}> Zoom to World</p>
           </button>
           </strong>
         </center>
