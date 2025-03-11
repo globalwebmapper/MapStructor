@@ -30,6 +30,24 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
   // Variable for tracking the date set by the user -- default to 01 Jan 1663
   const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1663-01-01", "YYYY-MM-DD"));
+
+  const [nid, setNid] = useState<string | null>(null);
+
+  // -------- changing date  -------------
+      // This effect runs when currDate changes and updates the nid based on the year
+    useEffect(() => {
+        if (currDate) {
+            const selectedYear = currDate.year();
+            fetch(`/api/get-nid?year=${selectedYear}`)
+                .then(res => res.json())
+                .then(data => {
+                    setNid(data.nid);  // Update the nid state
+                })
+                .catch(err => console.error("Error fetching NID:", err));
+        }
+    }, [currDate]);  // This runs whenever currDate updates
+
+
   // Essentially a numerical value for where the slider button is
   const [sliderValue, setSliderValue] = useState<number>(0);
   // Whether the user is dragging the slider button or not

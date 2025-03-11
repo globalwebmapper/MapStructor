@@ -7,6 +7,18 @@ const SliderPopUp = (props: GenericPopUpProps) => {
 
     const nid: number | string | null = props.nid ?? null;
 
+    // useEffect(() => {
+    // if (nid) {
+    //     fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
+    //         .then(res => res.json())
+    //         .then(data => {
+    //             setRenderedEntities([{ nid, content: data[0].rendered_entity }]);
+    //         })
+    //         .catch(err => console.error("Error fetching popup content:", err));
+    // }
+    // }, [nid]);  // This ensures the popup updates whenever nid changes
+
+
     useEffect(() => {
         if (nid && nid !== lastNid) {  
             fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
