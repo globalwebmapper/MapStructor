@@ -24,8 +24,9 @@ export async function PUT(request: Request, context: any) {
         }, {status: 401});
     }
     const { params } = context;
-    const Layerr = await request.json()
+    const Layerr = await request.json();
     const prisma = new PrismaClient();
+    try{
     const layer = await prisma.layerData.update({
         where: {
             id: params.id
@@ -51,7 +52,7 @@ export async function PUT(request: Request, context: any) {
             zoom: Layerr.zoom,
             bearing: Layerr.bearing,
             groupName: Layerr.groupName,
-            topLayerClass: Layerr.topLayerClass,
+            topLayerClass: Layerr.topLayerClass, 
             infoId: Layerr.infoId,
             sourceType: Layerr.sourceType,
             sourceUrl: Layerr.sourceUrl,
@@ -66,13 +67,28 @@ export async function PUT(request: Request, context: any) {
             clickStyle:Layerr.clickStyle,
             clickHeader:Layerr.clickHeader,
             hoverContent:Layerr.hoverContent,
+            standalone:Layerr.standalone,
         }
     })
 
     return NextResponse.json({
         layer
     })
-}
+} catch (error) {
+    console.error("Error updating layer:", error);
+    // Narrow the type of error
+    if (error instanceof Error) {
+        return NextResponse.json({
+            message: "Internal Server Error",
+            error: error.message, // Safely access the 'message' property
+        }, { status: 500 });
+    } else {
+        return NextResponse.json({
+            message: "Internal Server Error",
+            error: "Unknown error occurred",
+        }, { status: 500 });
+    }
+}}
 
 export async function DELETE(request: Request, context: any) {
     if(!Auth(request)){ //protected endpoint
