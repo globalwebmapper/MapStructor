@@ -1273,7 +1273,7 @@ export default function Home() {
     const defAfterMap = new mapboxgl.Map({
       ...beforeMapItem,
       container: afterMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/mapny/clm2yrx1y025401p93v26bhyl",
+      style: "mapbox://styles/mapny/clm2yu5fg022801phfh479c8x",
       zoom: +(hashParams?.at(0) ?? 15.09),
       bearing: +(hashParams?.at(3) ?? 0),
       center: [
@@ -1428,6 +1428,22 @@ export default function Home() {
     currZoomLayers,
     hasDoneInitialZoom,
   ]);
+
+//   useEffect(() => {
+//     // Fetch or filter the layers to get the standalone layers
+//     const fetchStandaloneLayers = async () => {
+//         try {
+//             const response = await fetch('/api/layers'); // Replace with your actual API endpoint
+//             const layers = await response.json();
+//             const standaloneLayers = layers.filter((layer: SectionLayerItem) => layer.standalone === true);
+//             setStandaloneLayers(standaloneLayers);
+//         } catch (error) {
+//             console.error('Error fetching standalone layers:', error);
+//         }
+//     };
+
+//     fetchStandaloneLayers();
+// }, []);
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -1732,8 +1748,8 @@ export default function Home() {
                 The method works in the same way as the other parse layers functions, and brings in layers from our standalone api
                 methods. 
                */}
-              {(standAloneLayers ?? []).map((layer, idx) => {
-                console.log("Checking layer sections: ",layer);
+              {/* {(standAloneLayers ?? []).map((layer, idx) => {
+                //console.log("Checking layer sections: ",layer);
                     return (
                       <Layer
                         key={"standalone-layer-component-" + idx}
@@ -1788,7 +1804,7 @@ export default function Home() {
                         inPreviewMode={inPreviewMode}
                       />
                     );
-                  })}
+                  })} */}
               {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) && (
                   <div
                       style={{

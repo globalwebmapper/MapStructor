@@ -113,6 +113,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
 
     return (
         <div className="layer-list-row" id={"Layer Group Row"}>
+            {!props.item.standalone && (
             <input
                 type="checkbox"
                 id={`section-layer-group-item-${props.item?.id ?? ""}`}
@@ -123,7 +124,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                 // NEW IMPLEMENTATION - If a layer's ID is in the active layers list, the checkbox is checked
                 checked={props.activeLayers.includes(props.item?.layerId ?? '')} 
                 onChange={toggleLayerVisibility}
-            />
+            />)}
             <label htmlFor={`section-layer-group-item-${props.item?.id ?? ""}`}>
                 <FontAwesomeIcon 
                     icon={getFontawesomeIcon(props.item.iconType, props.item.isSolid)} 
@@ -132,7 +133,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                 {props.item.label}
                 <div className="dummy-label-layer-space"></div>
             </label>
-
+            
             <div className="layer-buttons-block">
                 <div className="layer-buttons-list">
                     {
@@ -142,9 +143,9 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                                     className="edit-button"
                                     color="black"
                                     icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
-                                    onClick={() => {
+                                    onClick={async () => {
                                         props.openWindow();
-                                        props.fetchLayerDataCallback(props.item.layerId ?? '');
+                                        await props.fetchLayerDataCallback(props.item.layerId ?? '');
                                         props.editFormVisibleCallback(true);
                                     }}
                                 />
@@ -152,7 +153,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                         )
                     }
                     {
-                        showEditorOptions && (
+                        showEditorOptions && !props.item.standalone && (
                             <div className="tooltip-container" data-title="Move Up">
                                 <FontAwesomeIcon
                                     className="decrement-order"
@@ -167,7 +168,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                         )
                     }
                     {
-                        showEditorOptions && (
+                        showEditorOptions && !props.item.standalone && (
                             <div className="tooltip-container" data-title="Move Down">
                                 <FontAwesomeIcon
                                     className="increment-order"
@@ -195,7 +196,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                         props.item.standalone && (
                             <>
                                 {
-                                    (
+                                    (                                        
                                         <div className="tooltip-container" data-title="Zoom to Layer">
                                             <FontAwesomeIcon
                                                 className="zoom-to-layer"
@@ -215,14 +216,14 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
                                             </div>
                                     )
                                 }
-                                <div className="tooltip-container" data-title="Group Info">
+                                <div className="tooltip-container" data-title="Layer Info">
                                     <FontAwesomeIcon
                                         className="layer-info trigger-popup"
                                         color="grey"
                                         icon={faInfoCircle}
-                                        onClick={() => props.editFormVisibleCallback(true)} 
+                                        //onClick={() => props.openWindow()} 
                                     />
-                                </div>
+                                </div>    
                             </>
                         )
                     }

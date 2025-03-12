@@ -73,7 +73,7 @@ export default function LayerForm(props: LayerFormProps) {
           props.layerConfig?.bottomRightBoundLongitude ?? null,
       zoomToBounds: props.layerConfig?.zoomToBounds ?? false,
       enableByDefault: props.layerConfig?.enableByDefault ?? false,
-      topLayerClass: props.groupName,
+      topLayerClass: props.layerConfig?.topLayerClass ?? "",
       infoId: props.layerConfig?.infoId ?? "",
       type: props.layerConfig?.type ?? ("" as LayerType),
       sourceType: props.layerConfig?.sourceType ?? "",
@@ -369,20 +369,32 @@ export default function LayerForm(props: LayerFormProps) {
           alert(`Error: ${error.message}`);
         }
       } else if (submitType === "UPDATE") {
-        console.log({ ...layerData });
+        console.log("Inital stuff:" , { ...layerData });
+        console.log("JSon String: ", JSON.stringify({...layerData}));
         if (props.layerConfig) {
           try {
-            await fetch("/api/LayerData/" + props.layerConfig.id, {
+            const response = await fetch("/api/LayerData/" + props.layerConfig.id, {
               method: "PUT",
               headers: {
                 authorization: props.authToken,
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({ ...layerData }),
-            });
-            alert(`Layer Updated`);
-            props.afterSubmit();
-          } catch (error: any) {
+            });if (!response.ok) {
+              let errorData;
+              try {
+                  errorData = await response.json();
+              } catch (jsonError) {
+                  console.error("Error parsing JSON response:", jsonError);
+                  errorData = { message: "Unknown error occurred" };
+              }
+              console.error("Error updating layer:", errorData);
+              alert(`Error: ${errorData.message}`);
+          } else {
+              alert(`Layer Updated`);
+              props.afterSubmit();
+          }
+      } catch (error: any) {
             alert(`Error: ${error.message}`);
           }
         } else {
