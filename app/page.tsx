@@ -1670,9 +1670,9 @@ export default function Home() {
               }}
           >
             {layerPanelVisible ? (
-                <span id="dir-txt">&#9204;</span>
+                <span style={{transform: "scale(0.8)", display: "inline-block"}} id="dir-txt">&#9204;</span>
             ) : (
-                <span id="dir-txt">⏵</span>
+                <span style={{transform: "scale(0.8)", display: "inline-block"}} id="dir-txt">⏵</span>
             )}
           </button>
 
