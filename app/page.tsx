@@ -39,7 +39,6 @@ import "@fontsource/source-sans-pro";
 import "@fontsource/source-sans-pro/400.css"; // Specify weight
 import "./popup.css";
 import { getCookie } from "cookies-next";
-import Layer from "./components/layers/layer.component";
 
 
 
@@ -54,6 +53,14 @@ mapboxgl.accessToken = "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wM
 
 // HTML rendering for the page
 export default function Home() {
+  // MAPS (useRef prevents rerendering)
+  const currBeforeMap = useRef<mapboxgl.Map | null>(null);
+  const currAfterMap = useRef<mapboxgl.Map | null>(null);
+
+  // MOVE LAYERS -- useStates
+  const [showLayerOrdering, setShowLayerOrdering] = useState<boolean>(false);
+  const [layerOrder, setLayerOrder] = useState<PrismaLayer[]>([]);
+
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
   const [popUp, setPopUp] = useState<GenericPopUpProps>({
     layerName: "",
@@ -77,8 +84,6 @@ export default function Home() {
   const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
   const [currSectionLayers, setSectionLayers] = useState<SectionLayer[]>();
   const [standAloneLayers, setStandaloneLayers] = useState<PrismaLayer[]>(); //addition of standalone layer type for useEffect and display the standalone layers
-  const currBeforeMap = useRef<mapboxgl.Map | null>(null);
-  const currAfterMap = useRef<mapboxgl.Map | null>(null);
   const [hashParams, setHashParams] = useState<string[]>([]);
   const [hasDoneInitialZoom, setHasDoneInitialZoom] = useState<boolean>(false);
   // State variable to determine if groupForm is open or not
@@ -86,11 +91,8 @@ export default function Home() {
   const [currZoomLayers, setCurrZoomLayers] = useState<ZoomLabel[]>([]);
   const [beforeMapItem, setBeforeMapItem] = useState<MapItem>();
   // Variable to be used on map refresh to show currently active layers
-  const [reRenderActiveLayers, setReRenderActiveLayers] =
-      useState<boolean>(false);
+  const [reRenderActiveLayers, setReRenderActiveLayers] = useState<boolean>(false);
   const [buttonLinks, setButtonLinks] = useState<ButtonLink[]>([]);
-  const [showLayerOrdering, setShowLayerOrdering] = useState<boolean>(false);
-  const [layerOrder, setLayerOrder] = useState<PrismaLayer[]>([]);
   const [currAuthToken, setCurrAuthToken] = useState<string>("");
   const [inPreviewMode, setInPreviewMode] = useState<boolean>(false);
   const activePopupsBefore = useRef<Map<string, mapboxgl.Popup>>(new Map());
@@ -102,159 +104,187 @@ export default function Home() {
 
 
 
-
-  
-
-  const moveLayerUp = (l1: PrismaLayer) => {
-
-    let beforeIndex = layerOrder.findIndex((e) => e.id == l1.id) - 1;
-    console.log(beforeIndex);
-    console.log(layerOrder);
-    if (beforeIndex >= 0) {
-      currAfterMap.current?.moveLayer(l1.id, layerOrder[beforeIndex].id);
-      currBeforeMap.current?.moveLayer(l1.id, layerOrder[beforeIndex].id);
-
-      let tempLayerOrder = [...layerOrder];
-
-      let tempLayer = layerOrder[beforeIndex + 1];
-
-      let tempBeforeLayer = layerOrder[beforeIndex];
-
-      let tempViewOrder = tempLayer.viewOrder;
-      tempLayer.viewOrder = tempBeforeLayer.viewOrder;
-      tempBeforeLayer.viewOrder = tempViewOrder;
-
-      tempLayerOrder[beforeIndex] = tempLayer;
-      tempLayerOrder[beforeIndex + 1] = tempBeforeLayer;
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempBeforeLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      setLayerOrder(tempLayerOrder);
-
-      // console.log('move layer has been called')
-      // console.log(currAfterMap?.current.getStyle()?.layers)
-      // console.log(tempLayerOrder)
-      // console.log(layerOrder)
-    }
-  };
-
-  const moveLayerDown = (l1: PrismaLayer) => {
-    let beforeIndex = layerOrder.findIndex((e) => e.id == l1.id) + 2;
-
-    if (beforeIndex < layerOrder.length) {
-      currAfterMap.current?.moveLayer(l1.id, layerOrder[beforeIndex].id);
-      currBeforeMap.current?.moveLayer(l1.id, layerOrder[beforeIndex].id);
-
-      let tempLayerOrder = [...layerOrder];
-      let tempLayer = layerOrder[beforeIndex - 2];
-
-      let tempBeforeLayer = layerOrder[beforeIndex - 1];
-
-      let tempViewOrder = tempLayer.viewOrder;
-      tempLayer.viewOrder = tempBeforeLayer.viewOrder;
-      tempBeforeLayer.viewOrder = tempViewOrder;
-
-      tempLayerOrder[beforeIndex - 1] = tempLayer;
-      tempLayerOrder[beforeIndex - 2] = tempBeforeLayer;
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempBeforeLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      setLayerOrder(tempLayerOrder);
-    } else {
-      currAfterMap.current?.moveLayer(l1.id);
-      currBeforeMap.current?.moveLayer(l1.id);
-
-      let tempLayerOrder = [...layerOrder];
-      let tempLayer = l1;
-      let tempLayerViewOrder = tempLayer.viewOrder;
-
-      let lastLayer = layerOrder[layerOrder.length - 1];
-      tempLayer.viewOrder = lastLayer.viewOrder;
-      lastLayer.viewOrder = tempLayerViewOrder;
-
-      tempLayerOrder[layerOrder.length - 2] = lastLayer;
-      tempLayerOrder[layerOrder.length - 1] = tempLayer;
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(lastLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      setLayerOrder(tempLayerOrder);
-    }
-  };
+  // ------------------------------ MOVE LAYERS (ORDERING ON MAP RENDER) ------------------------------
 
   const openOrderingMenu = () => {
     if (showLayerOrdering) {
       setShowLayerOrdering(false);
-    } else {
+    }
+    else {
       setShowLayerOrdering(true);
     }
   };
+
+  const moveLayerUp = (layerUp: PrismaLayer) => {
+    // Get the index of the layer to insert this layer before
+    let beforeIndex = layerOrder.findIndex((e) => e.id == layerUp.id) - 1;
+
+    console.log("Layer ordering:", layerOrder);
+    console.log("Index layer wants to move to (up):", beforeIndex);
+
+    // Make sure it is valid to move up (not already at the top)
+    if (beforeIndex >= 0) {
+      // Update both maps (moveLayer is a mapbox api function)
+      currAfterMap.current?.moveLayer(layerUp.id, layerOrder[beforeIndex].id);
+      currBeforeMap.current?.moveLayer(layerUp.id, layerOrder[beforeIndex].id);
+
+      // Shallow copy of the current layer order
+      let TEMP_layerOrder = [...layerOrder];
+
+      // Grab the layers that need updated in the database
+      let TEMP_moveUpLayer = layerOrder[beforeIndex + 1];
+      let TEMP_moveDownLayer = layerOrder[beforeIndex];
+
+      // Swap the viewOrder properties
+      let TEMP_swapOrderHelper = TEMP_moveUpLayer.viewOrder;
+      TEMP_moveUpLayer.viewOrder = TEMP_moveDownLayer.viewOrder;
+      TEMP_moveDownLayer.viewOrder = TEMP_swapOrderHelper;
+
+      // Update the layerOrder array with the new viewOrder properties
+      TEMP_layerOrder[beforeIndex] = TEMP_moveUpLayer;
+      TEMP_layerOrder[beforeIndex + 1] = TEMP_moveDownLayer;
+
+      // Move the desired layer up (in the database)
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveUpLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer up:", e);
+      }
+
+      // Move the layer above down (in the database)
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveDownLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer up (layer to be moved down):", e);
+      }
+
+      // Update the useState for future data
+      setLayerOrder(TEMP_layerOrder);
+    }
+  };
+
+  const moveLayerDown = (layerDown: PrismaLayer) => {
+    // Get layer 2 away because moveLayer inserts the given layer before it
+    let beforeIndex = layerOrder.findIndex((e) => e.id == layerDown.id) + 2;
+
+    // Check if moveLayer should append to the end (false) or move to before another layer
+    if (beforeIndex < layerOrder.length) {
+      // Update both maps (moveLayer is a mapbox api function -- layerID, insertBeforeID)
+      currAfterMap.current?.moveLayer(layerDown.id, layerOrder[beforeIndex].id);
+      currBeforeMap.current?.moveLayer(layerDown.id, layerOrder[beforeIndex].id);
+
+      // Shallow copy of the current layer order
+      let TEMP_layerOrder = [...layerOrder];
+
+      // Grab the layers that need updated in the database
+      let TEMP_moveDownLayer = layerOrder[beforeIndex - 2];
+      let TEMP_moveUpLayer = layerOrder[beforeIndex - 1];
+
+      // Swap the viewOrder properties
+      let TEMP_swapOrderHelper = TEMP_moveDownLayer.viewOrder;
+      TEMP_moveDownLayer.viewOrder = TEMP_moveUpLayer.viewOrder;
+      TEMP_moveUpLayer.viewOrder = TEMP_swapOrderHelper;
+
+      // Update the layerOrder array with the new viewOrder properties
+      TEMP_layerOrder[beforeIndex - 1] = TEMP_moveDownLayer;
+      TEMP_layerOrder[beforeIndex - 2] = TEMP_moveUpLayer;
+
+      // Move the desired layer down (in the database)
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveDownLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer down:", e);
+      }
+
+      // Move the layer below up (in the database)
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveUpLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer down (layer to be moved up):", e);
+      }
+
+      // Update the useState for future data
+      setLayerOrder(TEMP_layerOrder);
+    } 
+
+    // NEEDS TO BE AN ELSE IF -- Otherwise, it doesn't handle case of moving outside index range (ATA 3/18/25)
+    else if (beforeIndex == layerOrder.length) {
+      // Update both maps (moveLayer is a mapbox api function -- layerID) APPENDS TO THE END
+      currAfterMap.current?.moveLayer(layerDown.id);
+      currBeforeMap.current?.moveLayer(layerDown.id);
+
+      // Shallow copy of the current layer order
+      let TEMP_layerOrder = [...layerOrder];
+
+      // Grab the layers that need updated in the database
+      let TEMP_moveDownLayer = layerDown;
+      let TEMP_moveDownLayerViewOrder = TEMP_moveDownLayer.viewOrder; // add in a variable to make swap slightly easier and different
+      let TEMP_moveUpLayer = layerOrder[layerOrder.length - 1];
+
+      // Swap the viewOrder properties
+      TEMP_moveDownLayer.viewOrder = TEMP_moveUpLayer.viewOrder;
+      TEMP_moveUpLayer.viewOrder = TEMP_moveDownLayerViewOrder;
+
+      // Update the layerOrder array with the new viewOrder properties
+      TEMP_layerOrder[layerOrder.length - 2] = TEMP_moveUpLayer;
+      TEMP_layerOrder[layerOrder.length - 1] = TEMP_moveDownLayer;
+
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveDownLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer down:", e);
+      }
+
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveUpLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer down (layer to be moved up):", e);
+      }
+
+      setLayerOrder(TEMP_layerOrder);
+    }
+  };
+
+  // ---------------------------------------------------------------------------------------------
   
+
+
   const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
@@ -525,7 +555,7 @@ export default function Home() {
       const handleEvent = createHandleEvent(beforeMap, afterMap, layerConfig);
 
       // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
-      //beforeMap.current?.on("load", () => {
+      beforeMap.current?.on("load", () => {
         // Added the part after the && to help with "Resource already exists" error
         if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
           if (layerConfig.time) {
@@ -546,10 +576,10 @@ export default function Home() {
               (beforeMap.current as any)._eventHandlers || {};
           (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
-      //});
+      });
 
       // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
-      //afterMap.current?.on("load", () => {
+      afterMap.current?.on("load", () => {
         // Added the part after the && to help with "Resource already exists" error
         if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
           if (layerConfig.time) {
@@ -570,14 +600,23 @@ export default function Home() {
               (afterMap.current as any)._eventHandlers || {};
           (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
-      //});
+      });
     }
   };
 
+
+
+
+  
+
+
+
+
+
   function createHandleEvent(
-      beforeMap: MutableRefObject<mapboxgl.Map | null>,
-      afterMap: MutableRefObject<mapboxgl.Map | null>,
-      layerConfig: PrismaLayer
+    beforeMap: MutableRefObject<mapboxgl.Map | null>, 
+    afterMap: MutableRefObject<mapboxgl.Map | null>, 
+    layerConfig: PrismaLayer
   ) {
     let hoveredId: string | number | undefined = undefined;
     let hoverStyleString: string;
@@ -587,25 +626,19 @@ export default function Home() {
     var newNid: number | string | undefined;
     var previousName: string | undefined;
     var newName: string | undefined;
-    let beforeHoverPopup = new mapboxgl.Popup({
-      closeOnClick: false,
-      closeButton: false,
-    });
-    let beforeClickHoverPopUp = new mapboxgl.Popup({
-      closeOnClick: false,
-      closeButton: false,
-    });
-    let afterHoverPopup = new mapboxgl.Popup({
-      closeOnClick: false,
-      closeButton: false,
-    });
-    let afterClickHoverPopUp = new mapboxgl.Popup({
-      closeOnClick: false,
-      closeButton: false,
-    });
+    let beforeHoverPopup = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
+    let beforeClickHoverPopUp = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
+    let afterHoverPopup = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
+    let afterClickHoverPopUp = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
+
+
+
     //Determine clickPopup styling vs hoverPopup styling
     //They're the same right now
     popUpType = layerConfig.clickStyle as PopupType;
+
+
+
     return (e: any) => {
       if (e.type === "click" && layerConfig.click) {
         let nIdPropNames: string[] = ['drupalNid', 'nid', 'node_id', 'node', 'NID_num'];
