@@ -526,7 +526,9 @@ export default function Home() {
       ];
       //Create generic layerhandler for both maps
       const handleEvent = createHandleEvent(beforeMap, afterMap, layerConfig);
-      if (!beforeMap.current?.getLayer(layerConfig.id)) {
+
+      // Added the part after the && to help with "Resource already exists" error
+      if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
         if (layerConfig.time) {
           beforeMap.current.addLayer({
             ...(layerStuff as any),
@@ -535,9 +537,9 @@ export default function Home() {
         }
 
 
-        // else {
-        //   beforeMap.current.addLayer(layerStuff as any);
-        // }
+        else {
+          beforeMap.current.addLayer(layerStuff as any);
+        }
 
 
 
@@ -549,7 +551,9 @@ export default function Home() {
             (beforeMap.current as any)._eventHandlers || {};
         (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
       }
-      if (!afterMap.current?.getLayer(layerConfig.id)) {
+
+      // Added the part after the && to help with "Resource already exists" error
+      if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
         if (layerConfig.time) {
           afterMap.current.addLayer({
             ...(layerStuff as any),
@@ -558,20 +562,19 @@ export default function Home() {
         }
 
 
-        // else {
-        //   afterMap.current.addLayer(layerStuff as any);
-        // }
+        else {
+          afterMap.current.addLayer(layerStuff as any);
+        }
 
-
-
-        afterMap.current.on("mousemove", layerConfig.id, handleEvent);
-        afterMap.current.on("mouseleave", layerConfig.id, handleEvent);
-        afterMap.current.on("click", layerConfig.id, handleEvent);
-        // Store the reference to the handler in a way you can access it later if needed
-        (afterMap.current as any)._eventHandlers =
-            (afterMap.current as any)._eventHandlers || {};
-        (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
-      }
+          afterMap.current?.on("mousemove", layerConfig.id, handleEvent);
+          afterMap.current?.on("mouseleave", layerConfig.id, handleEvent);
+          afterMap.current?.on("click", layerConfig.id, handleEvent);
+          // Store the reference to the handler in a way you can access it later if needed
+          (afterMap.current as any)._eventHandlers =
+              (afterMap.current as any)._eventHandlers || {};
+          (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
+        }
+      //});
     }
   };
 
@@ -1263,7 +1266,7 @@ export default function Home() {
     const defAfterMap = new mapboxgl.Map({
       ...beforeMapItem,
       container: afterMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/nittyjee/cjowjzrig5pje2rmmnjb5b0y2",
+      style: "mapbox://styles/mapny/clm2yrx1y025401p93v26bhyl",
       zoom: +(hashParams?.at(0) ?? 15.09),
       bearing: +(hashParams?.at(3) ?? 0),
       center: [
@@ -1272,6 +1275,7 @@ export default function Home() {
       ],
       attributionControl: false,
     });
+
 
     defBeforeMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
     defAfterMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
@@ -1391,47 +1395,82 @@ export default function Home() {
     hasDoneInitialZoom,
   ]);
 
+//   useEffect(() => {
+//     // Fetch or filter the layers to get the standalone layers
+//     const fetchStandaloneLayers = async () => {
+//         try {
+//             const response = await fetch('/api/layers'); // Replace with your actual API endpoint
+//             const layers = await response.json();
+//             const standaloneLayers = layers.filter((layer: SectionLayerItem) => layer.standalone === true);
+//             setStandaloneLayers(standaloneLayers);
+//         } catch (error) {
+//             console.error('Error fetching standalone layers:', error);
+//         }
+//     };
+
+//     fetchStandaloneLayers();
+// }, []);
+
   useEffect(() => {
     if (!mapLoaded) return;
     if (currBeforeMap === null || currAfterMap === null) return;
 
-    currLayers.forEach((layer) => {
-      if ( 
-          activeLayerIds.includes(layer.id) &&
-          currBeforeMap.current?.getLayer(layer.id)
-      ) {
-        currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
-        currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
-      } else {
-        currBeforeMap.current!.setLayoutProperty(
-            layer.id,
-            "visibility",
-            "none"
-        );
-        currAfterMap.current!.setLayoutProperty(
-            layer.id,
-            "visibility",
-            "none"
-        );
-        const popupBefore = activePopupsBefore.current.get(layer.id);
-        const popupAfter = activePopupsAfter.current.get(layer.id);
-        if (popupBefore)
-        {
-          popupBefore.remove();
-          activePopupsBefore.current.delete(layer.id);
+    function updateLayerVisibility() {
+      if (!currBeforeMap.current?.isStyleLoaded() || !currAfterMap.current?.isStyleLoaded()) return;
+
+      currLayers.forEach((layer) => {
+        if ( 
+            activeLayerIds.includes(layer.id) &&
+            currBeforeMap.current?.getLayer(layer.id)
+        ) {
+          currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
+          currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
+        } else {
+          currBeforeMap.current!.setLayoutProperty(
+              layer.id,
+              "visibility",
+              "none"
+          );
+          currAfterMap.current!.setLayoutProperty(
+              layer.id,
+              "visibility",
+              "none"
+          );
+          const popupBefore = activePopupsBefore.current.get(layer.id);
+          const popupAfter = activePopupsAfter.current.get(layer.id);
+          if (popupBefore)
+          {
+            popupBefore.remove();
+            activePopupsBefore.current.delete(layer.id);
+          }
+          if (popupAfter)
+          {
+            popupAfter.remove();
+            activePopupsAfter.current.delete(layer.id);
+          }
+          if(popUpVisible)
+          {
+            setPopUpVisible(false);
+          }
         }
-        if (popupAfter)
-        {
-          popupAfter.remove();
-          activePopupsAfter.current.delete(layer.id);
-        }
-        if(popUpVisible)
-        {
-          setPopUpVisible(false);
-        }
-      }
-    });
-  }, [activeLayerIds, reRenderActiveLayers, hasDoneInitialZoom]);
+      });
+    }
+
+    // Run immediately if styles are already loaded
+    if (currBeforeMap.current?.isStyleLoaded() && currAfterMap.current?.isStyleLoaded()) {
+      updateLayerVisibility();
+    }
+
+    // Listen for style loading if not ready yet
+    currBeforeMap.current?.on("styledata", updateLayerVisibility);
+    currAfterMap.current?.on("styledata", updateLayerVisibility);
+
+    // Cleanup function to remove event listeners on unmount
+    return () => {
+      currBeforeMap.current?.off("styledata", updateLayerVisibility);
+      currAfterMap.current?.off("styledata", updateLayerVisibility);
+    };
+  }, [mapLoaded, currBeforeMap, currAfterMap, activeLayerIds, reRenderActiveLayers, hasDoneInitialZoom]);
 
   useEffect(() => {
     if (!currDate) return;
@@ -1668,12 +1707,70 @@ export default function Home() {
                     />
                 );
               })}
-              {standAloneLayers?.map((layer, idx) => (
-    <div key={`standalone-layer-${idx}`}>
-        <FontAwesomeIcon icon={faPlayCircle} />
-        <span>{layer.label}</span>
-    </div>
-))}
+              
+
+              {/* 
+                This UI implementation is the means by which the actual standalone layers are displayed in the menu. 
+                The method works in the same way as the other parse layers functions, and brings in layers from our standalone api
+                methods. 
+               */}
+              {(standAloneLayers ?? []).map((layer, idx) => {
+                console.log("Checking layer sections: ",layer);
+                    return (
+                      <Layer
+                        key={"standalone-layer-component-" + idx}
+                        item={{ ...layer, 
+                          isSolid: false, 
+                          iconType: parseFromString(layer.iconType), 
+                          zoom: layer.zoom ?? 0, 
+                          bearing: layer.bearing ?? 0,
+                          zoomToBounds: layer.zoomToBounds ?? false,
+                          center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
+                          enableByDefault: layer.enableByDefault ?? false,
+                          bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
+                            ? [
+                                [layer.topLeftBoundLongitude, layer.topLeftBoundLatitude],
+                                [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],
+                              ]
+                            : undefined,
+                            standalone: true,
+                            layerSectionId: layer.layerSection ?? undefined,
+                         }}
+                        activeLayers={activeLayerIds}
+                        activeLayerCallback={(newActiveLayers: string[]) => {
+                          setActiveLayerIds(newActiveLayers);
+                        }}
+                        openWindow={() => {}}
+                        editFormVisibleCallback={setModalOpen}
+                        mapZoomCallback={(zoomProps: MapZoomProps) => {
+                          if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                            currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
+                          } else if (zoomProps.center) {
+                            currBeforeMap.current?.easeTo({
+                              center: zoomProps.center,
+                              zoom: zoomProps.zoom,
+                              bearing: zoomProps.bearing ?? 0,
+                              speed: zoomProps.speed,
+                              curve: zoomProps.curve,
+                              duration: zoomProps.duration,
+                              easing(t) {
+                                return t;
+                              },
+                            });
+                            if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                              router.push(
+                                `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`
+                              );
+                            }
+                          }
+                        }}
+                        fetchLayerDataCallback={() => {}}
+                        afterSubmit={() => {}}
+                        authToken={currAuthToken}
+                        inPreviewMode={inPreviewMode}
+                      />
+                    );
+                  })}
               {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) && (
                   <div
                       style={{
