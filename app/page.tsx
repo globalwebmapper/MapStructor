@@ -56,6 +56,8 @@ export default function Home() {
   // --------------------------------- MAPS ----------------------------------
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
+  // URL hash parameters
+  const [hashParams, setHashParams] = useState<string[]>(["16.34", "-74.01255", "40.704882", "-51.3", "0"]);
 
   // ------------------------------ MOVE LAYERS ------------------------------
   const [showLayerOrdering, setShowLayerOrdering] = useState<boolean>(false);
@@ -85,7 +87,6 @@ export default function Home() {
   const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
   const [currSectionLayers, setSectionLayers] = useState<SectionLayer[]>();
   const [standAloneLayers, setStandaloneLayers] = useState<PrismaLayer[]>(); //addition of standalone layer type for useEffect and display the standalone layers
-  const [hashParams, setHashParams] = useState<string[]>([]);
   const [hasDoneInitialZoom, setHasDoneInitialZoom] = useState<boolean>(false);
   // State variable to determine if groupForm is open or not
   const [groupFormOpen, setGroupFormOpen] = useState<boolean>(false);
@@ -99,7 +100,11 @@ export default function Home() {
   const activePopupsBefore = useRef<Map<string, mapboxgl.Popup>>(new Map());
   const activePopupsAfter = useRef<Map<string, mapboxgl.Popup>>(new Map());
 
-
+  // Route to the desired URL
+  const router = useRouter();
+  
+  // Path to the site (before the hash parameters)
+  const pathname = usePathname();
 
 
 
@@ -282,40 +287,58 @@ export default function Home() {
     }
   };
 
-  // ---------------------------------------------------------------------------------------------
-  
 
 
-  const router = useRouter();
-  const params = useParams();
-  const pathname = usePathname();
 
-  useEffect(() => {
-    // Get the hash from the URL
-    const hash = window.location.hash.replace("#", "");
-    setHashParams(hash.split("/"));
-  }, [router, params]);
+
+  // -------------------------------- INITIALIZE MAP HASH PARAMS ---------------------------------
 
   useEffect(() => {
     if (!hasDoneInitialZoom && hashParams.length > 0) {
+      const previousZoom = sessionStorage.getItem("hashZoom");
+      const previousLat = sessionStorage.getItem("hashLat");
+      const previousLng = sessionStorage.getItem("hashLng");
+      const previousBearing = sessionStorage.getItem("hashBearing");
+      const previousPitch = sessionStorage.getItem("hashPitch");
+
+      if(previousZoom && previousLat && previousLng && previousBearing && previousPitch) {
+        // Logs for debugging
+        /* console.log("After reload -- PREVIOUS HASH FOUND");
+        console.log("Zoom", previousZoom);
+        console.log("Lat", previousLat);
+        console.log("Lng", previousLng);
+        console.log("Bearing", previousBearing);
+        console.log("Pitch", previousPitch); */
+
+        // If the hash parameters are found in sessionStorage, update here for loading the previous map
+        setHashParams([previousZoom, previousLng, previousLat, previousBearing, previousPitch]);
+      }
+      // Branch strictly used for debugging
+      /* else {
+        console.log("After reload -- PREVIOUS HASH NOT FOUND");
+      } */
+
       setBeforeMapItem({
         id: "0",
         name: "Current Satellite",
         mapId: "clm2yrx1y025401p93v26bhyl",
         styleId: "clm2yrx1y025401p93v26bhyl",
         groupId: "",
-        zoom: +(hashParams?.at(0) ?? 15.09),
-        center: [
-          +(hashParams?.at(1) ?? -74.01454),
-          +(hashParams?.at(2) ?? 40.70024),
-        ],
-        bearing: +(hashParams?.at(3) ?? 0),
+        zoom: Number(hashParams?.at(0) ?? 16.34),
+        center: [Number(hashParams?.at(1) ?? -74.01255), Number(hashParams?.at(2) ?? 40.704882)],
+        bearing: Number(hashParams?.at(3) ?? -51.3),
         infoId: ''
       });
+      
       setHasDoneInitialZoom(true);
-    } else if (!hasDoneInitialZoom) {
     }
-  }, [hashParams]);
+  }, []);
+
+
+
+
+
+  // ---------------------------------------------------------------------------------------------
 
   const setMapStyle = (
       map: MutableRefObject<mapboxgl.Map | null>,
@@ -1289,18 +1312,16 @@ export default function Home() {
   useEffect(() => {
     if (!MapboxCompare || !comparisonContainerRef.current) return;
     if (beforeMapItem == null || beforeMapItem.bearing == null) return;
-    setMapLoaded(true);
+    // setMapLoaded(true); ORIGINALLY set here, but I think that's wrong
 
     const defBeforeMap = new mapboxgl.Map({
       ...beforeMapItem,
       container: beforeMapContainerRef.current as HTMLElement,
       style: "mapbox://styles/mapny/clm2yrx1y025401p93v26bhyl",
-      zoom: +(hashParams?.at(0) ?? 15.09),
-      bearing: +(hashParams?.at(3) ?? 0),
-      center: [
-        +(hashParams?.at(1) ?? -74.01454),
-        +(hashParams?.at(2) ?? 40.70024),
-      ],
+      zoom: Number(hashParams?.at(0) ?? 16.34),
+      center: [Number(hashParams?.at(1) ?? -74.01255), Number(hashParams?.at(2) ?? 40.704882)],
+      bearing: Number(hashParams?.at(3) ?? -51.3),
+      pitch: Number(hashParams?.at(4) ?? 0),
       attributionControl: false,
     });
 
@@ -1308,12 +1329,10 @@ export default function Home() {
       ...beforeMapItem,
       container: afterMapContainerRef.current as HTMLElement,
       style: "mapbox://styles/mapny/clm2yu5fg022801phfh479c8x",
-      zoom: +(hashParams?.at(0) ?? 15.09),
-      bearing: +(hashParams?.at(3) ?? 0),
-      center: [
-        +(hashParams?.at(1) ?? -74.01454),
-        +(hashParams?.at(2) ?? 40.70024),
-      ],
+      zoom: Number(hashParams?.at(0) ?? 16.34),
+      center: [Number(hashParams?.at(1) ?? -74.01255), Number(hashParams?.at(2) ?? 40.704882)],
+      bearing: Number(hashParams?.at(3) ?? -51.3),
+      pitch: Number(hashParams?.at(4) ?? 0),
       attributionControl: false,
     });
 
@@ -1328,12 +1347,10 @@ export default function Home() {
     currAfterMap.current = defAfterMap;
 
     currBeforeMap.current?.easeTo({
-      zoom: +(hashParams?.at(0) ?? 15.09),
-      center: [
-        +(hashParams?.at(1) ?? -74.01454),
-        +(hashParams?.at(2) ?? 40.70024),
-      ],
-      bearing: +(hashParams?.at(3) ?? 0),
+      zoom: Number(hashParams?.at(0) ?? 16.34),
+      center: [Number(hashParams?.at(1) ?? -74.01255), Number(hashParams?.at(2) ?? 40.704882)],
+      bearing: Number(hashParams?.at(3) ?? -51.3),
+      pitch: Number(hashParams?.at(4) ?? 0),
       easing(t) {
         return t;
       },
@@ -1391,21 +1408,33 @@ export default function Home() {
       if (zoom != null && center != null && bearing != null && pitch != null) {
         // Update the hash in the URL
         router.push(
-          `${pathname}/#${zoom.toFixed(2)}/${center.lat.toFixed(5)}/${center.lng.toFixed(5)}/${bearing.toFixed(1)}/${pitch.toFixed(0)}`
+          `${pathname}/#${zoom.toFixed(2)}/${center.lat.toFixed(6)}/${center.lng.toFixed(6)}/${bearing.toFixed(1)}/${pitch.toFixed(0)}`
         );
+
+        // Set the useState for any other use of the hash parameters
+        setHashParams([zoom.toFixed(2).toString(), center.lat.toFixed(6).toString(), center.lng.toFixed(6).toString(), bearing.toFixed(1).toString(), pitch.toFixed(0).toString()]);
+        
+        // Set local storage for potential reloads
+        sessionStorage.setItem("hashZoom", zoom.toFixed(2).toString());
+        sessionStorage.setItem("hashLat", center.lat.toFixed(6).toString());
+        sessionStorage.setItem("hashLng", center.lng.toFixed(6).toString());
+        sessionStorage.setItem("hashBearing", bearing.toFixed(1).toString());
+        sessionStorage.setItem("hashPitch", pitch.toFixed(0).toString());
       }
     };
 
-    // Event listener for map movement
+    // Wait until movement stops, then update hashParams
     currBeforeMap.current?.on('moveend', updateHashParams);
     currAfterMap.current?.on('moveend', updateHashParams);
 
-    // When movement stops, send the hash params
+    setMapLoaded(true);
+
+    // Upon exiting useEffect, remove that listener for updating the hashParams
     return () => {
       currBeforeMap.current?.off('moveend', updateHashParams);
       currAfterMap.current?.off('moveend', updateHashParams);
     };
-  }, [MapboxCompare, hasDoneInitialZoom]);
+  }, [MapboxCompare, hasDoneInitialZoom]); 
 
   useEffect(() => {
     if (!MapboxCompare || !comparisonContainerRef.current) return;
