@@ -53,14 +53,15 @@ mapboxgl.accessToken = "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wM
 
 // HTML rendering for the page
 export default function Home() {
-  // MAPS (useRef prevents rerendering)
+  // --------------------------------- MAPS ----------------------------------
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
 
-  // MOVE LAYERS -- useStates
+  // ------------------------------ MOVE LAYERS ------------------------------
   const [showLayerOrdering, setShowLayerOrdering] = useState<boolean>(false);
   const [layerOrder, setLayerOrder] = useState<PrismaLayer[]>([]);
 
+  // -------------------------------------------------------------------------
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
   const [popUp, setPopUp] = useState<GenericPopUpProps>({
     layerName: "",
