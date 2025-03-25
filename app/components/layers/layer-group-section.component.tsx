@@ -139,6 +139,22 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
             });
         };
 
+        const enableStandAloneLayers = () => {
+            standAloneLayers.forEach(layer => {
+                if (layer.id && layer.enableByDefault && !props.activeLayers.includes(layer.id))
+                    {
+                        props.activeLayerCallback([...props.activeLayers, layer.id]);
+                    }
+            })
+        }
+
+
+    useEffect(() => { //TODO: Temp fix.  Investigate further issue with page lifecycle
+        setTimeout(() => {
+            enableStandAloneLayers();
+        }, 700); // Wait for rendering
+    }, [standAloneLayers]);
+
 
         const toggleStandaloneLayerVisibility = (layerId: string) => {
             let updatedLayerIds: string[];
