@@ -39,7 +39,6 @@ import "@fontsource/source-sans-pro";
 import "@fontsource/source-sans-pro/400.css"; // Specify weight
 import "./popup.css";
 import { getCookie } from "cookies-next";
-import Layer from "./components/layers/layer.component";
 
 
 
@@ -54,6 +53,17 @@ mapboxgl.accessToken = "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wM
 
 // HTML rendering for the page
 export default function Home() {
+  // --------------------------------- MAPS ----------------------------------
+  const currBeforeMap = useRef<mapboxgl.Map | null>(null);
+  const currAfterMap = useRef<mapboxgl.Map | null>(null);
+  // URL hash parameters
+  const [hashParams, setHashParams] = useState<string[]>(["16.34", "-74.01255", "40.704882", "-51.3", "0"]);
+
+  // ------------------------------ MOVE LAYERS ------------------------------
+  const [showLayerOrdering, setShowLayerOrdering] = useState<boolean>(false);
+  const [layerOrder, setLayerOrder] = useState<PrismaLayer[]>([]);
+
+  // -------------------------------------------------------------------------
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
   const [popUp, setPopUp] = useState<GenericPopUpProps>({
     layerName: "",
@@ -77,214 +87,872 @@ export default function Home() {
   const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
   const [currSectionLayers, setSectionLayers] = useState<SectionLayer[]>();
   const [standAloneLayers, setStandaloneLayers] = useState<PrismaLayer[]>(); //addition of standalone layer type for useEffect and display the standalone layers
-  const currBeforeMap = useRef<mapboxgl.Map | null>(null);
-  const currAfterMap = useRef<mapboxgl.Map | null>(null);
-  const [hashParams, setHashParams] = useState<string[]>([]);
   const [hasDoneInitialZoom, setHasDoneInitialZoom] = useState<boolean>(false);
   // State variable to determine if groupForm is open or not
   const [groupFormOpen, setGroupFormOpen] = useState<boolean>(false);
   const [currZoomLayers, setCurrZoomLayers] = useState<ZoomLabel[]>([]);
   const [beforeMapItem, setBeforeMapItem] = useState<MapItem>();
   // Variable to be used on map refresh to show currently active layers
-  const [reRenderActiveLayers, setReRenderActiveLayers] =
-      useState<boolean>(false);
+  const [reRenderActiveLayers, setReRenderActiveLayers] = useState<boolean>(false);
   const [buttonLinks, setButtonLinks] = useState<ButtonLink[]>([]);
-  const [showLayerOrdering, setShowLayerOrdering] = useState<boolean>(false);
-  const [layerOrder, setLayerOrder] = useState<PrismaLayer[]>([]);
   const [currAuthToken, setCurrAuthToken] = useState<string>("");
   const [inPreviewMode, setInPreviewMode] = useState<boolean>(false);
   const activePopupsBefore = useRef<Map<string, mapboxgl.Popup>>(new Map());
   const activePopupsAfter = useRef<Map<string, mapboxgl.Popup>>(new Map());
 
-
-
-
-
-
-
-
-  
-
-  const moveLayerUp = (l1: PrismaLayer) => {
-
-    let beforeIndex = layerOrder.findIndex((e) => e.id == l1.id) - 1;
-    console.log(beforeIndex);
-    console.log(layerOrder);
-    if (beforeIndex >= 0) {
-      currAfterMap.current?.moveLayer(l1.id, layerOrder[beforeIndex].id);
-      currBeforeMap.current?.moveLayer(l1.id, layerOrder[beforeIndex].id);
-
-      let tempLayerOrder = [...layerOrder];
-
-      let tempLayer = layerOrder[beforeIndex + 1];
-
-      let tempBeforeLayer = layerOrder[beforeIndex];
-
-      let tempViewOrder = tempLayer.viewOrder;
-      tempLayer.viewOrder = tempBeforeLayer.viewOrder;
-      tempBeforeLayer.viewOrder = tempViewOrder;
-
-      tempLayerOrder[beforeIndex] = tempLayer;
-      tempLayerOrder[beforeIndex + 1] = tempBeforeLayer;
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempBeforeLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      setLayerOrder(tempLayerOrder);
-
-      // console.log('move layer has been called')
-      // console.log(currAfterMap?.current.getStyle()?.layers)
-      // console.log(tempLayerOrder)
-      // console.log(layerOrder)
-    }
-  };
-
-  const moveLayerDown = (l1: PrismaLayer) => {
-    let beforeIndex = layerOrder.findIndex((e) => e.id == l1.id) + 2;
-
-    if (beforeIndex < layerOrder.length) {
-      currAfterMap.current?.moveLayer(l1.id, layerOrder[beforeIndex].id);
-      currBeforeMap.current?.moveLayer(l1.id, layerOrder[beforeIndex].id);
-
-      let tempLayerOrder = [...layerOrder];
-      let tempLayer = layerOrder[beforeIndex - 2];
-
-      let tempBeforeLayer = layerOrder[beforeIndex - 1];
-
-      let tempViewOrder = tempLayer.viewOrder;
-      tempLayer.viewOrder = tempBeforeLayer.viewOrder;
-      tempBeforeLayer.viewOrder = tempViewOrder;
-
-      tempLayerOrder[beforeIndex - 1] = tempLayer;
-      tempLayerOrder[beforeIndex - 2] = tempBeforeLayer;
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempBeforeLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      setLayerOrder(tempLayerOrder);
-    } else {
-      currAfterMap.current?.moveLayer(l1.id);
-      currBeforeMap.current?.moveLayer(l1.id);
-
-      let tempLayerOrder = [...layerOrder];
-      let tempLayer = l1;
-      let tempLayerViewOrder = tempLayer.viewOrder;
-
-      let lastLayer = layerOrder[layerOrder.length - 1];
-      tempLayer.viewOrder = lastLayer.viewOrder;
-      lastLayer.viewOrder = tempLayerViewOrder;
-
-      tempLayerOrder[layerOrder.length - 2] = lastLayer;
-      tempLayerOrder[layerOrder.length - 1] = tempLayer;
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tempLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      try {
-        fetch("api/LayerData", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(lastLayer),
-        });
-      } catch (e) {
-        console.log(e);
-      }
-
-      setLayerOrder(tempLayerOrder);
-    }
-  };
-
-  const openOrderingMenu = () => {
-    if (showLayerOrdering) {
-      setShowLayerOrdering(false);
-    } else {
-      setShowLayerOrdering(true);
-    }
-  };
-  
+  // Route to the desired URL
   const router = useRouter();
-  const params = useParams();
+  
+  // Path to the site (before the hash parameters)
   const pathname = usePathname();
 
-  useEffect(() => {
-    // Get the hash from the URL
-    const hash = window.location.hash.replace("#", "");
-    setHashParams(hash.split("/"));
-  }, [router, params]);
 
+
+
+
+  // --------------------------------------- INITIALIZE MAP --------------------------------------
+
+  // URL HASH PARAMS, LOADING API DATA
   useEffect(() => {
     if (!hasDoneInitialZoom && hashParams.length > 0) {
+
+      // -------------------- URL HASH PARAMS --------------------
+
+      const previousZoom = sessionStorage.getItem("hashZoom");
+      const previousLat = sessionStorage.getItem("hashLat");
+      const previousLng = sessionStorage.getItem("hashLng");
+      const previousBearing = sessionStorage.getItem("hashBearing");
+      const previousPitch = sessionStorage.getItem("hashPitch");
+
+      if(previousZoom && previousLat && previousLng && previousBearing && previousPitch) {
+        // Logs for debugging
+        /* console.log("After reload -- PREVIOUS HASH FOUND");
+        console.log("Zoom", previousZoom);
+        console.log("Lat", previousLat);
+        console.log("Lng", previousLng);
+        console.log("Bearing", previousBearing);
+        console.log("Pitch", previousPitch); */
+
+        // If the hash parameters are found in sessionStorage, update here for loading the previous map
+        setHashParams([previousZoom, previousLng, previousLat, previousBearing, previousPitch]);
+      }
+      // Branch strictly used for debugging
+      /* else {
+        console.log("After reload -- PREVIOUS HASH NOT FOUND");
+      } */
+
       setBeforeMapItem({
         id: "0",
         name: "Current Satellite",
         mapId: "clm2yrx1y025401p93v26bhyl",
         styleId: "clm2yrx1y025401p93v26bhyl",
         groupId: "",
-        zoom: +(hashParams?.at(0) ?? 15.09),
-        center: [
-          +(hashParams?.at(1) ?? -74.01454),
-          +(hashParams?.at(2) ?? 40.70024),
-        ],
-        bearing: +(hashParams?.at(3) ?? 0),
+        zoom: Number(hashParams?.at(0) ?? 16.34),
+        center: [Number(hashParams?.at(1) ?? -74.01255), Number(hashParams?.at(2) ?? 40.704882)],
+        bearing: Number(hashParams?.at(3) ?? -51.3),
         infoId: ''
       });
+
+      // -------------------- LOADING API DATA -------------------
+
+      const newCookie = getCookie("authToken");
+
+      if (newCookie != "" && newCookie != undefined && newCookie != null) {
+        setCurrAuthToken(newCookie);
+      }
+
+      getLayerSections();
+      getZoomLayers();
+      getStandaloneLayers();
+      getMaps();
+      fetchButtonLinks();
+      
       setHasDoneInitialZoom(true);
-    } else if (!hasDoneInitialZoom) {
     }
-  }, [hashParams]);
+  }, []);
+
+  // Dynamic import for mapbox-gl-compare package to allow it to be imported.
+  // (Once they release a TS package, that can be added to NPM and this can be removed)
+  useEffect(() => {
+    import("mapbox-gl-compare").then((mod) => {
+      setMapboxCompare(() => mod.default);
+    });
+  }, []);
+
+
+
+
+
+  // ---------------------------------- FUNCTIONS FOR INITIALIZATION ----------------------------------
+
+  const getLayerSections = () => {
+    // Start with an empty array
+    setCurrLayers([]);
+
+    // Call the API fetch for the sections
+    fetch("/api/LayerSection", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((sections) => {
+      sections.json()?.then((parsed) => {
+        if (!!parsed && !!parsed.LayerSections && parsed.LayerSections.length > 0) {
+          let sections: PrismaLayerSection[] = parsed.LayerSections;
+
+          let returnSectionLayers: SectionLayer[] = sections.map((x, idx_x) => {
+            let layer: SectionLayer = {
+              id: x.id,
+              label: x.name,
+              groups: (x as any).layerGroups.map((y: PrismaLayerGroup, idx_y: number) => {
+                let mappedGroup: SectionLayerGroup = {
+                  id: y.id,
+                  label: y.name,
+                  iconColor: (y as any).iconColor ?? IconColors.YELLOW,
+                  iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                  isSolid: true,
+                  center: y.longitude != null && y.latitude != null && y.longitude.length > 0 && y.latitude.length > 0
+                    ? [+(y.longitude ?? 0), +(y.latitude ?? 0)]
+                    : undefined,
+                  zoomToBounds: y.zoomToBounds ?? false,
+                  bounds: y.topLeftBoundLongitude && y.topLeftBoundLatitude && y.bottomRightBoundLongitude && y.bottomRightBoundLatitude
+                    ? [[y.topLeftBoundLongitude, y.topLeftBoundLatitude], [y.bottomRightBoundLongitude, y.bottomRightBoundLatitude]]
+                    : undefined,
+                  bearing: y.bearing ?? 0,
+                  zoom: y.zoom ?? 0,
+                  infoId: y.infoId ?? '',
+                  items: (y as any).layers?.map((z: PrismaLayer, z_idx: number) => {
+                    let newDBMap: SectionLayerItem = {
+                      id: z.id,
+                      layerId: z.id,
+                      label: z.label,
+                      center: z.longitude != null && z.latitude != null ? [z.longitude, z.latitude] : undefined,
+                      zoomToBounds: z.zoomToBounds ?? false,
+                      enableByDefault: z.enableByDefault ?? false,
+                      bounds: z.topLeftBoundLongitude && z.topLeftBoundLatitude && z.bottomRightBoundLongitude && z.bottomRightBoundLatitude
+                        ? [[z.topLeftBoundLongitude, z.topLeftBoundLatitude], [z.bottomRightBoundLongitude, z.bottomRightBoundLatitude]]
+                        : undefined,
+                      zoom: z.zoom ?? undefined,
+                      bearing: z.bearing ?? undefined,
+                      iconColor: z.iconColor ?? IconColors.YELLOW,
+                      iconType: z.iconType
+                        ? parseFromString(z.iconType)
+                        : FontAwesomeLayerIcons.LINE,
+                      isSolid: false,
+                    };
+                                
+                    return newDBMap;
+                  }) ?? []
+                };
+                    
+                return mappedGroup;
+              })
+            };
+
+            return layer;
+          });
+          
+          setSectionLayers(returnSectionLayers);
+        }
+      });
+    });
+
+    // Once the layer sections have been created, call the API fetch for the layers themselves
+    fetch("/api/LayerData", {
+      method: "GET",
+      headers: {
+        authorization: currAuthToken ?? '',
+        "Content-Type": "application/json",
+      },
+    }).then((layerResponse) => {
+      layerResponse.json()?.then((parsed) => {
+        parsed.LayerData;
+        console.log(parsed.LayerData);
+        setCurrLayers(parsed.LayerData);
+      });
+    });
+  };
+
+  const getZoomLayers = () => {
+    // Call the API fetch for the zooms
+    fetch("/api/ZoomLabel", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((layers) => {
+      layers.json()?.then((parsed) => {
+        if (!!parsed && !!parsed.zoomLabel) {
+          let labels: PrismaZoomLabel[] = parsed.zoomLabel;
+
+          let parsedZoomLabels: ZoomLabel[] =
+              labels?.map((lbl) => {
+                let currLbl: ZoomLabel = {
+                  title: lbl.title,
+                  center:
+                      lbl.centerLongitude && lbl.centerLatitude
+                          ? [lbl.centerLongitude, lbl.centerLatitude]
+                          : undefined,
+                  bounds:
+                      lbl.topLeftBoundLongitude &&
+                      lbl.topLeftBoundLatitude &&
+                      lbl.bottomRightBoundLongitude &&
+                      lbl.bottomRightBoundLatitude
+                          ? [
+                            [lbl.topLeftBoundLongitude, lbl.topLeftBoundLatitude],
+                            [
+                              lbl.bottomRightBoundLongitude,
+                              lbl.bottomRightBoundLatitude,
+                            ],
+                          ]
+                          : undefined,
+                  zoom: lbl.zoom ?? undefined,
+                  bearing: lbl.bearing ?? undefined,
+                  zoomToBounds: false,
+                  textStyling: {
+                    useTextSizeZoomStyling: lbl.useTextSizeZoomStyling,
+                    textSizeDefault: lbl.textSizeDefault,
+                    textSizeStops: [
+                      [lbl.textSizeStopsZoom1, lbl.textSizeStopsVal1],
+                      [lbl.textSizeStopsZoom2, lbl.textSizeStopsVal2],
+                    ],
+                    useTextColorZoomStyling: lbl.useTextColorZoomStyling,
+                    textColorDefault: lbl.textColorDefault,
+                    textColorStops: [
+                      [lbl.textColorStopsZoom1, lbl.textColorStopsVal1],
+                      [lbl.textColorStopsZoom2, lbl.textColorStopsVal2],
+                    ],
+                    useTextHaloWidthZoomStyling: lbl.useTextHaloWidthZoomStyling,
+                    textHaloWidthDefault: lbl.textHaloWidthDefault,
+                    textHaloWidthStops: [
+                      [lbl.textHaloWidthStopsZoom1, lbl.textHaloBlurStopsVal1],
+                      [lbl.textHaloWidthStopsZoom2, lbl.textHaloBlurStopsVal2],
+                    ],
+                    useTextHaloBlurZoomStyling: lbl.useTextHaloBlurZoomStyling,
+                    textHaloBlurDefault: lbl.textHaloBlurDefault,
+                    textHaloBlurStops: [
+                      [lbl.textHaloBlurStopsZoom1, lbl.textHaloBlurStopsVal1],
+                      [lbl.textHaloBlurStopsZoom2, lbl.textHaloBlurStopsVal2],
+                    ],
+                    useTextHaloColorZoomStyling: lbl.useTextHaloColorZoomStyling,
+                    textHaloColorDefault: lbl.textHaloColorDefault,
+                    textHaloColorStops: [
+                      [lbl.textHaloColorStopsZoom1, lbl.textHaloColorStopsVal1],
+                      [lbl.textHaloColorStopsZoom2, lbl.textHaloColorStopsVal2],
+                    ],
+                    useTextOpacityZoomStyling: lbl.useTextOpacityZoomStyling,
+                    textOpacityDefault: lbl.textOpacityDefault,
+                    textOpacityStops: [
+                      [lbl.textOpacityStopsZoom1, lbl.textOpacityStopsVal1],
+                      [lbl.textOpacityStopsZoom2, lbl.textOpacityStopsVal2],
+                    ],
+                  },
+                };
+                return currLbl;
+              }) ?? [];
+          addZoomLayers(parsedZoomLabels);
+          setCurrZoomLayers(parsedZoomLabels);
+        }
+      });
+    });
+  };
+
+  /*
+    New function to parse all standalone layers in the database.
+    Utilized the standalone layer api file to bring in information on the layers.
+    The layers are then fed to the frontend in the same format as existing layers so that they display in the same format and with the same icons.
+  */
+  const getStandaloneLayers = () => {
+    fetch("/api/StandaloneLayers", {
+      method: "GET",
+      headers: {
+        authorization: currAuthToken ?? '',
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      response.json()?.then((parsed) => {
+        if (!!parsed && !!parsed.standaloneLayers && parsed.standaloneLayers.length > 0) {
+          let standaloneLayers: PrismaLayer[] = parsed.standaloneLayers.map((layer: PrismaLayer) => {
+            let newLayer: SectionLayerItem = {
+              id: layer.id,
+              layerId: layer.id,
+              label: layer.label,
+              center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
+              zoomToBounds: layer.zoomToBounds ?? false,
+              enableByDefault: layer.enableByDefault ?? false,
+              bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
+                ? [[layer.topLeftBoundLongitude, layer.topLeftBoundLatitude], [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],]
+                : undefined,
+              zoom: layer.zoom ?? undefined,
+              bearing: layer.bearing ?? undefined,
+              iconColor: layer.iconColor ?? IconColors.YELLOW,
+              iconType: layer.iconType ? parseFromString(layer.iconType) : FontAwesomeLayerIcons.LINE,
+              isSolid: false,
+            };
+            
+            return newLayer;
+          });
+                  
+          setStandaloneLayers(standaloneLayers);
+        }
+      });
+    });
+  };
+  
+  const getMaps = () => {
+    // Call the API fetch for the maps
+    fetch("/api/MapGroup", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((maps) => {
+      maps.json()?.then((parsed) => {
+        if (!!parsed && !!parsed.groups && parsed.groups.length) {
+          let groups: PrismaMapGroup[] = parsed.groups;
+                
+          let mapFilterGroups: MapFiltersGroup[] = groups.map((grp, idx) => {
+            let mappedGroup: MapFiltersGroup = {
+              id: grp.id,
+              name: grp.groupName,
+              label: grp.label,
+              maps: (grp as any).maps.map((x: PrismaMap) => {
+                console.log("ZOOOOOM", x.zoomToBounds ?? false, x)
+                    
+                let newDBMap: MapItem = {
+                  id: x.id,
+                  mapId: x.mapId,
+                  groupId: x.groupId,
+                  center: x.longitude && x.latitude && x.longitude > 0 && x.latitude > 0 ? [x.longitude, x.latitude] : null,
+                  zoomToBounds: x.zoomToBounds ?? false,
+                  bounds: x.topLeftBoundLongitude && x.topLeftBoundLatitude && x.bottomRightBoundLongitude && x.bottomRightBoundLatitude
+                    ? [[x.topLeftBoundLongitude, x.topLeftBoundLatitude], [x.bottomRightBoundLongitude, x.bottomRightBoundLatitude]]
+                    : undefined,
+                  zoom: x.zoom,
+                  bearing: x.bearing,
+                  styleId: x.styleId,
+                  name: x.mapName,
+                  infoId: x.infoId ?? ''
+                };
+                        
+                return newDBMap;
+              })
+            };
+                    
+            return mappedGroup;
+          });
+                
+          setMappedFilterItemGroups(mapFilterGroups);
+        }
+      }).catch((err) => {
+        console.error("failed to convert to json: ", err);
+      });
+    }).catch((err) => {
+      console.error(err);
+    });
+  };
+
+  const fetchButtonLinks = async () => {
+    try {
+      const response = await fetch("/api/ButtonLink");
+      const data = await response.json();
+      if (data && data.buttonLinks) {
+        setButtonLinks(data.buttonLinks);
+      }
+    } catch (error) {
+      console.error("Error fetching button links:", error);
+    }
+  };
+
+
+
+
+
+  // ------------------------------ MOVE LAYERS (ORDERING ON MAP RENDER) ------------------------------
+
+  const openOrderingMenu = () => {
+    if (showLayerOrdering) {
+      setShowLayerOrdering(false);
+    }
+    else {
+      setShowLayerOrdering(true);
+    }
+  };
+
+  const moveLayerUp = (layerUp: PrismaLayer) => {
+    // Get the index of the layer to insert this layer before
+    let beforeIndex = layerOrder.findIndex((e) => e.id == layerUp.id) - 1;
+
+    console.log("Layer ordering:", layerOrder);
+    console.log("Index layer wants to move to (up):", beforeIndex);
+
+    // Make sure it is valid to move up (not already at the top)
+    if (beforeIndex >= 0) {
+      // Update both maps (moveLayer is a mapbox api function)
+      currAfterMap.current?.moveLayer(layerUp.id, layerOrder[beforeIndex].id);
+      currBeforeMap.current?.moveLayer(layerUp.id, layerOrder[beforeIndex].id);
+
+      // Shallow copy of the current layer order
+      let TEMP_layerOrder = [...layerOrder];
+
+      // Grab the layers that need updated in the database
+      let TEMP_moveUpLayer = layerOrder[beforeIndex + 1];
+      let TEMP_moveDownLayer = layerOrder[beforeIndex];
+
+      // Swap the viewOrder properties
+      let TEMP_swapOrderHelper = TEMP_moveUpLayer.viewOrder;
+      TEMP_moveUpLayer.viewOrder = TEMP_moveDownLayer.viewOrder;
+      TEMP_moveDownLayer.viewOrder = TEMP_swapOrderHelper;
+
+      // Update the layerOrder array with the new viewOrder properties
+      TEMP_layerOrder[beforeIndex] = TEMP_moveUpLayer;
+      TEMP_layerOrder[beforeIndex + 1] = TEMP_moveDownLayer;
+
+      // Move the desired layer up (in the database)
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveUpLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer up:", e);
+      }
+
+      // Move the layer above down (in the database)
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveDownLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer up (layer to be moved down):", e);
+      }
+
+      // Update the useState for future data
+      setLayerOrder(TEMP_layerOrder);
+    }
+  };
+
+  const moveLayerDown = (layerDown: PrismaLayer) => {
+    // Get layer 2 away because moveLayer inserts the given layer before it
+    let beforeIndex = layerOrder.findIndex((e) => e.id == layerDown.id) + 2;
+
+    // Check if moveLayer should append to the end (false) or move to before another layer
+    if (beforeIndex < layerOrder.length) {
+      // Update both maps (moveLayer is a mapbox api function -- layerID, insertBeforeID)
+      currAfterMap.current?.moveLayer(layerDown.id, layerOrder[beforeIndex].id);
+      currBeforeMap.current?.moveLayer(layerDown.id, layerOrder[beforeIndex].id);
+
+      // Shallow copy of the current layer order
+      let TEMP_layerOrder = [...layerOrder];
+
+      // Grab the layers that need updated in the database
+      let TEMP_moveDownLayer = layerOrder[beforeIndex - 2];
+      let TEMP_moveUpLayer = layerOrder[beforeIndex - 1];
+
+      // Swap the viewOrder properties
+      let TEMP_swapOrderHelper = TEMP_moveDownLayer.viewOrder;
+      TEMP_moveDownLayer.viewOrder = TEMP_moveUpLayer.viewOrder;
+      TEMP_moveUpLayer.viewOrder = TEMP_swapOrderHelper;
+
+      // Update the layerOrder array with the new viewOrder properties
+      TEMP_layerOrder[beforeIndex - 1] = TEMP_moveDownLayer;
+      TEMP_layerOrder[beforeIndex - 2] = TEMP_moveUpLayer;
+
+      // Move the desired layer down (in the database)
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveDownLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer down:", e);
+      }
+
+      // Move the layer below up (in the database)
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveUpLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer down (layer to be moved up):", e);
+      }
+
+      // Update the useState for future data
+      setLayerOrder(TEMP_layerOrder);
+    } 
+
+    // NEEDS TO BE AN ELSE IF -- Otherwise, it doesn't handle case of moving outside index range (ATA 3/18/25)
+    else if (beforeIndex == layerOrder.length) {
+      // Update both maps (moveLayer is a mapbox api function -- layerID) APPENDS TO THE END
+      currAfterMap.current?.moveLayer(layerDown.id);
+      currBeforeMap.current?.moveLayer(layerDown.id);
+
+      // Shallow copy of the current layer order
+      let TEMP_layerOrder = [...layerOrder];
+
+      // Grab the layers that need updated in the database
+      let TEMP_moveDownLayer = layerDown;
+      let TEMP_moveDownLayerViewOrder = TEMP_moveDownLayer.viewOrder; // add in a variable to make swap slightly easier and different
+      let TEMP_moveUpLayer = layerOrder[layerOrder.length - 1];
+
+      // Swap the viewOrder properties
+      TEMP_moveDownLayer.viewOrder = TEMP_moveUpLayer.viewOrder;
+      TEMP_moveUpLayer.viewOrder = TEMP_moveDownLayerViewOrder;
+
+      // Update the layerOrder array with the new viewOrder properties
+      TEMP_layerOrder[layerOrder.length - 2] = TEMP_moveUpLayer;
+      TEMP_layerOrder[layerOrder.length - 1] = TEMP_moveDownLayer;
+
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveDownLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer down:", e);
+      }
+
+      try {
+        fetch("api/LayerData", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(TEMP_moveUpLayer),
+        });
+      } catch (e) {
+        console.log("Error moving the layer down (layer to be moved up):", e);
+      }
+
+      setLayerOrder(TEMP_layerOrder);
+    }
+  };
+
+
+
+
+
+  // ---------------------------------------------------------------------------------------------
+
+  /**
+   * On first load (When Mapbox defaults haven't been loaded yet, but the dynamic import is complete), create defaults for the before/after map and initialize everything
+   */
+  useEffect(() => {
+    if (!MapboxCompare || !comparisonContainerRef.current) return;
+    if (beforeMapItem == null || beforeMapItem.bearing == null) return;
+    // setMapLoaded(true); ORIGINALLY set here, but I think that's wrong
+
+    const defBeforeMap = new mapboxgl.Map({
+      ...beforeMapItem,
+      container: beforeMapContainerRef.current as HTMLElement,
+      style: "mapbox://styles/mapny/clm2yrx1y025401p93v26bhyl",
+      zoom: Number(hashParams?.at(0) ?? 16.34),
+      center: [Number(hashParams?.at(1) ?? -74.01255), Number(hashParams?.at(2) ?? 40.704882)],
+      bearing: Number(hashParams?.at(3) ?? -51.3),
+      pitch: Number(hashParams?.at(4) ?? 0),
+      attributionControl: false,
+    });
+
+    const defAfterMap = new mapboxgl.Map({
+      ...beforeMapItem,
+      container: afterMapContainerRef.current as HTMLElement,
+      style: "mapbox://styles/mapny/clm2yu5fg022801phfh479c8x",
+      zoom: Number(hashParams?.at(0) ?? 16.34),
+      center: [Number(hashParams?.at(1) ?? -74.01255), Number(hashParams?.at(2) ?? 40.704882)],
+      bearing: Number(hashParams?.at(3) ?? -51.3),
+      pitch: Number(hashParams?.at(4) ?? 0),
+      attributionControl: false,
+    });
+
+
+    defBeforeMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+    defAfterMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+
+    setDefaultBeforeMap(defBeforeMap);
+    setDefaultAfterMap(defAfterMap);
+
+    currBeforeMap.current = defBeforeMap;
+    currAfterMap.current = defAfterMap;
+
+    currBeforeMap.current?.easeTo({
+      zoom: Number(hashParams?.at(0) ?? 16.34),
+      center: [Number(hashParams?.at(1) ?? -74.01255), Number(hashParams?.at(2) ?? 40.704882)],
+      bearing: Number(hashParams?.at(3) ?? -51.3),
+      pitch: Number(hashParams?.at(4) ?? 0),
+      easing(t) {
+        return t;
+      },
+    });
+
+    const mapboxCompare = new MapboxCompare(
+        currBeforeMap.current,
+        currAfterMap.current,
+        comparisonContainerRef.current as HTMLElement
+    );
+
+    const compareSwiper = document.querySelector(
+        ".compare-swiper"
+    ) as HTMLElement;
+    if (compareSwiper && !modalOpen) {
+      compareSwiper.innerHTML = "";
+
+      const circleHandle = document.createElement("div");
+      circleHandle.classList.add("compare-circle");
+      circleHandle.innerHTML = "<span>⏴⏵</span>";
+
+      compareSwiper.appendChild(circleHandle);
+
+      circleHandle.onmousedown = function (e: MouseEvent) {
+        e.preventDefault();
+
+        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
+
+        document.onmousemove = function (e) {
+          let newLeft = e.clientX;
+
+          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
+
+          compareSwiper.style.left = `${newLeft}px`;
+
+          const swiperPosition = newLeft / containerWidth;
+          mapboxCompare.setSlider(swiperPosition * containerWidth);
+        };
+
+        document.onmouseup = function () {
+          document.onmousemove = null;
+        };
+      };
+    }
+
+    // Add scroll event listener to update hashParams
+    const updateHashParams = () => {
+      // Get the hash states
+      const zoom = currBeforeMap.current?.getZoom();
+      const center = currBeforeMap.current?.getCenter();
+      const bearing = currBeforeMap.current?.getBearing();
+      const pitch = currBeforeMap.current?.getPitch();
+
+      // Check each value is defined
+      if (zoom != null && center != null && bearing != null && pitch != null) {
+        // Update the hash in the URL
+        router.push(
+          `${pathname}/#${zoom.toFixed(2)}/${center.lat.toFixed(6)}/${center.lng.toFixed(6)}/${bearing.toFixed(1)}/${pitch.toFixed(0)}`
+        );
+
+        // Set the useState for any other use of the hash parameters
+        setHashParams([zoom.toFixed(2).toString(), center.lat.toFixed(6).toString(), center.lng.toFixed(6).toString(), bearing.toFixed(1).toString(), pitch.toFixed(0).toString()]);
+        
+        // Set local storage for potential reloads
+        sessionStorage.setItem("hashZoom", zoom.toFixed(2).toString());
+        sessionStorage.setItem("hashLat", center.lat.toFixed(6).toString());
+        sessionStorage.setItem("hashLng", center.lng.toFixed(6).toString());
+        sessionStorage.setItem("hashBearing", bearing.toFixed(1).toString());
+        sessionStorage.setItem("hashPitch", pitch.toFixed(0).toString());
+      }
+    };
+
+    // Wait until movement stops, then update hashParams
+    currBeforeMap.current?.on('moveend', updateHashParams);
+    currAfterMap.current?.on('moveend', updateHashParams);
+
+    setMapLoaded(true);
+
+    // Upon exiting useEffect, remove that listener for updating the hashParams
+    return () => {
+      currBeforeMap.current?.off('moveend', updateHashParams);
+      currAfterMap.current?.off('moveend', updateHashParams);
+    };
+  }, [MapboxCompare, hasDoneInitialZoom]); 
+
+  useEffect(() => {
+    if (!mapLoaded) return;
+    if (currBeforeMap === null || currAfterMap === null) return;
+
+    function updateLayerVisibility() {
+      if (!currBeforeMap.current?.isStyleLoaded() || !currAfterMap.current?.isStyleLoaded()) return;
+
+      currLayers.forEach((layer) => {
+        if ( 
+            activeLayerIds.includes(layer.id) &&
+            currBeforeMap.current?.getLayer(layer.id)
+        ) {
+          currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
+          currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
+        }
+        else {
+          currBeforeMap.current!.setLayoutProperty(
+              layer.id,
+              "visibility",
+              "none"
+          );
+          currAfterMap.current!.setLayoutProperty(
+              layer.id,
+              "visibility",
+              "none"
+          );
+          const popupBefore = activePopupsBefore.current.get(layer.id);
+          const popupAfter = activePopupsAfter.current.get(layer.id);
+          if (popupBefore)
+          {
+            popupBefore.remove();
+            activePopupsBefore.current.delete(layer.id);
+          }
+          if (popupAfter)
+          {
+            popupAfter.remove();
+            activePopupsAfter.current.delete(layer.id);
+          }
+          if(popUpVisible)
+          {
+            setPopUpVisible(false);
+          }
+        }
+      });
+    }
+
+    // Run immediately if styles are already loaded
+    if (currBeforeMap.current?.isStyleLoaded() && currAfterMap.current?.isStyleLoaded()) {
+      updateLayerVisibility();
+    }
+
+    // Listen for style loading if not ready yet
+    currBeforeMap.current?.on("styledata", updateLayerVisibility);
+    currAfterMap.current?.on("styledata", updateLayerVisibility);
+
+    // Cleanup function to remove event listeners on unmount
+    return () => {
+      currBeforeMap.current?.off("styledata", updateLayerVisibility);
+      currAfterMap.current?.off("styledata", updateLayerVisibility);
+    };
+  }, [mapLoaded, currBeforeMap, currAfterMap, activeLayerIds, reRenderActiveLayers, hasDoneInitialZoom]);
+
+
+
+
+
+
+
+
+
+  useEffect(() => {
+    if (!MapboxCompare || !comparisonContainerRef.current) return;
+    const mapboxCompare = new MapboxCompare(
+        currBeforeMap.current,
+        currAfterMap.current,
+        comparisonContainerRef.current as HTMLElement
+    );
+
+    const compareSwiper = document.querySelector(
+        ".compare-swiper"
+    ) as HTMLElement;
+    if (compareSwiper && !modalOpen) {
+      compareSwiper.innerHTML = "";
+
+      const circleHandle = document.createElement("div");
+      circleHandle.classList.add("compare-circle");
+      circleHandle.innerHTML = "<span>⏴⏵</span>";
+
+      compareSwiper.appendChild(circleHandle);
+
+      circleHandle.onmousedown = function (e: MouseEvent) {
+        e.preventDefault();
+
+        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
+
+        document.onmousemove = function (e) {
+          let newLeft = e.clientX;
+
+          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
+
+          compareSwiper.style.left = `${newLeft}px`;
+
+          const swiperPosition = newLeft / containerWidth;
+          mapboxCompare.setSlider(swiperPosition * containerWidth);
+        };
+
+        document.onmouseup = function () {
+          document.onmousemove = null;
+        };
+      };
+    }
+  }, [currBeforeMap, currAfterMap]);
+
+  useEffect(() => {
+    if (currBeforeMap !== null && currAfterMap !== null) {
+      addAllMapLayers();
+      addZoomLayers(currZoomLayers);
+    }
+  }, [currLayers, currBeforeMap, currAfterMap, currZoomLayers, hasDoneInitialZoom]);
+
+  // useEffect(() => {
+  //   // Fetch or filter the layers to get the standalone layers
+  //   const fetchStandaloneLayers = async () => {
+  //     try {
+  //       const response = await fetch('/api/layers'); // Replace with your actual API endpoint
+  //       const layers = await response.json();
+  //       const standaloneLayers = layers.filter((layer: SectionLayerItem) => layer.standalone === true);
+  //       setStandaloneLayers(standaloneLayers);
+  //     } 
+  //     catch (error) {
+  //       console.error('Error fetching standalone layers:', error);
+  //     }
+  //   };
+
+  //   fetchStandaloneLayers();
+  // }, []);
+
+  /*
+    Update the date filter for each layer when either thing happens
+      1. Date is changed on the map
+      2. The active layers change
+  */
+  useEffect(() => {
+    if (!currDate) return;
+
+    var date = parseInt(currDate.format("YYYYMMDD"));
+
+    var dateFilter: FilterSpecification = [
+      "all",
+      ["<=", ["get", "DayStart"], date],
+      [">=", ["get", "DayEnd"], date],
+    ];
+
+    activeLayerIds.forEach((lid) => {
+      if (currBeforeMap.current?.getLayer(lid) !== null && currBeforeMap.current?.getLayer(lid)?.filter !== undefined) {
+        currBeforeMap.current?.setFilter(lid, dateFilter);
+      }
+
+      if (currAfterMap.current?.getLayer(lid) !== null && currAfterMap.current?.getLayer(lid)?.filter !== undefined) {
+        currAfterMap.current?.setFilter(lid, dateFilter);
+      }
+    });
+  }, [currDate, activeLayerIds]);
+
+
+
+
+
+
+
+
+
 
   const setMapStyle = (
       map: MutableRefObject<mapboxgl.Map | null>,
@@ -525,7 +1193,7 @@ export default function Home() {
       const handleEvent = createHandleEvent(beforeMap, afterMap, layerConfig);
 
       // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
-      //beforeMap.current?.on("load", () => {
+      beforeMap.current?.on("load", () => {
         // Added the part after the && to help with "Resource already exists" error
         if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
           if (layerConfig.time) {
@@ -546,10 +1214,10 @@ export default function Home() {
               (beforeMap.current as any)._eventHandlers || {};
           (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
-      //});
+      });
 
       // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
-      //afterMap.current?.on("load", () => {
+      afterMap.current?.on("load", () => {
         // Added the part after the && to help with "Resource already exists" error
         if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
           if (layerConfig.time) {
@@ -570,14 +1238,23 @@ export default function Home() {
               (afterMap.current as any)._eventHandlers || {};
           (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
-      //});
+      });
     }
   };
 
+
+
+
+  
+
+
+
+
+
   function createHandleEvent(
-      beforeMap: MutableRefObject<mapboxgl.Map | null>,
-      afterMap: MutableRefObject<mapboxgl.Map | null>,
-      layerConfig: PrismaLayer
+    beforeMap: MutableRefObject<mapboxgl.Map | null>, 
+    afterMap: MutableRefObject<mapboxgl.Map | null>, 
+    layerConfig: PrismaLayer
   ) {
     let hoveredId: string | number | undefined = undefined;
     let hoverStyleString: string;
@@ -587,25 +1264,19 @@ export default function Home() {
     var newNid: number | string | undefined;
     var previousName: string | undefined;
     var newName: string | undefined;
-    let beforeHoverPopup = new mapboxgl.Popup({
-      closeOnClick: false,
-      closeButton: false,
-    });
-    let beforeClickHoverPopUp = new mapboxgl.Popup({
-      closeOnClick: false,
-      closeButton: false,
-    });
-    let afterHoverPopup = new mapboxgl.Popup({
-      closeOnClick: false,
-      closeButton: false,
-    });
-    let afterClickHoverPopUp = new mapboxgl.Popup({
-      closeOnClick: false,
-      closeButton: false,
-    });
+    let beforeHoverPopup = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
+    let beforeClickHoverPopUp = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
+    let afterHoverPopup = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
+    let afterClickHoverPopUp = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
+
+
+
     //Determine clickPopup styling vs hoverPopup styling
     //They're the same right now
     popUpType = layerConfig.clickStyle as PopupType;
+
+
+
     return (e: any) => {
       if (e.type === "click" && layerConfig.click) {
         let nIdPropNames: string[] = ['drupalNid', 'nid', 'node_id', 'node', 'NID_num'];
@@ -875,345 +1546,35 @@ export default function Home() {
     console.log(layerOrder);
   };
 
-  const getZoomLayers = () => {
-    fetch("/api/ZoomLabel", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((layers) => {
-      layers.json()?.then((parsed) => {
-        if (!!parsed && !!parsed.zoomLabel) {
-          let labels: PrismaZoomLabel[] = parsed.zoomLabel;
 
-          let parsedZoomLabels: ZoomLabel[] =
-              labels?.map((lbl) => {
-                let currLbl: ZoomLabel = {
-                  title: lbl.title,
-                  center:
-                      lbl.centerLongitude && lbl.centerLatitude
-                          ? [lbl.centerLongitude, lbl.centerLatitude]
-                          : undefined,
-                  bounds:
-                      lbl.topLeftBoundLongitude &&
-                      lbl.topLeftBoundLatitude &&
-                      lbl.bottomRightBoundLongitude &&
-                      lbl.bottomRightBoundLatitude
-                          ? [
-                            [lbl.topLeftBoundLongitude, lbl.topLeftBoundLatitude],
-                            [
-                              lbl.bottomRightBoundLongitude,
-                              lbl.bottomRightBoundLatitude,
-                            ],
-                          ]
-                          : undefined,
-                  zoom: lbl.zoom ?? undefined,
-                  bearing: lbl.bearing ?? undefined,
-                  zoomToBounds: false,
-                  textStyling: {
-                    useTextSizeZoomStyling: lbl.useTextSizeZoomStyling,
-                    textSizeDefault: lbl.textSizeDefault,
-                    textSizeStops: [
-                      [lbl.textSizeStopsZoom1, lbl.textSizeStopsVal1],
-                      [lbl.textSizeStopsZoom2, lbl.textSizeStopsVal2],
-                    ],
-                    useTextColorZoomStyling: lbl.useTextColorZoomStyling,
-                    textColorDefault: lbl.textColorDefault,
-                    textColorStops: [
-                      [lbl.textColorStopsZoom1, lbl.textColorStopsVal1],
-                      [lbl.textColorStopsZoom2, lbl.textColorStopsVal2],
-                    ],
-                    useTextHaloWidthZoomStyling: lbl.useTextHaloWidthZoomStyling,
-                    textHaloWidthDefault: lbl.textHaloWidthDefault,
-                    textHaloWidthStops: [
-                      [lbl.textHaloWidthStopsZoom1, lbl.textHaloBlurStopsVal1],
-                      [lbl.textHaloWidthStopsZoom2, lbl.textHaloBlurStopsVal2],
-                    ],
-                    useTextHaloBlurZoomStyling: lbl.useTextHaloBlurZoomStyling,
-                    textHaloBlurDefault: lbl.textHaloBlurDefault,
-                    textHaloBlurStops: [
-                      [lbl.textHaloBlurStopsZoom1, lbl.textHaloBlurStopsVal1],
-                      [lbl.textHaloBlurStopsZoom2, lbl.textHaloBlurStopsVal2],
-                    ],
-                    useTextHaloColorZoomStyling: lbl.useTextHaloColorZoomStyling,
-                    textHaloColorDefault: lbl.textHaloColorDefault,
-                    textHaloColorStops: [
-                      [lbl.textHaloColorStopsZoom1, lbl.textHaloColorStopsVal1],
-                      [lbl.textHaloColorStopsZoom2, lbl.textHaloColorStopsVal2],
-                    ],
-                    useTextOpacityZoomStyling: lbl.useTextOpacityZoomStyling,
-                    textOpacityDefault: lbl.textOpacityDefault,
-                    textOpacityStops: [
-                      [lbl.textOpacityStopsZoom1, lbl.textOpacityStopsVal1],
-                      [lbl.textOpacityStopsZoom2, lbl.textOpacityStopsVal2],
-                    ],
-                  },
-                };
-                return currLbl;
-              }) ?? [];
-          addZoomLayers(parsedZoomLabels);
-          setCurrZoomLayers(parsedZoomLabels);
-        }
-      });
-    });
-  };
 
-  const fetchButtonLinks = async () => {
-    try {
-      const response = await fetch("/api/ButtonLink");
-      const data = await response.json();
-      if (data && data.buttonLinks) {
-        setButtonLinks(data.buttonLinks);
-      }
-    } catch (error) {
-      console.error("Error fetching button links:", error);
-    }
-  };
 
-  const getLayerSections = () => {
-    setCurrLayers([]);
-    fetch("/api/LayerSection", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((sections) => {
-      sections.json()?.then((parsed) => {
-        if (
-            !!parsed &&
-            !!parsed.LayerSections &&
-            parsed.LayerSections.length > 0
-        ) {
-          let sections: PrismaLayerSection[] = parsed.LayerSections;
 
-          let returnSectionLayers: SectionLayer[] = sections.map((x, idx_x) => {
-            let layer: SectionLayer = {
-              id: x.id,
-              label: x.name,
-              groups: (x as any).layerGroups.map(
-                  (y: PrismaLayerGroup, idx_y: number) => {
-                    let mappedGroup: SectionLayerGroup = {
-                      id: y.id,
-                      label: y.name,
-                      iconColor: (y as any).iconColor ?? IconColors.YELLOW,
-                      iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-                      isSolid: true,
-                      center:
-                          y.longitude != null
-                          && y.latitude != null
-                          && y.longitude.length > 0
-                          && y.latitude.length > 0 ?
-                              [+(y.longitude ?? 0), +(y.latitude ?? 0)] :
-                              undefined,
-                      zoomToBounds: y.zoomToBounds ?? false,
-                      bounds:
-                          y.topLeftBoundLongitude &&
-                          y.topLeftBoundLatitude &&
-                          y.bottomRightBoundLongitude &&
-                          y.bottomRightBoundLatitude
-                              ? [
-                                [y.topLeftBoundLongitude, y.topLeftBoundLatitude],
-                                [
-                                  y.bottomRightBoundLongitude,
-                                  y.bottomRightBoundLatitude,
-                                ],
-                              ]
-                              : undefined,
-                      bearing: y.bearing ?? 0,
-                      zoom: y.zoom ?? 0,
-                      infoId: y.infoId ?? '',
-                      items:
-                          (y as any).layers?.map(
-                              (z: PrismaLayer, z_idx: number) => {
-                                // setCurrLayers(currLayers => [...currLayers, z]);
-                                let newDBMap: SectionLayerItem = {
-                                  id: z.id,
-                                  layerId: z.id,
-                                  label: z.label,
-                                  center: z.longitude != null && z.latitude != null ? [z.longitude, z.latitude] : undefined,
-                                  zoomToBounds: z.zoomToBounds ?? false,
-                                  enableByDefault: z.enableByDefault ?? false,
-                                  bounds:
-                                      z.topLeftBoundLongitude &&
-                                      z.topLeftBoundLatitude &&
-                                      z.bottomRightBoundLongitude &&
-                                      z.bottomRightBoundLatitude
-                                          ? [
-                                            [z.topLeftBoundLongitude, z.topLeftBoundLatitude],
-                                            [
-                                              z.bottomRightBoundLongitude,
-                                              z.bottomRightBoundLatitude,
-                                            ],
-                                          ]
-                                          : undefined,
-                                  zoom: z.zoom ?? undefined,
-                                  bearing: z.bearing ?? undefined,
-                                  iconColor: z.iconColor ?? IconColors.YELLOW,
-                                  iconType: z.iconType
-                                      ? parseFromString(z.iconType)
-                                      : FontAwesomeLayerIcons.LINE,
-                                  isSolid: false,
-                                };
-                                return newDBMap;
-                              }
-                          ) ?? [],
-                    };
-                    return mappedGroup;
-                  }
-              ),
-            };
-            return layer;
-          });
-          setSectionLayers(returnSectionLayers);
-        }
-      });
-    });
-
-    fetch("/api/LayerData", {
-      method: "GET",
-      headers: {
-        authorization: currAuthToken ?? '',
-        "Content-Type": "application/json",
-      },
-    }).then((layerResponse) => {
-      layerResponse.json()?.then((parsed) => {
-        parsed.LayerData;
-        console.log(parsed.LayerData);
-        setCurrLayers(parsed.LayerData);
-      });
-    });
-  };
-
-  /*
-    New function to parse all standalone layers in the database. Utilized the standalone layer api file to
-    bring in information on the layers. The layers are then fed to the frontend in the same format as existing layers
-    so that they display in the same format and with the same icons.
-  */
-  const getStandaloneLayers = () => {
-    fetch("/api/StandaloneLayers", {
-        method: "GET",
-        headers: {
-            authorization: currAuthToken ?? '',
-            "Content-Type": "application/json",
-        },
-    }).then((response) => {
-        response.json()?.then((parsed) => {
-            if (!!parsed && !!parsed.standaloneLayers && parsed.standaloneLayers.length > 0) {
-                let standaloneLayers: PrismaLayer[] = parsed.standaloneLayers.map((layer: PrismaLayer) => {
-                    let newLayer: SectionLayerItem = {
-                        id: layer.id,
-                        layerId: layer.id,
-                        label: layer.label,
-                        center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
-                        zoomToBounds: layer.zoomToBounds ?? false,
-                        enableByDefault: layer.enableByDefault ?? false,
-                        bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
-                            ? [
-                                [layer.topLeftBoundLongitude, layer.topLeftBoundLatitude],
-                                [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],
-                              ]
-                            : undefined,
-                        zoom: layer.zoom ?? undefined,
-                        bearing: layer.bearing ?? undefined,
-                        iconColor: layer.iconColor ?? IconColors.YELLOW,
-                        iconType: layer.iconType ? parseFromString(layer.iconType) : FontAwesomeLayerIcons.LINE,
-                        isSolid: false,
-                    };
-                    return newLayer;
-                });
-                setStandaloneLayers(standaloneLayers);
-            }
-        });
-    });
-};
-
-  const getMaps = () => {
-    fetch("/api/MapGroup", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((maps) => {
-        maps
-          .json()
-          ?.then((parsed) => {
-            if (!!parsed && !!parsed.groups && parsed.groups.length) {
-              let groups: PrismaMapGroup[] = parsed.groups;
-              let mapFilterGroups: MapFiltersGroup[] = groups.map(
-                (grp, idx) => {
-                  let mappedGroup: MapFiltersGroup = {
-                    id: grp.id,
-                    name: grp.groupName,
-                    label: grp.label,
-                    //order: grp.order,
-                    maps: (grp as any).maps.map((x: PrismaMap) => {
-                      console.log("ZOOOOOM", x.zoomToBounds ?? false, x)
-                      let newDBMap: MapItem = {
-                        id: x.id,
-                        mapId: x.mapId,
-                        groupId: x.groupId,
-                        center: x.longitude && x.latitude && x.longitude > 0 && x.latitude > 0 ? [x.longitude, x.latitude] : null,
-                        zoomToBounds: x.zoomToBounds ?? false,
-                        bounds:
-                          x.topLeftBoundLongitude &&
-                          x.topLeftBoundLatitude &&
-                          x.bottomRightBoundLongitude &&
-                          x.bottomRightBoundLatitude
-                            ? [
-                                [x.topLeftBoundLongitude, x.topLeftBoundLatitude],
-                                [
-                                  x.bottomRightBoundLongitude,
-                                  x.bottomRightBoundLatitude,
-                                ],
-                              ]
-                            : undefined,
-                        zoom: x.zoom,
-                        bearing: x.bearing,
-                        styleId: x.styleId,
-                        name: x.mapName,
-                        infoId: x.infoId ?? ''
-                      };
-                      return newDBMap;
-                    }),
-                  };
-                  return mappedGroup;
-                }
-              );
-              setMappedFilterItemGroups(mapFilterGroups);
-            }
-          })
-          .catch((err) => {
-            console.error("failed to convert to json: ", err);
-          });
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  };
+  // ----------------------------------- FUNCTIONS FOR HTML ELEMENT -----------------------------------
 
   const beforeLayerFormModalOpen = () => {
     setLayerPanelVisible(false);
-    setLayerPopupBefore(popUpVisible); //Store popupVisibile before value to call after modal closes
-    setPopUpVisible(false); //Then set popupVisible to false
+    setLayerPopupBefore(popUpVisible); // Store popupVisibile before value to call after modal closes
+    setPopUpVisible(false); // Then set popupVisible to false
   };
+
   const afterLayerFormModalCloseLayers = () => {
     setLayerPanelVisible(true);
-    setPopUpVisible(layerPopupBefore); //After modal close set popupVisible to whatever it was before modal call
+    setPopUpVisible(layerPopupBefore); // After modal close set popupVisible to whatever it was before modal call
     getLayerSections();
     getZoomLayers();
   };
 
   const beforeModalOpen = () => {
     setLayerPanelVisible(false);
-    setLayerPopupBefore(popUpVisible); //Store popupVisibile before value to call after modal closes
-    setPopUpVisible(false); //Then set popupVisible to false
+    setLayerPopupBefore(popUpVisible); // Store popupVisibile before value to call after modal closes
+    setPopUpVisible(false); // Then set popupVisible to false
     setModalOpen(true);
   };
 
   const afterModalClose = () => {
     setLayerPanelVisible(true);
-    setPopUpVisible(layerPopupBefore); //After modal close set popupVisible to whatever it was before modal call
+    setPopUpVisible(layerPopupBefore); // After modal close set popupVisible to whatever it was before modal call
     setModalOpen(false);
   };
 
@@ -1222,773 +1583,489 @@ export default function Home() {
     getMaps();
   };
 
-  /**
-   * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
-   */
-  useEffect(() => {
-    const newCookie = getCookie("authToken");
-    if (newCookie != "" && newCookie != undefined && newCookie != null) {
-      setCurrAuthToken(newCookie);
-    }
-    getMaps();
-    getLayerSections();
-    getZoomLayers();
-    getStandaloneLayers();
-  }, []);
-
-  useEffect(() => {
-    fetchButtonLinks();
-  }, []);
-
-  /**
-   * Dynamic import for mapbox-gl-compare package to allow it to be imported. Once they release a TS package, that can be added to NPM and this can be removed.
-   */
-  useEffect(() => {
-    import("mapbox-gl-compare").then((mod) => {
-      setMapboxCompare(() => mod.default);
-    });
-  }, []);
-
-  /**
-   * On first load (When Mapbox defaults haven't been loaded yet, but the dynamic import is complete), create defaults for the before/after map and initialize everything
-   */
-  useEffect(() => {
-    if (!MapboxCompare || !comparisonContainerRef.current) return;
-    if (beforeMapItem == null || beforeMapItem.bearing == null) return;
-    setMapLoaded(true);
-
-    const defBeforeMap = new mapboxgl.Map({
-      ...beforeMapItem,
-      container: beforeMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/mapny/clm2yrx1y025401p93v26bhyl",
-      zoom: +(hashParams?.at(0) ?? 15.09),
-      bearing: +(hashParams?.at(3) ?? 0),
-      center: [
-        +(hashParams?.at(1) ?? -74.01454),
-        +(hashParams?.at(2) ?? 40.70024),
-      ],
-      attributionControl: false,
-    });
-
-    const defAfterMap = new mapboxgl.Map({
-      ...beforeMapItem,
-      container: afterMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/mapny/clm2yu5fg022801phfh479c8x",
-      zoom: +(hashParams?.at(0) ?? 15.09),
-      bearing: +(hashParams?.at(3) ?? 0),
-      center: [
-        +(hashParams?.at(1) ?? -74.01454),
-        +(hashParams?.at(2) ?? 40.70024),
-      ],
-      attributionControl: false,
-    });
 
 
-    defBeforeMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-    defAfterMap.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
-    setDefaultBeforeMap(defBeforeMap);
-    setDefaultAfterMap(defAfterMap);
-
-    currBeforeMap.current = defBeforeMap;
-    currAfterMap.current = defAfterMap;
-
-    currBeforeMap.current?.easeTo({
-      zoom: +(hashParams?.at(0) ?? 15.09),
-      center: [
-        +(hashParams?.at(1) ?? -74.01454),
-        +(hashParams?.at(2) ?? 40.70024),
-      ],
-      bearing: +(hashParams?.at(3) ?? 0),
-      easing(t) {
-        return t;
-      },
-    });
-
-    const mapboxCompare = new MapboxCompare(
-        currBeforeMap.current,
-        currAfterMap.current,
-        comparisonContainerRef.current as HTMLElement
-    );
-
-    const compareSwiper = document.querySelector(
-        ".compare-swiper"
-    ) as HTMLElement;
-    if (compareSwiper && !modalOpen) {
-      compareSwiper.innerHTML = "";
-
-      const circleHandle = document.createElement("div");
-      circleHandle.classList.add("compare-circle");
-      circleHandle.innerHTML = "<span>⏴⏵</span>";
-
-      compareSwiper.appendChild(circleHandle);
-
-      circleHandle.onmousedown = function (e: MouseEvent) {
-        e.preventDefault();
-
-        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
-
-        document.onmousemove = function (e) {
-          let newLeft = e.clientX;
-
-          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
-
-          compareSwiper.style.left = `${newLeft}px`;
-
-          const swiperPosition = newLeft / containerWidth;
-          mapboxCompare.setSlider(swiperPosition * containerWidth);
-        };
-
-        document.onmouseup = function () {
-          document.onmousemove = null;
-        };
-      };
-    }
-
-    // Add scroll event listener to update hashParams
-    const updateHashParams = () => {
-      // Get the hash states
-      const zoom = currBeforeMap.current?.getZoom();
-      const center = currBeforeMap.current?.getCenter();
-      const bearing = currBeforeMap.current?.getBearing();
-      const pitch = currBeforeMap.current?.getPitch();
-
-      // Check each value is defined
-      if (zoom != null && center != null && bearing != null && pitch != null) {
-        // Update the hash in the URL
-        router.push(
-          `${pathname}/#${zoom.toFixed(2)}/${center.lat.toFixed(5)}/${center.lng.toFixed(5)}/${bearing.toFixed(1)}/${pitch.toFixed(0)}`
-        );
-      }
-    };
-
-    // Event listener for map movement
-    currBeforeMap.current?.on('moveend', updateHashParams);
-    currAfterMap.current?.on('moveend', updateHashParams);
-
-    // When movement stops, send the hash params
-    return () => {
-      currBeforeMap.current?.off('moveend', updateHashParams);
-      currAfterMap.current?.off('moveend', updateHashParams);
-    };
-  }, [MapboxCompare, hasDoneInitialZoom]);
-
-  useEffect(() => {
-    if (!MapboxCompare || !comparisonContainerRef.current) return;
-    const mapboxCompare = new MapboxCompare(
-        currBeforeMap.current,
-        currAfterMap.current,
-        comparisonContainerRef.current as HTMLElement
-    );
-
-    const compareSwiper = document.querySelector(
-        ".compare-swiper"
-    ) as HTMLElement;
-    if (compareSwiper && !modalOpen) {
-      compareSwiper.innerHTML = "";
-
-      const circleHandle = document.createElement("div");
-      circleHandle.classList.add("compare-circle");
-      circleHandle.innerHTML = "<span>⏴⏵</span>";
-
-      compareSwiper.appendChild(circleHandle);
-
-      circleHandle.onmousedown = function (e: MouseEvent) {
-        e.preventDefault();
-
-        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
-
-        document.onmousemove = function (e) {
-          let newLeft = e.clientX;
-
-          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
-
-          compareSwiper.style.left = `${newLeft}px`;
-
-          const swiperPosition = newLeft / containerWidth;
-          mapboxCompare.setSlider(swiperPosition * containerWidth);
-        };
-
-        document.onmouseup = function () {
-          document.onmousemove = null;
-        };
-      };
-    }
-  }, [currBeforeMap, currAfterMap]);
-
-  useEffect(() => {
-    if (currBeforeMap !== null && currAfterMap !== null) {
-      addAllMapLayers();
-      addZoomLayers(currZoomLayers);
-    }
-  }, [
-    currLayers,
-    currBeforeMap,
-    currAfterMap,
-    currZoomLayers,
-    hasDoneInitialZoom,
-  ]);
-
-//   useEffect(() => {
-//     // Fetch or filter the layers to get the standalone layers
-//     const fetchStandaloneLayers = async () => {
-//         try {
-//             const response = await fetch('/api/layers'); // Replace with your actual API endpoint
-//             const layers = await response.json();
-//             const standaloneLayers = layers.filter((layer: SectionLayerItem) => layer.standalone === true);
-//             setStandaloneLayers(standaloneLayers);
-//         } catch (error) {
-//             console.error('Error fetching standalone layers:', error);
-//         }
-//     };
-
-//     fetchStandaloneLayers();
-// }, []);
-
-  useEffect(() => {
-    if (!mapLoaded) return;
-    if (currBeforeMap === null || currAfterMap === null) return;
-
-    function updateLayerVisibility() {
-      if (!currBeforeMap.current?.isStyleLoaded() || !currAfterMap.current?.isStyleLoaded()) return;
-
-      currLayers.forEach((layer) => {
-        if ( 
-            activeLayerIds.includes(layer.id) &&
-            currBeforeMap.current?.getLayer(layer.id)
-        ) {
-          currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
-          currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
-        } else {
-          currBeforeMap.current!.setLayoutProperty(
-              layer.id,
-              "visibility",
-              "none"
-          );
-          currAfterMap.current!.setLayoutProperty(
-              layer.id,
-              "visibility",
-              "none"
-          );
-          const popupBefore = activePopupsBefore.current.get(layer.id);
-          const popupAfter = activePopupsAfter.current.get(layer.id);
-          if (popupBefore)
-          {
-            popupBefore.remove();
-            activePopupsBefore.current.delete(layer.id);
-          }
-          if (popupAfter)
-          {
-            popupAfter.remove();
-            activePopupsAfter.current.delete(layer.id);
-          }
-          if(popUpVisible)
-          {
-            setPopUpVisible(false);
-          }
-        }
-      });
-    }
-
-    // Run immediately if styles are already loaded
-    if (currBeforeMap.current?.isStyleLoaded() && currAfterMap.current?.isStyleLoaded()) {
-      updateLayerVisibility();
-    }
-
-    // Listen for style loading if not ready yet
-    currBeforeMap.current?.on("styledata", updateLayerVisibility);
-    currAfterMap.current?.on("styledata", updateLayerVisibility);
-
-    // Cleanup function to remove event listeners on unmount
-    return () => {
-      currBeforeMap.current?.off("styledata", updateLayerVisibility);
-      currAfterMap.current?.off("styledata", updateLayerVisibility);
-    };
-  }, [mapLoaded, currBeforeMap, currAfterMap, activeLayerIds, reRenderActiveLayers, hasDoneInitialZoom]);
-
-  useEffect(() => {
-    if (!currDate) return;
-
-    var date = parseInt(currDate.format("YYYYMMDD"));
-    var dateFilter: FilterSpecification = [
-      "all",
-      ["<=", ["get", "DayStart"], date],
-      [">=", ["get", "DayEnd"], date],
-    ];
-
-    activeLayerIds.forEach((lid) => {
-      if (
-          currBeforeMap.current?.getLayer(lid) !== null &&
-          currBeforeMap.current?.getLayer(lid)?.filter !== undefined
-      ) {
-        currBeforeMap.current?.setFilter(lid, dateFilter);
-      }
-      if (
-          currAfterMap.current?.getLayer(lid) !== null &&
-          currAfterMap.current?.getLayer(lid)?.filter !== undefined
-      ) {
-        currAfterMap.current?.setFilter(lid, dateFilter);
-      }
-    });
-  }, [currDate, activeLayerIds]);
-
-  // Necessary for the Modal to know what to hide
-  // Modal.setAppElement('#app-body-main');
 
   return (
-      <>
-        <div id="app-body-main">
-          <input className="checker" type="checkbox" id="o" hidden />
-          <div className="modal">
-            <div className="modal-body">
-              <div className="modal-header">
-                <h1>ABOUT</h1>
-                <label htmlFor="o" id="close" title="Close">
-                  &times;
-                </label>
-              </div>
-              <div className="modal-content">
-                New York City was founded by the Dutch in 1624 as
-                <i>New Amsterdam</i>, the capital of New Netherland. The New
-                Amsterdam History Center is devoted to documenting and mapping New
-                Amsterdam, its diverse people, landscapes, institutions and global
-                legacy today.
-                <p>
-                  We’ve presented several versions of the <i>Castello Plan</i> and
-                  the
-                  <i>Dutch Grants Map</i> here. You can see the settlement of
-                  houses, farms, taverns and workshops, surrounded by walls. Over
-                  the three centuries that followed, the area became the Financial
-                  District. The east wall was torn down and named Wall Street. The
-                  canals were paved over and turned into streets and in between
-                  developed skysrapers, and the island was expanded with infill.
-                  Above ground, almost nothing remains of New Amsterdam except the
-                  original street pattern. Underground, archeologists have found
-                  evidence of the plots of houses and gardens, Amsterdam yellow
-                  brick, and pollen samples of plants.
-                </p>
-                You can swipe the map to compare the Castello Plan in 1660 to the
-                present, and explore each lot, where it shows what was there and
-                who lived there. Our next steps are to expand through the full
-                history of New Amsterdam with a timeline from 1624 to 1664, when
-                it was taken over by the English.
-                <p>
-                  We need your help to make this work happen. Donate now to
-                  develop the map and expand the research.
-                </p>
-              </div>
+    <div id="app-body-main">
+      <input className="checker" type="checkbox" id="o" hidden />
+        <div className="modal">
+          <div className="modal-body">
+            <div className="modal-header">
+              <h1>ABOUT</h1>
+              <label htmlFor="o" id="close" title="Close">&times;</label>
             </div>
-          </div>
-
-          <div className="header">
-            <a href="http://newamsterdamhistorycenter.org" className="logo">
-              <img
-                  id="logo-img-wide"
-                  src="http://newamsterdamhistorycenter.org/wp-content/uploads/2018/02/cropped-cropped-sprite-1.png"
-              />
-              <img id="logo-img" src="icons/icon_57x57.png" />
-            </a>
-
-            <div id="header_text" className="headerText">
-              <span id="headerTextSuffix">|</span> Mapping Early New York
+            <div className="modal-content">
+              New York City was founded by the Dutch in 1624 as
+              <i>New Amsterdam</i>, the capital of New Netherland. The New
+              Amsterdam History Center is devoted to documenting and mapping New
+              Amsterdam, its diverse people, landscapes, institutions and global
+              legacy today.
+              <p>
+                We've presented several versions of the <i>Castello Plan</i> and the
+                <i>Dutch Grants Map</i> here. You can see the settlement of
+                houses, farms, taverns and workshops, surrounded by walls. Over
+                the three centuries that followed, the area became the Financial
+                District. The east wall was torn down and named Wall Street. The
+                canals were paved over and turned into streets and in between
+                developed skysrapers, and the island was expanded with infill.
+                Above ground, almost nothing remains of New Amsterdam except the
+                original street pattern. Underground, archeologists have found
+                evidence of the plots of houses and gardens, Amsterdam yellow
+                brick, and pollen samples of plants.
+              </p>
+              You can swipe the map to compare the Castello Plan in 1660 to the
+              present, and explore each lot, where it shows what was there and
+              who lived there. Our next steps are to expand through the full
+              history of New Amsterdam with a timeline from 1624 to 1664, when
+              it was taken over by the English.
+              <p>
+                We need your help to make this work happen. Donate now to
+                develop the map and expand the research.
+              </p>
             </div>
-
-            <div className="header-right">
-              <a
-                  className="encyclopedia"
-                  href="https://newamsterdamhistorycenter.org/full-3d-model/"
-                  target="_blank"
-              >
-                3D Map
-                <img
-                    className="img2"
-                    height="18"
-                    src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                    width="18"
-                    style={{ marginLeft: "5px" }}
-                />
-              </a>
-              <a
-                  className="encyclopedia"
-                  href="https://encyclopedia.nahc-mapping.org/"
-                  target="_blank"
-              >
-                Encyclopedia
-                <img
-                    className="img2"
-                    height="18"
-                    src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                    width="18"
-                    style={{ marginLeft: "5px" }}
-                />
-              </a>
-
-              {
-                  (currAuthToken == null || currAuthToken.length == 0) && (
-                      <a className="encyclopedia" href="/login" target="_blank">
-                        Sign In
-                        <img
-                            className="img2"
-                            height="18"
-                            src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                            width="18"
-                            style={{ marginLeft: "5px" }}
-                        />
-                      </a>
-                  )
-              }
-              {
-                  (currAuthToken != null && currAuthToken.length > 0) && (
-                      <a className="encyclopedia" onClick={() => setInPreviewMode(!inPreviewMode)} target="_blank">
-                        {inPreviewMode ? 'Edit Mode' : 'Preview Mode'}
-                      </a>
-                  )
-              }
-
-              <label htmlFor="o" id="open-popup" style={{ display: "none" }}>
-                Open PopUp
-              </label>
-              <label id="about" className="trigger-popup" title="Open">
-                ABOUT
-              </label>
-              <i className="fa fa-2x fa-info-circle trigger-popup" id="info"></i>
-            </div>
-          </div>
-
-          <button
-              id="view-hide-layer-panel"
-              className={layerPanelVisible ? "" : "translated"}
-              onClick={() => {
-                if (layerPanelVisible) {
-                  setLayerPanelVisible(false);
-                  setLayerPopupBefore(popUpVisible);
-                  setPopUpVisible(false);
-                } else {
-                  setLayerPanelVisible(true);
-                  setPopUpVisible(layerPopupBefore);
-                }
-              }}
-          >
-            {layerPanelVisible ? (
-                <span id="dir-txt">&#9204;</span>
-            ) : (
-                <span id="dir-txt">⏵</span>
-            )}
-          </button>
-
-          <CSSTransition
-              in={popUpVisible}
-              timeout={500}
-              classNames="popup"
-              unmountOnExit
-          >
-            <SliderPopUp
-                layerName={popUp.layerName}
-                nid={popUp.nid}
-                type={popUp.type}
-            />
-          </CSSTransition>
-
-          <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
-            <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
-            <p className="title">LAYERS</p>
-
-            <>
-              {(currSectionLayers ?? []).map((secLayer, idx) => {
-                return (
-                    <ExpandableLayerGroupSection
-                        key={"section-layer-component-" + idx}
-                        inPreviewMode={inPreviewMode}
-                        authToken={currAuthToken}
-                        activeLayers={activeLayerIds}
-                        activeLayerCallback={(newActiveLayers: string[]) => {
-                          setActiveLayerIds(newActiveLayers);
-                        }}
-                        layersHeader={secLayer.label}
-                        layer={secLayer}
-                        afterSubmit={() => {
-                          getLayerSections();
-                        }}
-                        beforeOpen={beforeLayerFormModalOpen}
-                        afterClose={afterLayerFormModalCloseLayers}
-                        openWindow={beforeModalOpen}
-                        mapZoomCallback={(zoomProps: MapZoomProps) => {
-                          if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                            currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0});
-                          } else if (zoomProps.center) {
-                            currBeforeMap.current?.easeTo({
-                              center: zoomProps.center,
-                              zoom: zoomProps.zoom,
-                              bearing: zoomProps.bearing ?? 0,
-                              speed: zoomProps.speed,
-                              curve: zoomProps.curve,
-                              duration: zoomProps.duration,
-                              easing(t) {
-                                return t;
-                              },
-                            });
-                            if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                              router.push(
-                                  `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`
-                              );
-                            }
-                          }
-                        }}
-                        getLayerSectionsCallback={getLayerSections}
-                        removeMapLayerCallback={(id: string) =>
-                            removeMapLayerBothMaps(id)
-                        }
-                    />
-                );
-              })}
-              
-
-              {/* 
-                This UI implementation is the means by which the actual standalone layers are displayed in the menu. 
-                The method works in the same way as the other parse layers functions, and brings in layers from our standalone api
-                methods. 
-               */}
-              {/* {(standAloneLayers ?? []).map((layer, idx) => {
-                //console.log("Checking layer sections: ",layer);
-                    return (
-                      <Layer
-                        key={"standalone-layer-component-" + idx}
-                        item={{ ...layer, 
-                          isSolid: false, 
-                          iconType: parseFromString(layer.iconType), 
-                          zoom: layer.zoom ?? 0, 
-                          bearing: layer.bearing ?? 0,
-                          zoomToBounds: layer.zoomToBounds ?? false,
-                          center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
-                          enableByDefault: layer.enableByDefault ?? false,
-                          bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
-                            ? [
-                                [layer.topLeftBoundLongitude, layer.topLeftBoundLatitude],
-                                [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],
-                              ]
-                            : undefined,
-                            standalone: true,
-                            layerSectionId: layer.layerSection ?? undefined,
-                         }}
-                        activeLayers={activeLayerIds}
-                        activeLayerCallback={(newActiveLayers: string[]) => {
-                          setActiveLayerIds(newActiveLayers);
-                        }}
-                        openWindow={() => {}}
-                        editFormVisibleCallback={setModalOpen}
-                        mapZoomCallback={(zoomProps: MapZoomProps) => {
-                          if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                            currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
-                          } else if (zoomProps.center) {
-                            currBeforeMap.current?.easeTo({
-                              center: zoomProps.center,
-                              zoom: zoomProps.zoom,
-                              bearing: zoomProps.bearing ?? 0,
-                              speed: zoomProps.speed,
-                              curve: zoomProps.curve,
-                              duration: zoomProps.duration,
-                              easing(t) {
-                                return t;
-                              },
-                            });
-                            if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                              router.push(
-                                `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`
-                              );
-                            }
-                          }
-                        }}
-                        fetchLayerDataCallback={() => {}}
-                        afterSubmit={() => {}}
-                        authToken={currAuthToken}
-                        inPreviewMode={inPreviewMode}
-                      />
-                    );
-                  })} */}
-              {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) && (
-                  <div
-                      style={{
-                        paddingTop: "15px",
-                        paddingLeft: "15px",
-                        paddingRight: "10px",
-                        textAlign: "center",
-                      }}
-                  >
-                    <button id="post-button" onClick={() => setGroupFormOpen(true)}>
-                      <FontAwesomeIcon
-                          icon={getFontawesomeIcon(
-                              FontAwesomeLayerIcons.PLUS_SQUARE,
-                              true
-                          )}
-                      ></FontAwesomeIcon>{" "}
-                      New Group Folder
-                    </button>
-                  </div>
-              )}
-              {groupFormOpen && (
-                  <NewLayerSectionForm
-                      authToken={currAuthToken}
-                      afterSubmit={() => {
-                        setGroupFormOpen(false);
-                        getLayerSections();
-                      }}
-                      afterCancel={() => {
-                        setGroupFormOpen(false);
-                      }}
-                  ></NewLayerSectionForm>
-              )}
-              {!inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) && (
-                  <>
-                    <p className="title">Layer Ordering</p>
-
-                    <button
-                        style={{
-                          marginLeft: "100px",
-                          marginBottom: "10px",
-                          border: "2px solid",
-                          padding: "5px",
-                          borderRadius: "5px",
-                        }}
-                        onClick={() => openOrderingMenu()}
-                    >
-                      Expand/Collapse
-                    </button>
-                    {showLayerOrdering &&
-                        layerOrder.map((row) => (
-                            <div
-                                className="row"
-                                key={row.id}
-                                style={{ display: "flex" }}
-                            >
-                              <FontAwesomeIcon
-                                  className="decrement-order"
-                                  title="up"
-                                  color="black"
-                                  icon={getFontawesomeIcon(
-                                      FontAwesomeLayerIcons.UP_ARROW
-                                  )}
-                                  onClick={() => moveLayerUp(row)}
-                                  style={{ paddingLeft: "6px" }}
-                              />
-
-                              <FontAwesomeIcon
-                                  className="increment-order"
-                                  title="down"
-                                  color="black"
-                                  icon={getFontawesomeIcon(
-                                      FontAwesomeLayerIcons.DOWN_ARROW
-                                  )}
-                                  onClick={() => moveLayerDown(row)}
-                                  style={{ paddingLeft: "6px" }}
-                              />
-
-                              <FontAwesomeIcon
-                                  icon={getFontawesomeIcon(parseFromString(row.iconType))}
-                                  style={{
-                                    color: row.iconColor,
-                                    paddingLeft: "6px",
-                                  }}
-                              />
-
-                              <div style={{ paddingLeft: "6px" }}>{row.label}</div>
-                              {/* <div>{row.id}</div>
-                  <div>{row.sourceLayer}</div> */}
-                            </div>
-                        ))}
-                  </>
-              )}
-              <br />
-              <p className="title"></p>
-            </>
-            {beforeMapItem && hasDoneInitialZoom && (
-                <>
-                  <MapFilterWrapperComponent
-                      inPreviewMode={inPreviewMode}
-                      authToken={currAuthToken}
-                      beforeOpen={beforeModalOpen}
-                      zoomToWorld={() => {
-                        zoomToWorld(currAfterMap);
-                        zoomToWorld(currBeforeMap);
-                      }}
-                      afterClose={afterModalCloseMaps}
-                      beforeMapCallback={(map: MapItem) => {
-                        // Set beforeMap to selected map by changing the mapId
-                        setMapStyle(currBeforeMap, map.styleId);
-                      }}
-                      afterMapCallback={(map: MapItem) => {
-                        // Set afterMap to selected map by changing the mapId
-
-                        setMapStyle(currAfterMap, map.styleId);
-                      }}
-                      defaultMap={{
-                        ...beforeMapItem,
-                        zoom:
-                            hashParams?.at(0) != null
-                                ? +(hashParams.at(0) ?? beforeMapItem.zoom)
-                                : beforeMapItem.zoom,
-                        center: [
-                          hashParams?.at(1) != null
-                              ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
-                              : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
-                          hashParams?.at(2) != null
-                              ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
-                              : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
-                        ],
-                        bearing:
-                            hashParams?.at(3) != null
-                                ? +(hashParams.at(3) ?? beforeMapItem.bearing)
-                                : beforeMapItem.bearing,
-                        infoId: ''
-                      }}
-                      mapGroups={mappedFilterItemGroups}
-                      mapZoomCallback={(zoomProps: MapZoomProps) => {
-                        if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                          currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
-                        } else if (zoomProps.center) {
-                          currBeforeMap.current?.easeTo({
-                            center: zoomProps.center,
-                            zoom: zoomProps.zoom,
-                            speed: zoomProps.speed,
-                            bearing: zoomProps.bearing ?? 0,
-                            curve: zoomProps.curve,
-                            duration: zoomProps.duration,
-                            easing(t) {
-                              return t;
-                            },
-                          });
-                          if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                            router.push(
-                                `${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`
-                            );
-                          }
-                        }
-                      }}
-                  />
-                  <br />
-                </>
-            )}
-          </div>
-
-          <MapboxCompareWrapper
-              comparisonContainerRef={comparisonContainerRef}
-              beforeMapContainerRef={beforeMapContainerRef}
-              afterMapContainerRef={afterMapContainerRef}
-              beforeMapRef={currBeforeMap}
-              afterMapRef={currAfterMap}
-          ></MapboxCompareWrapper>
-
-          <div id="mobi-view-sidebar">
-            <i className="fa fa-bars fa-2x"></i>
-          </div>
-
-          <SliderWithDatePanel
-              callback={(date: moment.Moment | null) => setCurrDate(date)}
-          ></SliderWithDatePanel>
-
-          <div id="loading">
-            <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
           </div>
         </div>
-      </>
+
+
+
+
+
+        {/* ---------------------------------------- HEADER ---------------------------------------- */}
+        <div className="header">
+          <a href="http://newamsterdamhistorycenter.org" className="logo">
+            <img
+              id="logo-img-wide"
+              src="http://newamsterdamhistorycenter.org/wp-content/uploads/2018/02/cropped-cropped-sprite-1.png"
+            />
+            <img
+              id="logo-img"
+              src="icons/icon_57x57.png"
+            />
+          </a>
+
+          <div id="header_text" className="headerText">
+            <span id="headerTextSuffix">|</span> Mapping Early New York
+          </div>
+
+          <div className="header-right">
+            <a
+              className="encyclopedia"
+              href="https://newamsterdamhistorycenter.org/full-3d-model/"
+              target="_blank"
+            >
+              3D Map
+              <img
+                className="img2"
+                height="18"
+                src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
+                width="18"
+                style={{ marginLeft: "5px" }}
+              />
+            </a>
+            
+            <a
+              className="encyclopedia"
+              href="https://encyclopedia.nahc-mapping.org/"
+              target="_blank"
+            >
+              Encyclopedia
+              <img
+                className="img2"
+                height="18"
+                src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
+                width="18"
+                style={{ marginLeft: "5px" }}
+              />
+            </a>
+
+            {
+              (currAuthToken == null || currAuthToken.length == 0)
+              &&
+              (<a
+                className="encyclopedia" 
+                href="/login" 
+                target="_blank"
+              >
+                Sign In
+                <img
+                  className="img2"
+                  height="18"
+                  src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
+                  width="18"
+                  style={{ marginLeft: "5px" }}
+                />
+              </a>)
+            }
+            {
+              (currAuthToken != null && currAuthToken.length > 0)
+              &&
+              (<a 
+                className="encyclopedia" 
+                onClick={() => setInPreviewMode(!inPreviewMode)} 
+                target="_blank"
+              >
+                {inPreviewMode ? 'Edit Mode' : 'Preview Mode'}
+              </a>)
+            }
+
+            <label htmlFor="o" id="open-popup" style={{ display: "none" }}>
+              Open PopUp
+            </label>
+            
+            <label id="about" className="trigger-popup" title="Open">
+              ABOUT
+            </label>
+            
+            <i className="fa fa-2x fa-info-circle trigger-popup" id="info"></i>
+          </div>
+        </div>
+
+
+
+
+
+        {/* ---------------------------------------- LAYER PANEL ---------------------------------------- */}
+        <button
+          id="view-hide-layer-panel"
+          className={layerPanelVisible ? "" : "translated"}
+          onClick={() => {
+            if (layerPanelVisible) {
+              setLayerPanelVisible(false);
+              setLayerPopupBefore(popUpVisible);
+              setPopUpVisible(false);
+            }
+            else {
+              setLayerPanelVisible(true);
+              setPopUpVisible(layerPopupBefore);
+            }
+          }}
+        >
+          {
+            layerPanelVisible
+            ?
+            (<span id="dir-txt">&#9204;</span>)
+            :
+            (<span id="dir-txt">⏵</span>)
+          }
+        </button>
+
+        <CSSTransition
+          in={popUpVisible}
+          timeout={500}
+          classNames="popup"
+          unmountOnExit
+        >
+          <SliderPopUp
+            layerName={popUp.layerName}
+            nid={popUp.nid}
+            type={popUp.type}
+          />
+        </CSSTransition>
+
+        <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
+          <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
+          <p className="title">LAYERS</p>
+          <>
+            {(currSectionLayers ?? []).map((secLayer, idx) => {
+              return (
+                <ExpandableLayerGroupSection
+                  key={"section-layer-component-" + idx}
+                  inPreviewMode={inPreviewMode}
+                  authToken={currAuthToken}
+                  activeLayers={activeLayerIds}
+                  activeLayerCallback={(newActiveLayers: string[]) => {
+                    setActiveLayerIds(newActiveLayers);
+                  }}
+                  layersHeader={secLayer.label}
+                  layer={secLayer}
+                  afterSubmit={() => {
+                    getLayerSections();
+                  }}
+                  beforeOpen={beforeLayerFormModalOpen}
+                  afterClose={afterLayerFormModalCloseLayers}
+                  openWindow={beforeModalOpen}
+                  mapZoomCallback={(zoomProps: MapZoomProps) => {
+                    if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0});
+                    }
+                    else if (zoomProps.center) {
+                      currBeforeMap.current?.easeTo({
+                        center: zoomProps.center,
+                        zoom: zoomProps.zoom,
+                        bearing: zoomProps.bearing ?? 0,
+                        speed: zoomProps.speed,
+                        curve: zoomProps.curve,
+                        duration: zoomProps.duration,
+                        easing(t) {
+                          return t;
+                        },
+                      });
+                      if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                        router.push(`${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`);
+                      }
+                    }
+                  }}
+                  getLayerSectionsCallback={getLayerSections}
+                  removeMapLayerCallback={(id: string) => removeMapLayerBothMaps(id)}
+                />
+              );
+            })}
+              
+            {/* 
+              This UI implementation is the means by which the actual standalone layers are displayed in the menu. 
+              The method works in the same way as the other parse layers functions, and brings in layers from our standalone api methods. 
+            */}
+            {/* {(standAloneLayers ?? []).map((layer, idx) => {
+              //console.log("Checking layer sections: ",layer);
+              return (
+                <Layer
+                  key={"standalone-layer-component-" + idx}
+                  item={{ ...layer, 
+                    isSolid: false, 
+                    iconType: parseFromString(layer.iconType), 
+                    zoom: layer.zoom ?? 0, 
+                    bearing: layer.bearing ?? 0,
+                    zoomToBounds: layer.zoomToBounds ?? false,
+                    center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
+                    enableByDefault: layer.enableByDefault ?? false,
+                    bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
+                      ?
+                      [
+                        [layer.topLeftBoundLongitude, layer.topLeftBoundLatitude],
+                        [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],
+                      ]
+                      : undefined,
+                      standalone: true,
+                      layerSectionId: layer.layerSection ?? undefined,
+                  }}
+                  activeLayers={activeLayerIds}
+                  activeLayerCallback={(newActiveLayers: string[]) => {
+                    setActiveLayerIds(newActiveLayers);
+                  }}
+                  openWindow={() => {}}
+                  editFormVisibleCallback={setModalOpen}
+                  mapZoomCallback={(zoomProps: MapZoomProps) => {
+                    if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
+                    }
+                    else if (zoomProps.center) {
+                      currBeforeMap.current?.easeTo({
+                        center: zoomProps.center,
+                        zoom: zoomProps.zoom,
+                        bearing: zoomProps.bearing ?? 0,
+                        speed: zoomProps.speed,
+                        curve: zoomProps.curve,
+                        duration: zoomProps.duration,
+                        easing(t) {
+                          return t;
+                        },
+                      });
+                      if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                        router.push(`${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`);
+                      }
+                    }
+                  }}
+                  fetchLayerDataCallback={() => {}}
+                  afterSubmit={() => {}}
+                  authToken={currAuthToken}
+                  inPreviewMode={inPreviewMode}
+                />
+              );
+            })} */}
+
+            {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
+              (<div
+                style={{
+                  paddingTop: "15px",
+                  paddingLeft: "15px",
+                  paddingRight: "10px",
+                  textAlign: "center",
+                }}
+              >
+                <button id="post-button" onClick={() => setGroupFormOpen(true)}>
+                  <FontAwesomeIcon
+                    icon={getFontawesomeIcon(
+                      FontAwesomeLayerIcons.PLUS_SQUARE,
+                      true
+                    )}
+                  ></FontAwesomeIcon>{" "}
+                  New Group Folder
+                </button>
+              </div>)
+            }
+
+            {groupFormOpen &&
+              (<NewLayerSectionForm
+                authToken={currAuthToken}
+                afterSubmit={() => {
+                  setGroupFormOpen(false);
+                  getLayerSections();
+                }}
+                afterCancel={() => {
+                  setGroupFormOpen(false);
+                }}
+              ></NewLayerSectionForm>)
+            }
+
+            {!inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
+              (<>
+                <p className="title">Layer Ordering</p>
+                <button
+                  style={{
+                    marginLeft: "100px",
+                    marginBottom: "10px",
+                    border: "2px solid",
+                    padding: "5px",
+                    borderRadius: "5px",
+                  }}
+                  onClick={() => openOrderingMenu()}
+                >
+                  Expand/Collapse
+                </button>
+                {showLayerOrdering &&
+                  layerOrder.map((row) => (
+                    <div
+                      className="row"
+                      key={row.id}
+                      style={{ display: "flex" }}
+                    >
+                      <FontAwesomeIcon
+                        className="decrement-order"
+                        title="up"
+                        color="black"
+                        icon={getFontawesomeIcon(
+                          FontAwesomeLayerIcons.UP_ARROW
+                        )}
+                        onClick={() => moveLayerUp(row)}
+                        style={{ paddingLeft: "6px" }}
+                      />
+                      <FontAwesomeIcon
+                        className="increment-order"
+                        title="down"
+                        color="black"
+                        icon={getFontawesomeIcon(
+                          FontAwesomeLayerIcons.DOWN_ARROW
+                        )}
+                        onClick={() => moveLayerDown(row)}
+                        style={{ paddingLeft: "6px" }}
+                      />
+                      <FontAwesomeIcon
+                        icon={getFontawesomeIcon(parseFromString(row.iconType))}
+                        style={{
+                          color: row.iconColor,
+                          paddingLeft: "6px",
+                        }}
+                      />
+
+                      <div style={{ paddingLeft: "6px" }}>{row.label}</div>
+                    </div>
+                  ))
+                }
+              </>)
+            }
+            <br />
+            <p className="title"></p>
+          </>
+          
+
+
+          
+          
+          {/* ---------------------------------------- MAPS PANEL ---------------------------------------- */}
+          {beforeMapItem && hasDoneInitialZoom &&
+            (<>
+              <MapFilterWrapperComponent
+                inPreviewMode={inPreviewMode}
+                authToken={currAuthToken}
+                beforeOpen={beforeModalOpen}
+                zoomToWorld={() => {
+                  zoomToWorld(currAfterMap);
+                  zoomToWorld(currBeforeMap);
+                }}
+                afterClose={afterModalCloseMaps}
+                beforeMapCallback={(map: MapItem) => {
+                  // Set beforeMap to selected map by changing the mapId
+                  setMapStyle(currBeforeMap, map.styleId);
+                }}
+                afterMapCallback={(map: MapItem) => {
+                  // Set afterMap to selected map by changing the mapId
+                  setMapStyle(currAfterMap, map.styleId);
+                }}
+                defaultMap={{
+                  ...beforeMapItem,
+                  zoom: hashParams?.at(0) != null ? +(hashParams.at(0) ?? beforeMapItem.zoom) : beforeMapItem.zoom,
+                  center:
+                    [
+                      hashParams?.at(1) != null
+                      ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
+                      : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
+                      hashParams?.at(2) != null
+                      ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
+                      : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
+                    ],
+                  bearing: hashParams?.at(3) != null ? +(hashParams.at(3) ?? beforeMapItem.bearing) : beforeMapItem.bearing,
+                  infoId: ''
+                }}
+                mapGroups={mappedFilterItemGroups}
+                mapZoomCallback={(zoomProps: MapZoomProps) => {
+                  if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                    currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
+                  }
+                  else if (zoomProps.center) {
+                    currBeforeMap.current?.easeTo({
+                      center: zoomProps.center,
+                      zoom: zoomProps.zoom,
+                      speed: zoomProps.speed,
+                      bearing: zoomProps.bearing ?? 0,
+                      curve: zoomProps.curve,
+                      duration: zoomProps.duration,
+                      easing(t) {
+                        return t;
+                      },
+                    });
+
+                    if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                      router.push(`${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`);
+                    }
+                  }
+                }}
+              />
+              <br />
+            </>
+          )}
+        </div>
+
+        
+        
+        
+
+        {/* ---------------------------------------- MAP ---------------------------------------- */}
+        <MapboxCompareWrapper
+          comparisonContainerRef={comparisonContainerRef}
+          beforeMapContainerRef={beforeMapContainerRef}
+          afterMapContainerRef={afterMapContainerRef}
+          beforeMapRef={currBeforeMap}
+          afterMapRef={currAfterMap}
+        ></MapboxCompareWrapper>
+
+        <div id="mobi-view-sidebar">
+          <i className="fa fa-bars fa-2x"></i>
+        </div>
+
+
+
+
+
+        {/* ---------------------------------------- TIMELINE ---------------------------------------- */}
+        <SliderWithDatePanel
+          callback={(date: moment.Moment | null) => setCurrDate(date)}
+        ></SliderWithDatePanel>
+
+        <div id="loading">
+          <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
+        </div>
+    </div>
   );
 }
