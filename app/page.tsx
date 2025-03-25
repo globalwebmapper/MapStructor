@@ -1603,7 +1603,7 @@ export default function Home() {
               Amsterdam, its diverse people, landscapes, institutions and global
               legacy today.
               <p>
-                We've presented several versions of the <i>Castello Plan</i> and the
+                We have presented several versions of the <i>Castello Plan</i> and the
                 <i>Dutch Grants Map</i> here. You can see the settlement of
                 houses, farms, taverns and workshops, surrounded by walls. Over
                 the three centuries that followed, the area became the Financial
