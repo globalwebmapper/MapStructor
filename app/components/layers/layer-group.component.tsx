@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useContext, useEffect, useState } from "react";
 import Layer from "./layer.component";
 import { faCrosshairs, faInfoCircle, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
+import { getFontawesomeIcon, parseFromString } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { IconColors } from "@/app/models/colors.model";
 import NewSectionLayerGroupItem from "../new-section-layer-group-item.component";
@@ -28,7 +28,7 @@ type LayerGroupProps = { // Props for ExpandableLayerGroup
     removeMapLayerCallback: (id: string) => void,
     afterSubmit: () => void,
     authToken: string,
-    inPreviewMode: boolean
+    inPreviewMode: boolean,
 }
 
 /**
@@ -347,12 +347,13 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
                                 fetchLayerDataCallback={fetchLayerData}
                                 afterSubmit={props.afterSubmit}
                             />
-                        </>
-                    )
+                            
+                        </>    
+                    )     
                 })
             }
-            {
-                (layerGroupIsExpanded || props.group?.items?.length == 0) &&
+             {           
+                (layerGroupIsExpanded ) &&
                 (
                     <NewSectionLayerGroupItem
                     inPreviewMode={props.inPreviewMode}

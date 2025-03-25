@@ -8,13 +8,15 @@ import NewStandaloneLayer from '../new-section-layer-stand-alone-component'
 import { MapZoomProps } from "@/app/models/maps/map.model";
 import NewLayerGroupForm from "../forms/LayerGroupForm";
 import Modal from 'react-modal';
-import { LayerGroup as PrismaLayerGroup } from '@prisma/client';
+import { LayerGroup as PrismaLayerGroup, LayerData as PrismaLayer } from '@prisma/client';
 import Loader from "../loading/loading.component";
-import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
+import { getFontawesomeIcon, parseFromString } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import NewLayerSectionForm from "../forms/NewLayerSectionForm";
 import { IconColors } from "@/app/models/colors.model";
 import {CSSTransition} from 'react-transition-group';
+import Layer from "../layers/layer.component";
+import LayerForm from "../forms/LayerForm";
 
 type LayerGroupSectionProps = { // Props for ExpandableLayerGroupSection
     layersHeader: string,
@@ -29,7 +31,7 @@ type LayerGroupSectionProps = { // Props for ExpandableLayerGroupSection
     removeMapLayerCallback: (id: string) => void,
     afterSubmit: () => void,
     authToken: string,
-    inPreviewMode: boolean
+    inPreviewMode: boolean,
 }
 
 // Renamed from SectionLayerComponent to ExpandableLayerGroupSection for clarity
@@ -48,13 +50,16 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [layerGroup, setLayerGroup] = useState<PrismaLayerGroup>();
     const [layerSection, setLayerSection] = useState<PrismaLayerGroup>();
-    const [standAloneLayers, setStandaloneLayers] = useState<SectionLayer[]>([]);
+    const [standAloneLayers, setStandaloneLayers] = useState<PrismaLayer[]>([]);
     const nodeRef = useRef<HTMLDivElement | null>(null);
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
+    const [layerEditOpen, setLayerEditOpen] = useState<boolean>(false);
+    const [currentLayer, setCurrentLayer] = useState<PrismaLayer>();
 
     useEffect(() => {
         const isAuthed: boolean = (props.authToken ?? '') != '';
         const inPreviewMode: boolean = props.inPreviewMode ?? false;
+        
 
         setShowEditorOptions(isAuthed && !inPreviewMode);
     }, [props.authToken, props.inPreviewMode])
@@ -63,7 +68,13 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
         props.afterClose();
         setEditOpen(false);
         setLayerGroup(undefined);
-    }
+    };
+
+    const closeLayerEdit = () => {
+        props.afterClose();
+        setLayerEditOpen(false);
+        setCurrentLayer(undefined);
+    };
 
     //handle functions for animation
     const handleEnter = () => {
@@ -108,20 +119,54 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
         Allowing them to be displayed in the menu as their own section, independent of the groups present in the 
         menu as of current.
     */
-    const fetchStandaloneLayers = async() => {
-        setIsLoading(true);
-        try{
-            const response = await fetch('api/StandaloneLayers'); //need to create api file
-            const data = await response.json();
-            setStandaloneLayers(data.standaloneLayers);
+        useEffect(() => {
+            getStandaloneLayers();
+        }, []);
+    
+        const getStandaloneLayers = () => {
+            fetch("/api/StandaloneLayers", {
+                method: "GET",
+                headers: {
+                    authorization: props.authToken ?? '',
+                    "Content-Type": "application/json",
+                },
+            }).then((response) => {
+                response.json()?.then((parsed) => {
+                    if (!!parsed && !!parsed.standaloneLayers && parsed.standaloneLayers.length > 0) {
+                        setStandaloneLayers(parsed.standaloneLayers);
+                    }
+                });
+            });
+        };
+
+        const enableStandAloneLayers = () => {
+            standAloneLayers.forEach(layer => {
+                if (layer.id && layer.enableByDefault && !props.activeLayers.includes(layer.id))
+                    {
+                        props.activeLayerCallback([...props.activeLayers, layer.id]);
+                    }
+            })
         }
-        catch(error){
-            console.log("Error with standalone fetch: ", error);
-        }
-        finally{
-            setIsLoading(false);
-        }
-    }
+
+
+    useEffect(() => { //TODO: Temp fix.  Investigate further issue with page lifecycle
+        setTimeout(() => {
+            enableStandAloneLayers();
+        }, 700); // Wait for rendering
+    }, [standAloneLayers]);
+
+
+        const toggleStandaloneLayerVisibility = (layerId: string) => {
+            let updatedLayerIds: string[];
+            if (props.activeLayers.includes(layerId)) {
+                // Remove the layer ID from the active layer list
+                updatedLayerIds = props.activeLayers.filter(id => id !== layerId);
+            } else {
+                // Add the layer ID to the active layer list
+                updatedLayerIds = [...props.activeLayers, layerId];
+            }
+            props.activeLayerCallback(updatedLayerIds);
+        };
 
     const fetchLayerSection = async (id: string) => {
         setIsLoading(true);
@@ -234,6 +279,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                                                 color="black"
                                                 icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
                                                 onClick={() => {
+                                                    console.log("edit group");
                                                     setEditSectionOpen(true);
                                                     fetchLayerSection(props.layer.id);
                                                 }}
@@ -316,9 +362,62 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                                 fetchLayerGroupCallback={fetchLayerGroup}
                                 editFormVisibleCallback={setEditOpen}
                                 removeMapLayerCallback={props.removeMapLayerCallback}
-                                afterSubmit={props.afterSubmit}/>
+                                afterSubmit={props.afterSubmit}
+                                />
                         ))
                     }
+                    
+                    {
+     props.layer.id === '673fd8498b7a68cb9a6d4782' && standAloneLayers.map((layer, idx) => {    //hardcoding manhattan only for the time being
+        const isLayerActive = props.activeLayers.includes(layer.id);
+        return (
+            <div key={"standalone-layer-component-" + idx} className="layer-list-row">
+                <input
+                    id={`standalone-layer-${layer.id}`}
+                    type="checkbox"
+                    style={{
+                        paddingRight: "5px",
+                        marginRight: "5px"
+                    }}
+                    checked={isLayerActive}
+                    onChange={() => toggleStandaloneLayerVisibility(layer.id)}
+                />
+                <Layer
+                    item={{ ...layer, 
+                        layerId: layer.id,
+                        isSolid: false, 
+                        iconType: parseFromString(layer.iconType), 
+                        zoom: layer.zoom ?? 0, 
+                        bearing: layer.bearing ?? 0,
+                        zoomToBounds: layer.zoomToBounds ?? false,
+                        center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
+                        enableByDefault: layer.enableByDefault ?? false,
+                        bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
+                        ? [
+                            [layer.topLeftBoundLongitude, layer.topLeftBoundLatitude],
+                            [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],
+                            ]
+                        : undefined,
+                        standalone: true,
+                        layerSectionId: layer.layerSection ?? undefined,
+                    }}
+                    activeLayers={props.activeLayers}
+                    activeLayerCallback={props.activeLayerCallback}
+                    openWindow={props.openWindow}
+                    editFormVisibleCallback={(isOpen) => {
+                        setLayerEditOpen(isOpen);
+                        setCurrentLayer(layer);
+                    }}
+                    mapZoomCallback={props.mapZoomCallback}
+                    fetchLayerDataCallback={() => {}}
+                    afterSubmit={props.afterSubmit}
+                    authToken={props.authToken}
+                    inPreviewMode={props.inPreviewMode}
+                />
+            </div>
+        );
+    })
+}
                     <NewSectionLayerGroup
                         inPreviewMode={props.inPreviewMode}
                         authToken={props.authToken}
@@ -335,15 +434,8 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                         afterClose={props.afterClose}
                         sectionLayerId={props.layer.id}
                     />
-                    {/* {
-                        standAloneLayers.map((layer, idx) => (
-                            <div key = {'standalone-layer-${idx}'}>
-                                <FontAwesomeIcon icon={faPlayCircle} />
-                                <span>{layer.label}</span>
-                            </div>))
-                    } */}
                     {
-                        editOpen && (
+                        editOpen &&  (
                             <Modal
                                 style={{
                                     overlay: {
@@ -365,6 +457,41 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                                     <NewLayerGroupForm authToken={props.authToken} sectionLayerId={props.layer.id} layerGroup={layerGroup} afterSubmit={closeEdit}></NewLayerGroupForm>
                                     )
                                 }
+                            </Modal>
+                        )
+                    }
+                    {
+                        layerEditOpen && (
+                            <Modal
+                                style={{
+                                    overlay: {
+                                        zIndex: "1000",
+                                    },
+                                    content: {
+                                        width: '30%',
+                                        right: '5px'
+                                    }
+                                }}
+                                isOpen={layerEditOpen}
+                                onRequestClose={closeLayerEdit}
+                                contentLabel='Edit Layer'
+                            >
+                                {isLoading ? (
+                                    <Loader center={true}/>
+                                ) : (
+                                    <LayerForm
+                                        authToken={props.authToken}
+                                        standalone={true}
+                                        layerConfig={currentLayer}
+                                        groupName={props.layer.label}
+                                        sectionName={props.layer.id}
+                                        afterSubmit={() => {
+                                            props.removeMapLayerCallback(currentLayer?.id ?? '');
+                                            closeLayerEdit();
+                                            getStandaloneLayers();
+                                        }}
+                                    />
+                                )}
                             </Modal>
                         )
                     }
