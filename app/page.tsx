@@ -702,9 +702,9 @@ export default function Home() {
     });
 
     const mapboxCompare = new MapboxCompare(
-        currBeforeMap.current,
-        currAfterMap.current,
-        comparisonContainerRef.current as HTMLElement
+      currBeforeMap.current,
+      currAfterMap.current,
+      comparisonContainerRef.current as HTMLElement
     );
 
     const compareSwiper = document.querySelector(
@@ -1209,6 +1209,7 @@ export default function Home() {
           beforeMap.current?.on("mousemove", layerConfig.id, handleEvent);
           beforeMap.current?.on("mouseleave", layerConfig.id, handleEvent);
           beforeMap.current?.on("click", layerConfig.id, handleEvent);
+
           // Store the reference to the handler in a way you can access it later if needed
           (beforeMap.current as any)._eventHandlers =
               (beforeMap.current as any)._eventHandlers || {};
@@ -1233,6 +1234,7 @@ export default function Home() {
           afterMap.current?.on("mousemove", layerConfig.id, handleEvent);
           afterMap.current?.on("mouseleave", layerConfig.id, handleEvent);
           afterMap.current?.on("click", layerConfig.id, handleEvent);
+
           // Store the reference to the handler in a way you can access it later if needed
           (afterMap.current as any)._eventHandlers =
               (afterMap.current as any)._eventHandlers || {};
