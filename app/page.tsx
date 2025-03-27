@@ -1633,7 +1633,7 @@ export default function Home() {
 
 
         {/* ---------------------------------------- HEADER ---------------------------------------- */}
-        <div className="header">
+        <div className="header" style={{height: "73px"}}>
           <a href="http://newamsterdamhistorycenter.org" className="logo">
             <img
               id="logo-img-wide"
@@ -1646,7 +1646,7 @@ export default function Home() {
           </a>
 
           <div id="header_text" className="headerText">
-            <span id="headerTextSuffix">|</span> Mapping Early New York
+            <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Mapping Early New York</span>
           </div>
 
           <div className="header-right">
@@ -1745,7 +1745,7 @@ export default function Home() {
           {
             layerPanelVisible
             ?
-            (<span id="dir-txt">&#9204;</span>)
+            (<span id="dir-txt" style={{fontSize: '13px'}}>&#9204;</span>)
             :
             (<span id="dir-txt">⏵</span>)
           }

@@ -9,7 +9,7 @@ type DatePanelComponentProps = {
 const DatePanelComponent = (props: DatePanelComponentProps) => {
     return (
         <div id="datepanel">
-            <b><span id="date">{props.currDate ? props.currDate.format("DD MMM YYYY") : ""}</span></b>
+            <b><span id="date" style={{fontSize: "31px"}}>{props.currDate ? props.currDate.format("DD MMM YYYY") : ""}</span></b>
         </div>
     )
 }

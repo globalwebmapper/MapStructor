@@ -150,7 +150,7 @@ i.fa-info-circle {
 
 .headerText {
   display: inline-block;
-  margin-top: 15px;
+  margin-top: 11px;
   text-shadow: #717c9b 0px 1px 3px;
   font-size: 1.7em;
   /*Center*/
@@ -242,15 +242,15 @@ label[for="current_buildings"] {
 
 #view-hide-layer-panel {
   position: absolute;
-  top: 89px;
-  left: 340px; /* 300 <-> 312px | 325 <-> 312 + 25 */
+  top: 80px;
+  left: 310px;
   z-index: 500;
   cursor: pointer;
-  border: solid silver;
-  border-width: thin;
+  border: solid #9f9898;
+  border-width: 0.01px;
   margin-left: 0px;
-  width: 25px;
-  height: 50px;
+  width: 20px;
+  height: 47px;
   border-radius: 3%;
   background-color: #eee;
   transition: transform 0.75s ease;
@@ -272,7 +272,7 @@ label[for="current_buildings"] {
   position: absolute;
   display: block;
   /* top: 80px; */
-  top: 83px;
+  top: 75px;
   /* Standard */
   height: calc(100% - 155px);
   /* Opera */
@@ -289,7 +289,7 @@ label[for="current_buildings"] {
   max-height: -moz-calc(100% - 155px);
   /* WebKit */
   max-height: -webkit-calc(100% - 155px);
-  width: 340px;
+  width: 310px;
   overflow: auto;
   box-shadow: 0 0 10px 2px rgba(31, 51, 73, 0.1) !important;
   background-color: #fff !important;
@@ -506,9 +506,9 @@ div#mobi-year {
 }
 
 img#logo-img-wide {
-  margin: 6px 0px 0px 21px;
+  margin: 5px 0px 0px 20px;
   float: left;
-  height: 70px;
+  height: 63px;
 }
 
 img#logo-img {
