@@ -152,7 +152,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     useEffect(() => { //TODO: Temp fix.  Investigate further issue with page lifecycle
         setTimeout(() => {
             enableStandAloneLayers();
-        }, 700); // Wait for rendering
+        }, 900); // Wait for rendering
     }, [standAloneLayers]);
 
 

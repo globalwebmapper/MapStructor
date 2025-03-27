@@ -67,6 +67,12 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
     }, [props.authToken, props.inPreviewMode])
 
     useEffect(() => {
+        if(props.layersHeader === "Long Island"){
+            setLayerGroupExpanded(true);
+        }
+    }, []);
+
+    useEffect(() => {
         // If the group has a valid info ID and the modal header text or body text is empty, fetch the info text
         if(props.group.infoId != null && props.group.infoId.length > 0) {
             if(modalHeaderText == null || modalHeaderText.length == 0 || modalBodyText == null || modalBodyText.length == 0) {
