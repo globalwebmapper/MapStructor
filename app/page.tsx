@@ -3,7 +3,23 @@ import { useEffect } from "react";
 
 export default function Page() {
   useEffect(() => {
-    sessionStorage.clear();
+    const clearSessionStorage = () => {
+      sessionStorage.clear();
+    };
+
+    // Run on normal load
+    clearSessionStorage();
+
+    // Handle cases where the page is restored from the bfcache
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) {
+        clearSessionStorage();
+      }
+    });
+
+    return () => {
+      window.removeEventListener("pageshow", clearSessionStorage);
+    };
   }, []);
 
   return (
