@@ -1652,52 +1652,18 @@ export default function Home() {
 
         {/* ---------------------------------------- HEADER ---------------------------------------- */}
         <div className="header" style={{height: "73px"}}>
-          <a href="http://newamsterdamhistorycenter.org" className="logo">
+          <a href="/" className="logo">
             <img
               id="logo-img-wide"
-              src="http://newamsterdamhistorycenter.org/wp-content/uploads/2018/02/cropped-cropped-sprite-1.png"
-            />
-            <img
-              id="logo-img"
-              src="icons/icon_57x57.png"
+              src="/mapstructor_logo.png"
             />
           </a>
 
           <div id="header_text" className="headerText">
-            <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Mapping Early New York</span>
+            <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Title Placeholder</span>
           </div>
 
           <div className="header-right">
-            <a
-              className="encyclopedia"
-              href="https://newamsterdamhistorycenter.org/full-3d-model/"
-              target="_blank"
-            >
-              3D Map
-              <img
-                className="img2"
-                height="18"
-                src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                width="18"
-                style={{ marginLeft: "5px" }}
-              />
-            </a>
-            
-            <a
-              className="encyclopedia"
-              href="https://encyclopedia.nahc-mapping.org/"
-              target="_blank"
-            >
-              Encyclopedia
-              <img
-                className="img2"
-                height="18"
-                src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                width="18"
-                style={{ marginLeft: "5px" }}
-              />
-            </a>
-
             {
               (currAuthToken == null || currAuthToken.length == 0)
               &&
@@ -1716,27 +1682,6 @@ export default function Home() {
                 />
               </a>)
             }
-            {
-              (currAuthToken != null && currAuthToken.length > 0)
-              &&
-              (<a 
-                className="encyclopedia" 
-                onClick={() => setInPreviewMode(!inPreviewMode)} 
-                target="_blank"
-              >
-                {inPreviewMode ? 'Edit Mode' : 'Preview Mode'}
-              </a>)
-            }
-
-            <label htmlFor="o" id="open-popup" style={{ display: "none" }}>
-              Open PopUp
-            </label>
-            
-            <label id="about" className="trigger-popup" title="Open">
-              ABOUT
-            </label>
-            
-            <i className="fa fa-2x fa-info-circle trigger-popup" id="info"></i>
           </div>
         </div>
 
@@ -1830,68 +1775,6 @@ export default function Home() {
                 />
               );
             })}
-              
-            {/* 
-              This UI implementation is the means by which the actual standalone layers are displayed in the menu. 
-              The method works in the same way as the other parse layers functions, and brings in layers from our standalone api methods. 
-            */}
-            {/* {(standAloneLayers ?? []).map((layer, idx) => {
-              //console.log("Checking layer sections: ",layer);
-              return (
-                <Layer
-                  key={"standalone-layer-component-" + idx}
-                  item={{ ...layer, 
-                    isSolid: false, 
-                    iconType: parseFromString(layer.iconType), 
-                    zoom: layer.zoom ?? 0, 
-                    bearing: layer.bearing ?? 0,
-                    zoomToBounds: layer.zoomToBounds ?? false,
-                    center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
-                    enableByDefault: layer.enableByDefault ?? false,
-                    bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
-                      ?
-                      [
-                        [layer.topLeftBoundLongitude, layer.topLeftBoundLatitude],
-                        [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],
-                      ]
-                      : undefined,
-                      standalone: true,
-                      layerSectionId: layer.layerSection ?? undefined,
-                  }}
-                  activeLayers={activeLayerIds}
-                  activeLayerCallback={(newActiveLayers: string[]) => {
-                    setActiveLayerIds(newActiveLayers);
-                  }}
-                  openWindow={() => {}}
-                  editFormVisibleCallback={setModalOpen}
-                  mapZoomCallback={(zoomProps: MapZoomProps) => {
-                    if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
-                    }
-                    else if (zoomProps.center) {
-                      currBeforeMap.current?.easeTo({
-                        center: zoomProps.center,
-                        zoom: zoomProps.zoom,
-                        bearing: zoomProps.bearing ?? 0,
-                        speed: zoomProps.speed,
-                        curve: zoomProps.curve,
-                        duration: zoomProps.duration,
-                        easing(t) {
-                          return t;
-                        },
-                      });
-                      if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                        router.push(`${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`);
-                      }
-                    }
-                  }}
-                  fetchLayerDataCallback={() => {}}
-                  afterSubmit={() => {}}
-                  authToken={currAuthToken}
-                  inPreviewMode={inPreviewMode}
-                />
-              );
-            })} */}
 
             {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
               (<div
