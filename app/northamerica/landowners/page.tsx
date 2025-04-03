@@ -1,22 +1,51 @@
 "use client";
+
 import moment from "moment";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
+import { CSSTransition } from "react-transition-group";
+import mapboxgl, { FilterSpecification } from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import "mapbox-gl-compare/dist/mapbox-gl-compare.css";
+import { usePathname, useRouter } from "next/navigation";
+import { ButtonLink } from "@/app/models/button-link.model";
+import "@fontsource/source-sans-pro";
+import "@fontsource/source-sans-pro/400.css"; // Specify weight
+import { getCookie } from "cookies-next";
+
+/*
+ ---------------------------------- 1. NEED TO UPDATE THESE IMPORTS ----------------------------------
+  There needs to be a set of "../" for each subfolder in the URL
+    (for instance, mapstructor.org/X/Y/Z should be import _ from "../../../_")
+                                                                  X  Y  Z
+*/
+
 import SliderWithDatePanel from "../../components/slider/slider-with-date-panel.component";
 import { GenericPopUpProps } from "../../models/popups/pop-up.model";
 import SliderPopUp from "../../components/right-info-bar/popups/pop-up";
 import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "../../models/layers/layer.model";
 import { IconColors } from "../../models/colors.model";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import ExpandableLayerGroupSection from "../../components/layers/layer-group-section.component";
 import { FontAwesomeLayerIcons } from "../../models/font-awesome.model";
-import { CSSTransition } from "react-transition-group";
-import mapboxgl, { FilterSpecification, LngLatLike } from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
-import "mapbox-gl-compare/dist/mapbox-gl-compare.css";
 import { MapFiltersGroup } from "../../models/maps/map-filters.model";
 import MapFilterWrapperComponent from "../../components/map-filters/map-filter-wrapper.component";
 import { MapItem, MapZoomProps } from "../../models/maps/map.model";
+import { PopupType } from "../../models/popups/pop-up-type.model";
+import { getFontawesomeIcon, parseFromString } from "../../helpers/font-awesome.helper";
+import NewLayerSectionForm from "../../components/forms/NewLayerSectionForm";
+import { ZoomLabel } from "../../models/zoom-layer.model";
+import { addInteractivityToLabel, zoomToWorld } from "../../helpers/zoom-layer.helper";
+import MapboxCompareWrapper from "../../components/map/mapbox-compare.component";
+import "../../popup.css";
+
+// ---------------------------------------------------------------------------------------------------
+
+/*
+ ------------------------------ 2. NEED TO UPDATE THIS SPECIFIC IMPORT -------------------------------                WHEN DONE FIGURING OUT PRISMA, UPDATE THIS PART!
+  ... explain
+*/
+
 import {
   Map as PrismaMap,
   ZoomLabel as PrismaZoomLabel,
@@ -26,19 +55,8 @@ import {
   MapGroup as PrismaMapGroup,
   hoverItem
 } from "@prisma/client";
-import "../../popup.css";
-import { PopupType } from "../../models/popups/pop-up-type.model";
-import { getFontawesomeIcon, parseFromString } from "../../helpers/font-awesome.helper";
-import NewLayerSectionForm from "../../components/forms/NewLayerSectionForm";
-import { ZoomLabel } from "../../models/zoom-layer.model";
-import { addInteractivityToLabel, zoomToWorld } from "../../helpers/zoom-layer.helper";
-import MapboxCompareWrapper from "../../components/map/mapbox-compare.component";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import { ButtonLink } from "@/app/models/button-link.model";
-import "@fontsource/source-sans-pro";
-import "@fontsource/source-sans-pro/400.css"; // Specify weight
-import "../../popup.css";
-import { getCookie } from "cookies-next";
+                                                                  
+// ---------------------------------------------------------------------------------------------------
 
 
 
