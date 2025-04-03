@@ -17,6 +17,7 @@ import "mapbox-gl-compare/dist/mapbox-gl-compare.css";
 import { MapFiltersGroup } from "./models/maps/map-filters.model";
 import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapper.component";
 import { MapItem, MapZoomProps } from "./models/maps/map.model";
+//import DrawingBarComponent from "./components/drawing/drawing-bar.component";
 import {
   Map as PrismaMap,
   ZoomLabel as PrismaZoomLabel,
@@ -1633,7 +1634,7 @@ export default function Home() {
 
 
         {/* ---------------------------------------- HEADER ---------------------------------------- */}
-        <div className="header" style={{height: "73px"}}>
+        <div className="header" >
           <a href="http://newamsterdamhistorycenter.org" className="logo">
             <img
               id="logo-img-wide"
@@ -1646,7 +1647,8 @@ export default function Home() {
           </a>
 
           <div id="header_text" className="headerText">
-            <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Mapping Early New York</span>
+            <span id="headerTextSuffix" >| </span>
+            Mapping Early New York
           </div>
 
           <div className="header-right">
@@ -1722,6 +1724,7 @@ export default function Home() {
           </div>
         </div>
 
+        
 
 
 
@@ -2038,6 +2041,8 @@ export default function Home() {
         </div>
 
         
+
+        
         
         
 
@@ -2053,6 +2058,11 @@ export default function Home() {
         <div id="mobi-view-sidebar">
           <i className="fa fa-bars fa-2x"></i>
         </div>
+
+        {/* ---------------------------------------- DRAWING BAR ---------------------------------------- */}
+        {/* <div style={{ position: "absolute", top: "90px", right: "1000px"}}>
+            <DrawingBarComponent />
+        </div> */}
 
 
 
