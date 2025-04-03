@@ -36,3 +36,7 @@
     border-top: 0;
     border-left: 1px solid #ddd;
   }
+
+  .mapboxgl-ctrl-compass {
+    transform: rotate(51.3deg);
+  }

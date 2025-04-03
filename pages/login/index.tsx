@@ -138,7 +138,7 @@ const Home = () => {
         </a>
 
         <div id="header_text" className="headerText">
-          <span id="headerTextSuffix">|</span> Mapping Early New York
+          <span id="headerTextSuffix" style={{fontSize: "24px"}}>|</span> Mapping Early New York
         </div>
 
         <div className="header-right">

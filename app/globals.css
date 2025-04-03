@@ -18,6 +18,7 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: "Source Sans Pro", sans-serif;
+  font-weight: 300;
   -webkit-font-smoothing: antialiased; /* For better rendering on webkit browsers */
   -moz-osx-font-smoothing: grayscale; /* For better rendering on Firefox and macOS */
 }
@@ -142,21 +143,21 @@ i.fa-info-circle {
 
 .header-right {
   float: right;
-  margin-top: 13px;
+  margin-top: 11px;
   margin-left: 50px;
   margin-right: 9px;
 }
 
 .headerText {
   display: inline-block;
-  margin-top: 19px;
+  margin-top: 11px;
   text-shadow: #717c9b 0px 1px 3px;
   font-size: 1.7em;
   /*Center*/
   margin-left: 10em;
   margin-left: 10px;
   font-family: "Consolas";
-  margin-bottom: 21px;
+  margin-bottom: 25px;
 }
 
 .header a.encyclopedia {
@@ -241,16 +242,16 @@ label[for="current_buildings"] {
 
 #view-hide-layer-panel {
   position: absolute;
-  top: 96px;
-  left: 340px; /* 300 <-> 312px | 325 <-> 312 + 25 */
+  top: 80px;
+  left: 310px;
   z-index: 500;
   cursor: pointer;
-  border: solid silver;
-  border-width: thin;
+  border: solid #9f9898;
+  border-width: 0.01px;
   margin-left: 0px;
-  width: 30px;
-  height: 60px;
-  border-radius: 5%;
+  width: 20px;
+  height: 47px;
+  border-radius: 3%;
   background-color: #eee;
   transition: transform 0.75s ease;
 }
@@ -260,7 +261,7 @@ label[for="current_buildings"] {
 }
 
 #view-hide-layer-panel.translated {
-  transform: translateX(-340px); /* Move 200px to the right */
+  transform: translateX(-310px);
 }
 
 /* Style for Studio Menu */
@@ -271,7 +272,7 @@ label[for="current_buildings"] {
   position: absolute;
   display: block;
   /* top: 80px; */
-  top: 83px;
+  top: 75px;
   /* Standard */
   height: calc(100% - 155px);
   /* Opera */
@@ -288,7 +289,7 @@ label[for="current_buildings"] {
   max-height: -moz-calc(100% - 155px);
   /* WebKit */
   max-height: -webkit-calc(100% - 155px);
-  width: 340px;
+  width: 310px;
   overflow: auto;
   box-shadow: 0 0 10px 2px rgba(31, 51, 73, 0.1) !important;
   background-color: #fff !important;
@@ -308,11 +309,11 @@ label[for="current_buildings"] {
   color: #23374d;
   font-weight: bold;
   font-size: 17px;
-  padding-bottom: 8px;
+  padding-bottom: 5px;
   text-align: center;
   /* #*A border-bottom: 1px solid #c6d2e1; */
   border-bottom: 1px solid #ce5c00;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 /* width */
@@ -505,9 +506,9 @@ div#mobi-year {
 }
 
 img#logo-img-wide {
-  padding: 6px 0px 0px 21px;
+  margin: 5px 0px 0px 20px;
   float: left;
-  height: 70px;
+  height: 63px;
 }
 
 img#logo-img {

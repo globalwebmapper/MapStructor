@@ -152,7 +152,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     useEffect(() => { //TODO: Temp fix.  Investigate further issue with page lifecycle
         setTimeout(() => {
             enableStandAloneLayers();
-        }, 700); // Wait for rendering
+        }, 900); // Wait for rendering
     }, [standAloneLayers]);
 
 
@@ -368,7 +368,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                     }
                     
                     {
-     props.layer.id === '673fd8498b7a68cb9a6d4782' && standAloneLayers.map((layer, idx) => {    //hardcoding manhattan only for the time being
+     standAloneLayers.filter(layer => layer.topLayerClass === props.layer.id).map((layer, idx) => {    //hardcoding manhattan only for the time being
         const isLayerActive = props.activeLayers.includes(layer.id);
         return (
             <div key={"standalone-layer-component-" + idx} className="layer-list-row">
