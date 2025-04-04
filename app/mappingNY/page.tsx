@@ -1685,7 +1685,29 @@ export default function Home() {
               &&
               (<a
                 className="encyclopedia" 
-                href="/login" 
+
+
+
+
+
+
+
+
+
+
+                href="./login" 
+
+
+
+
+
+
+
+
+
+
+
+                
                 target="_blank"
               >
                 Sign In
