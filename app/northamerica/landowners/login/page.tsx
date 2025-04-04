@@ -69,7 +69,7 @@ const Home = () => {
         process.env.USERNAME =  values.username;
         process.env.PASSWORD = encrypted;
 
-        const response = await fetch('../../api/auth/login', {
+        const response = await fetch('../../../api/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ const Home = () => {
             setAuth(x.token); //set env token for auth
 
             // Route to the page you were logging in from
-            router.push('/mappingNY');
+            router.push('/northamerica/landowners');
           })
         } else {
           alert(`Failed to find a user with those credentials. Please try again.`);
