@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { CSSProperties } from 'react';
-import { Map as PrismaMap } from '@prisma/client';
+import { Map as PrismaMap } from "@/prisma/generated_schema/myFirstDatabase";
 
 
 type MapFormProps = {

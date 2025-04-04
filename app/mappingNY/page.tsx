@@ -25,7 +25,7 @@ import {
   LayerGroup as PrismaLayerGroup,
   MapGroup as PrismaMapGroup,
   hoverItem
-} from "@prisma/client";
+} from "@/prisma/generated_schema/myFirstDatabase";
 import "@/app/popup.css";
 import { PopupType } from "@/app/models/popups/pop-up-type.model";
 import { getFontawesomeIcon, parseFromString } from "../helpers/font-awesome.helper";

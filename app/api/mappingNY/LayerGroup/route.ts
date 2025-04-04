@@ -1,6 +1,5 @@
-import { PrismaClient} from "@prisma/client";
+import { LayerGroup, PrismaClient} from "@/prisma/generated_schema/myFirstDatabase";
 import { NextResponse } from "next/server";
-import { LayerGroup } from "@prisma/client";
 import { Auth } from "../auth/auth";
 
 

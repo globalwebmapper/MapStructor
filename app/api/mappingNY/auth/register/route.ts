@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { User, PrismaClient } from "@/prisma/generated_schema/myFirstDatabase";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { User } from "@prisma/client";
 import { Auth } from "../auth";
 
 const prisma = new PrismaClient();

@@ -8,7 +8,7 @@ import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { IconColors } from "@/app/models/colors.model";
 import NewSectionLayerGroupItem from "../new-section-layer-group-item.component";
 import { MapZoomProps } from "@/app/models/maps/map.model";
-import { LayerData as PrismaLayer } from '@prisma/client';
+import { LayerData as PrismaLayer } from "@/prisma/generated_schema/myFirstDatabase";
 import LayerForm from "../forms/LayerForm";
 import Modal from 'react-modal';
 import Loader from "../loading/loading.component";

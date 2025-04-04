@@ -1,4 +1,4 @@
-import { LayerData, PrismaClient } from "@prisma/client";
+import { LayerData, PrismaClient } from "@/prisma/generated_schema/myFirstDatabase";
 import { NextResponse } from "next/server";
 
 export async function PUT(request: Request, context: any) {

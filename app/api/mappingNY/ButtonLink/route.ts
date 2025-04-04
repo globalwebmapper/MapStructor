@@ -1,4 +1,4 @@
-import { PrismaClient, ButtonLink } from "@prisma/client";
+import { PrismaClient, ButtonLink } from "@/prisma/generated_schema/myFirstDatabase";
 import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();

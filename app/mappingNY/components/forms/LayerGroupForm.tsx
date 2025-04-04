@@ -1,7 +1,7 @@
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { LayerGroup } from "@prisma/client";
+import { LayerGroup } from "@/prisma/generated_schema/myFirstDatabase";
 import { useFormik } from "formik";
 import { CSSProperties, useEffect, useState } from "react";
 
