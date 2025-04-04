@@ -201,7 +201,7 @@ export default function Home() {
     setCurrLayers([]);
 
     // Call the API fetch for the sections
-    fetch("/api/LayerSection", {
+    fetch("/api/northamerica/landowners/LayerSection", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -269,7 +269,7 @@ export default function Home() {
     });
 
     // Once the layer sections have been created, call the API fetch for the layers themselves
-    fetch("/api/LayerData", {
+    fetch("/api/northamerica/landowners/LayerData", {
       method: "GET",
       headers: {
         authorization: currAuthToken ?? '',
@@ -286,7 +286,7 @@ export default function Home() {
 
   const getZoomLayers = () => {
     // Call the API fetch for the zooms
-    fetch("/api/ZoomLabel", {
+    fetch("/api/northamerica/landowners/ZoomLabel", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -374,7 +374,7 @@ export default function Home() {
     The layers are then fed to the frontend in the same format as existing layers so that they display in the same format and with the same icons.
   */
   const getStandaloneLayers = () => {
-    fetch("/api/StandaloneLayers", {
+    fetch("/api/northamerica/landowners/StandaloneLayers", {
       method: "GET",
       headers: {
         authorization: currAuthToken ?? '',
@@ -412,7 +412,7 @@ export default function Home() {
   
   const getMaps = () => {
     // Call the API fetch for the maps
-    fetch("/api/MapGroup", {
+    fetch("/api/northamerica/landowners/MapGroup", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -465,7 +465,7 @@ export default function Home() {
 
   const fetchButtonLinks = async () => {
     try {
-      const response = await fetch("/api/ButtonLink");
+      const response = await fetch("/api/northamerica/landowners/ButtonLink");
       const data = await response.json();
       if (data && data.buttonLinks) {
         setButtonLinks(data.buttonLinks);
@@ -521,7 +521,7 @@ export default function Home() {
 
       // Move the desired layer up (in the database)
       try {
-        fetch("api/LayerData", {
+        fetch("api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -534,7 +534,7 @@ export default function Home() {
 
       // Move the layer above down (in the database)
       try {
-        fetch("api/LayerData", {
+        fetch("api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -578,7 +578,7 @@ export default function Home() {
 
       // Move the desired layer down (in the database)
       try {
-        fetch("api/LayerData", {
+        fetch("api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -591,7 +591,7 @@ export default function Home() {
 
       // Move the layer below up (in the database)
       try {
-        fetch("api/LayerData", {
+        fetch("api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -629,7 +629,7 @@ export default function Home() {
       TEMP_layerOrder[layerOrder.length - 1] = TEMP_moveDownLayer;
 
       try {
-        fetch("api/LayerData", {
+        fetch("api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -641,7 +641,7 @@ export default function Home() {
       }
 
       try {
-        fetch("api/LayerData", {
+        fetch("api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -909,23 +909,6 @@ export default function Home() {
       addZoomLayers(currZoomLayers);
     }
   }, [currLayers, currBeforeMap, currAfterMap, currZoomLayers, hasDoneInitialZoom]);
-
-  // useEffect(() => {
-  //   // Fetch or filter the layers to get the standalone layers
-  //   const fetchStandaloneLayers = async () => {
-  //     try {
-  //       const response = await fetch('/api/layers'); // Replace with your actual API endpoint
-  //       const layers = await response.json();
-  //       const standaloneLayers = layers.filter((layer: SectionLayerItem) => layer.standalone === true);
-  //       setStandaloneLayers(standaloneLayers);
-  //     } 
-  //     catch (error) {
-  //       console.error('Error fetching standalone layers:', error);
-  //     }
-  //   };
-
-  //   fetchStandaloneLayers();
-  // }, []);
 
   /*
     Update the date filter for each layer when either thing happens

@@ -26,7 +26,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
                     {
                       try 
                       {
-                        await fetch('api/mappingNY/LayerSection', {
+                        await fetch('api/northamerica/landowners/LayerSection', {
                           method: 'POST',
                           headers: {
                             'authorization': props.authToken ?? '',
@@ -49,7 +49,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
                       {
                         try
                         {
-                          await fetch('/api/mappingNY/LayerSection/' + props.layerSection.id, {
+                          await fetch('/api/northamerica/landowners/LayerSection/' + props.layerSection.id, {
                             method: 'PUT',
                             headers: {
                                 'authorization': props.authToken,
@@ -76,7 +76,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
                         {
                           try
                           {
-                            await fetch('/api/mappingNY/LayerSection/' + props.layerSection.id, {
+                            await fetch('/api/northamerica/landowners/LayerSection/' + props.layerSection.id, {
                               method: 'DELETE',
                               headers: {
                                 'authorization': props.authToken,

@@ -124,7 +124,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
         }, []);
     
         const getStandaloneLayers = () => {
-            fetch("/api/mappingNY/StandaloneLayers", {
+            fetch("/api/northamerica/landowners/StandaloneLayers", {
                 method: "GET",
                 headers: {
                     authorization: props.authToken ?? '',
@@ -171,7 +171,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const fetchLayerSection = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/mappingNY/LayerSection/' + id) 
+            await fetch('/api/northamerica/landowners/LayerSection/' + id) 
             .then((response) => {
             response.json()?.then(parsed => {
                 setLayerSection(parsed.layerSection);
@@ -188,7 +188,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const fetchLayerGroup = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/mappingNY/LayerGroup/' + id) 
+            await fetch('/api/northamerica/landowners/LayerGroup/' + id) 
             .then((response) => {
             response.json()?.then(parsed => {
                 console.log('ERERERER', parsed);
@@ -206,7 +206,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const UpLayerSection = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/mappingNY/LayerSection/Rearrange/Up/' + id, {
+            await fetch('/api/northamerica/landowners/LayerSection/Rearrange/Up/' + id, {
                 method: 'PUT',
                 headers: {
                     authorization: props.authToken,
@@ -225,7 +225,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const DownLayerSection = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/mappingNY/LayerSection/Rearrange/Down/' + id, {
+            await fetch('/api/northamerica/landowners/LayerSection/Rearrange/Down/' + id, {
                 method: 'PUT',
                 headers: {
                     authorization: props.authToken,

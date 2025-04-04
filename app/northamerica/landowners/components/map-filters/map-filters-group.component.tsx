@@ -86,7 +86,7 @@ const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
     const fetchMapGroup = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/mappingNY/MapGroup/' + id) 
+            await fetch('/api/northamerica/landowners/MapGroup/' + id) 
             .then((response) => {
             response.json()?.then(parsed => {
                 setMapGroup(parsed.MapGroup);
@@ -103,7 +103,7 @@ const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
     const fetchMap = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/mappingNY/map/' + id) 
+            await fetch('/api/northamerica/landowners/map/' + id) 
             .then((response) => {
             response.json()?.then(parsed => {
                 setMap(parsed.maps);

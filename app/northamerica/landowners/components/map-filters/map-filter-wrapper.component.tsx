@@ -42,7 +42,7 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
   useEffect(() => {
     const fetchButtonLinks = async () => {
       try {
-        const response = await fetch("/api/mappingNY/ButtonLink");
+        const response = await fetch("/api/northamerica/landowners/ButtonLink");
         if (!response.ok) {
           throw new Error("Failed to fetch button links");
         }
@@ -61,7 +61,7 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
 
   const handleAddButtonLink = async (newLink: ButtonLink) => {
     try {
-      const response = await fetch("/api/mappingNY/ButtonLink", {
+      const response = await fetch("/api/northamerica/landowners/ButtonLink", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -85,7 +85,7 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
   const handleDeleteButtonLink = async (id: string) => {
     try {
       // Send DELETE request to the backend
-      const response = await fetch("/api/mappingNY/ButtonLink", {
+      const response = await fetch("/api/northamerica/landowners/ButtonLink", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

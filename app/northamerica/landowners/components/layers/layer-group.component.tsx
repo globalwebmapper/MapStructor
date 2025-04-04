@@ -131,7 +131,7 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
     const fetchLayerData = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/mappingNY/LayerData/' + id)
+            await fetch('/api/northamerica/landowners/LayerData/' + id)
             .then((response) => {
             response.json()?.then(parsed => {
                 console.log('get layers')
@@ -153,7 +153,7 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
     const moveLayerGroupUp = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/mappingNY/LayerGroup/Rearrange/Up/' + id, {
+            await fetch('/api/northamerica/landowners/LayerGroup/Rearrange/Up/' + id, {
                 method: 'PUT',
                 headers: {
                     authorization: props.authToken,
@@ -176,7 +176,7 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
     const moveLayerGroupDown = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/mappingNY/LayerGroup/Rearrange/Down/' + id, {
+            await fetch('/api/northamerica/landowners/LayerGroup/Rearrange/Down/' + id, {
                 method: 'PUT',
                 headers: {
                     authorization: props.authToken,
