@@ -1,7 +1,7 @@
 "use client"
 import { useFormik } from 'formik';
 import { CSSProperties } from 'react';
-import '../../../../app/globals.css';
+import '@/app/globals.css';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { setCookie } from 'cookies-next';
@@ -69,7 +69,7 @@ const Home = () => {
         process.env.USERNAME =  values.username;
         process.env.PASSWORD = encrypted;
 
-        const response = await fetch('../../../api/auth/login', {
+        const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -129,46 +129,16 @@ const Home = () => {
   return (
     <>
     <div id='app-body-main'>
-      <input className="checker" type="checkbox" id="o" hidden />
-
-      <div className="header">
-        <a href="http://newamsterdamhistorycenter.org" className="logo">
+      <div className="header" style={{height: "73px"}}>
+        <a href="/" className="logo">
           <img
             id="logo-img-wide"
-            src="http://newamsterdamhistorycenter.org/wp-content/uploads/2018/02/cropped-cropped-sprite-1.png"
+            src="/mapstructor_logo.png"
           />
-          <img id="logo-img" src="icons/icon_57x57.png" />
         </a>
 
         <div id="header_text" className="headerText">
-          <span id="headerTextSuffix" style={{fontSize: "24px"}}>|</span> Mapping Early New York
-        </div>
-
-        <div className="header-right">
-          <a
-            className="encyclopedia"
-            href="https://newamsterdamhistorycenter.org/full-3d-model/"
-            target="_blank"
-            >3D Map
-            <img
-              className="img2"
-              height="18"
-              src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-              width="18"
-              style={{marginLeft: "5px"}}
-          /></a>
-          <a
-            className="encyclopedia"
-            href="https://encyclopedia.nahc-mapping.org/"
-            target="_blank"
-            >Encyclopedia
-            <img
-              className="img2"
-              height="18"
-              src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-              width="18"
-              style={{marginLeft: "5px"}}
-          /></a>
+          <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Title Placeholder</span>
         </div>
       </div>
 

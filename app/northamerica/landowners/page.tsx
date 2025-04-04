@@ -13,36 +13,29 @@ import { ButtonLink } from "@/app/models/button-link.model";
 import "@fontsource/source-sans-pro";
 import "@fontsource/source-sans-pro/400.css"; // Specify weight
 import { getCookie } from "cookies-next";
-
-/*
- ---------------------------------- 1. NEED TO UPDATE THESE IMPORTS ----------------------------------
-  There needs to be a set of "../" for each subfolder in the URL
-    (for instance, mapstructor.org/X/Y/Z should be import _ from "../../../_")
-                                                                  X  Y  Z
-*/
+import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
+import { IconColors } from "@/app/models/colors.model";
+import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
+import { MapFiltersGroup } from "@/app/models/maps/map-filters.model";
+import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "@/app/models/layers/layer.model";
+import { MapItem, MapZoomProps } from "@/app/models/maps/map.model";
+import { PopupType } from "@/app/models/popups/pop-up-type.model";
+import { ZoomLabel } from "@/app/models/zoom-layer.model";
+import { addInteractivityToLabel, zoomToWorld } from "@/app/helpers/zoom-layer.helper";
+import { getFontawesomeIcon, parseFromString } from "@/app/helpers/font-awesome.helper";
+import "@/app/popup.css";
 
 import SliderWithDatePanel from "../../components/slider/slider-with-date-panel.component";
-import { GenericPopUpProps } from "../../models/popups/pop-up.model";
 import SliderPopUp from "../../components/right-info-bar/popups/pop-up";
-import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "../../models/layers/layer.model";
-import { IconColors } from "../../models/colors.model";
 import ExpandableLayerGroupSection from "../../components/layers/layer-group-section.component";
-import { FontAwesomeLayerIcons } from "../../models/font-awesome.model";
-import { MapFiltersGroup } from "../../models/maps/map-filters.model";
 import MapFilterWrapperComponent from "../../components/map-filters/map-filter-wrapper.component";
-import { MapItem, MapZoomProps } from "../../models/maps/map.model";
-import { PopupType } from "../../models/popups/pop-up-type.model";
-import { getFontawesomeIcon, parseFromString } from "../../helpers/font-awesome.helper";
 import NewLayerSectionForm from "../../components/forms/NewLayerSectionForm";
-import { ZoomLabel } from "../../models/zoom-layer.model";
-import { addInteractivityToLabel, zoomToWorld } from "../../helpers/zoom-layer.helper";
 import MapboxCompareWrapper from "../../components/map/mapbox-compare.component";
-import "../../popup.css";
 
 // ---------------------------------------------------------------------------------------------------
 
 /*
- ------------------------------ 2. NEED TO UPDATE THIS SPECIFIC IMPORT -------------------------------                WHEN DONE FIGURING OUT PRISMA, UPDATE THIS PART!
+ ------------------------------ 1. NEED TO UPDATE THIS SPECIFIC IMPORT -------------------------------                WHEN DONE FIGURING OUT PRISMA, UPDATE THIS PART!
   ... explain
 */
 

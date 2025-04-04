@@ -1,22 +1,22 @@
 "use client";
 import moment from "moment";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
-import SliderWithDatePanel from "../components/slider/slider-with-date-panel.component";
-import { GenericPopUpProps } from "../models/popups/pop-up.model";
-import SliderPopUp from "../components/right-info-bar/popups/pop-up";
+import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
+import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
+import SliderPopUp from "./components/right-info-bar/popups/pop-up";
 import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "../models/layers/layer.model";
-import { IconColors } from "../models/colors.model";
+import { IconColors } from "@/app/models/colors.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
-import ExpandableLayerGroupSection from "../components/layers/layer-group-section.component";
-import { FontAwesomeLayerIcons } from "../models/font-awesome.model";
+import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
+import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { CSSTransition } from "react-transition-group";
 import mapboxgl, { FilterSpecification, LngLatLike } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "mapbox-gl-compare/dist/mapbox-gl-compare.css";
-import { MapFiltersGroup } from "../models/maps/map-filters.model";
-import MapFilterWrapperComponent from "../components/map-filters/map-filter-wrapper.component";
-import { MapItem, MapZoomProps } from "../models/maps/map.model";
+import { MapFiltersGroup } from "@/app/models/maps/map-filters.model";
+import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapper.component";
+import { MapItem, MapZoomProps } from "@/app/models/maps/map.model";
 import {
   Map as PrismaMap,
   ZoomLabel as PrismaZoomLabel,
@@ -26,18 +26,17 @@ import {
   MapGroup as PrismaMapGroup,
   hoverItem
 } from "@prisma/client";
-import "../popup.css";
-import { PopupType } from "../models/popups/pop-up-type.model";
+import "@/app/popup.css";
+import { PopupType } from "@/app/models/popups/pop-up-type.model";
 import { getFontawesomeIcon, parseFromString } from "../helpers/font-awesome.helper";
-import NewLayerSectionForm from "../components/forms/NewLayerSectionForm";
-import { ZoomLabel } from "../models/zoom-layer.model";
+import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
+import { ZoomLabel } from "@/app/models/zoom-layer.model";
 import { addInteractivityToLabel, zoomToWorld } from "../helpers/zoom-layer.helper";
-import MapboxCompareWrapper from "../components/map/mapbox-compare.component";
+import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { ButtonLink } from "@/app/models/button-link.model";
 import "@fontsource/source-sans-pro";
 import "@fontsource/source-sans-pro/400.css"; // Specify weight
-import "../popup.css";
 import { getCookie } from "cookies-next";
 
 
@@ -898,23 +897,6 @@ export default function Home() {
       addZoomLayers(currZoomLayers);
     }
   }, [currLayers, currBeforeMap, currAfterMap, currZoomLayers, hasDoneInitialZoom]);
-
-  // useEffect(() => {
-  //   // Fetch or filter the layers to get the standalone layers
-  //   const fetchStandaloneLayers = async () => {
-  //     try {
-  //       const response = await fetch('/api/layers'); // Replace with your actual API endpoint
-  //       const layers = await response.json();
-  //       const standaloneLayers = layers.filter((layer: SectionLayerItem) => layer.standalone === true);
-  //       setStandaloneLayers(standaloneLayers);
-  //     } 
-  //     catch (error) {
-  //       console.error('Error fetching standalone layers:', error);
-  //     }
-  //   };
-
-  //   fetchStandaloneLayers();
-  // }, []);
 
   /*
     Update the date filter for each layer when either thing happens
