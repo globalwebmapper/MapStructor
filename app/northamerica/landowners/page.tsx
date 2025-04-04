@@ -25,12 +25,12 @@ import { addInteractivityToLabel, zoomToWorld } from "@/app/helpers/zoom-layer.h
 import { getFontawesomeIcon, parseFromString } from "@/app/helpers/font-awesome.helper";
 import "@/app/popup.css";
 
-import SliderWithDatePanel from "../../components/slider/slider-with-date-panel.component";
-import SliderPopUp from "../../components/right-info-bar/popups/pop-up";
-import ExpandableLayerGroupSection from "../../components/layers/layer-group-section.component";
-import MapFilterWrapperComponent from "../../components/map-filters/map-filter-wrapper.component";
-import NewLayerSectionForm from "../../components/forms/NewLayerSectionForm";
-import MapboxCompareWrapper from "../../components/map/mapbox-compare.component";
+import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
+import SliderPopUp from "./components/right-info-bar/popups/pop-up";
+import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
+import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapper.component";
+import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
+import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
 
 // ---------------------------------------------------------------------------------------------------
 
