@@ -1684,30 +1684,9 @@ export default function Home() {
               (currAuthToken == null || currAuthToken.length == 0)
               &&
               (<a
-                className="encyclopedia" 
-
-
-
-
-
-
-
-
-
-
+                className="encyclopedia"
+                // Changed login structure to now be in the same folder as the page
                 href="./login" 
-
-
-
-
-
-
-
-
-
-
-
-                
                 target="_blank"
               >
                 Sign In

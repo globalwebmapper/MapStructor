@@ -1,7 +1,7 @@
 "use client"
 import { useFormik } from 'formik';
 import { CSSProperties } from 'react';
-import '../../../app/globals.css';
+import '../../../../app/globals.css';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { setCookie } from 'cookies-next';

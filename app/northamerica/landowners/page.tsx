@@ -1626,7 +1626,8 @@ export default function Home() {
             &&
             (<a
               className="encyclopedia" 
-              href="/login" 
+              // Changed login structure to now be in the same folder as the page
+              href="./login" 
               target="_blank"
             >
               Sign In
