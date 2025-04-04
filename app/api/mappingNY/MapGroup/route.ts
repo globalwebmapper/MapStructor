@@ -7,15 +7,11 @@ const prisma = new PrismaClient();
 
 export async function GET(request:Request) {
 
-  console.log("INSIDE THE MAPGROUP ROUTE GET")
-
   const groups = (await prisma.mapGroup.findMany({
     include: {
         maps:true
     }
   }))
-
-  console.log("INSIDE THE MAPGROUP ROUTE GET")
 
 return NextResponse.json({
     groups

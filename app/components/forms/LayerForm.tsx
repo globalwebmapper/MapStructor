@@ -373,7 +373,7 @@ export default function LayerForm(props: LayerFormProps) {
         console.log("JSon String: ", JSON.stringify({...layerData}));
         if (props.layerConfig) {
           try {
-            const response = await fetch("/api/LayerData/" + props.layerConfig.id, {
+            const response = await fetch("/api/mappingNY/LayerData/" + props.layerConfig.id, {
               method: "PUT",
               headers: {
                 authorization: props.authToken,
@@ -403,7 +403,7 @@ export default function LayerForm(props: LayerFormProps) {
       } else if (submitType === "DELETE") {
         if (props.layerConfig) {
           try {
-            await fetch("/api/LayerData/" + props.layerConfig.id, {
+            await fetch("/api/mappingNY/LayerData/" + props.layerConfig.id, {
               method: "DELETE",
               headers: {
                 authorization: props.authToken ?? "",

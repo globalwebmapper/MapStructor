@@ -131,7 +131,7 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
     const fetchLayerData = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/LayerData/' + id)
+            await fetch('/api/mappingNY/LayerData/' + id)
             .then((response) => {
             response.json()?.then(parsed => {
                 console.log('get layers')

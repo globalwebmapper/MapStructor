@@ -130,7 +130,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                     {
                       try 
                       {
-                        await fetch('api/LayerGroup', {
+                        await fetch('api/mappingNY/LayerGroup', {
                           method: 'POST',
                           headers: {
                             'authorization': props.authToken,
@@ -153,7 +153,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                       {
                         try
                         {
-                          await fetch('/api/LayerGroup/' + props.layerGroup.id, {
+                          await fetch('/api/mappingNY/LayerGroup/' + props.layerGroup.id, {
                             method: 'PUT',
                             headers: {
                                 'authorization': props.authToken,
@@ -180,7 +180,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                         {
                           try
                           {
-                            await fetch('/api/LayerGroup/' + props.layerGroup.id, {
+                            await fetch('/api/mappingNY/LayerGroup/' + props.layerGroup.id, {
                               method: 'DELETE',
                               headers: {
                                 'authorization': props.authToken,

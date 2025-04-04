@@ -38,7 +38,7 @@ const MapForm = (props: MapFormProps) => {
             {
               try 
               {
-                await fetch('api/map', {
+                await fetch('api/mappingNY/map', {
                   method: 'POST',
                   headers: {
                     'authorization': props.authToken ?? '',
@@ -61,7 +61,7 @@ const MapForm = (props: MapFormProps) => {
               {
                 try
                 {
-                  await fetch('/api/map/' + props.mapConfig.id, {
+                  await fetch('/api/mappingNY/map/' + props.mapConfig.id, {
                     method: 'PUT',
                     headers: {
                         'authorization': props.authToken,
@@ -88,7 +88,7 @@ const MapForm = (props: MapFormProps) => {
                 {
                   try
                   {
-                    await fetch('/api/map/' + props.mapConfig.id, {
+                    await fetch('/api/mappingNY/map/' + props.mapConfig.id, {
                       method: 'DELETE',
                       headers: {
                         'authorization': props.authToken,
