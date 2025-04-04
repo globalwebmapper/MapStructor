@@ -1,5 +1,5 @@
-import { Auth } from "@/app/api/auth/auth";
-import { PrismaClient } from "@prisma/client";
+import { Auth } from "@/app/api/northamerica/landowners/auth/auth";
+import { PrismaClient } from "@/prisma/generated_schema/NorthAmericaLandowners";
 import { NextResponse } from "next/server";
 export async function POST(request: Request, context: any) {
     if(!Auth(request)){ //protected endpoint

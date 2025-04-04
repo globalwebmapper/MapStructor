@@ -1,6 +1,5 @@
-import { PrismaClient} from "@prisma/client";
+import { MapGroup, PrismaClient} from "@/prisma/generated_schema/NorthAmericaLandowners";
 import { NextResponse } from "next/server";
-import { MapGroup } from "@prisma/client";
 import { Auth } from "../auth/auth";
 
 const prisma = new PrismaClient();

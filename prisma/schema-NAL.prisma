@@ -14,7 +14,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url      = env("NORTHAMERICALANDOWNERS_DATABASE_URL")
 }
 
 model User {

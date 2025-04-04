@@ -32,11 +32,8 @@ import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapp
 import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
 import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
 
-// ---------------------------------------------------------------------------------------------------
-
 /*
- ------------------------------ 1. NEED TO UPDATE THIS SPECIFIC IMPORT -------------------------------                WHEN DONE FIGURING OUT PRISMA, UPDATE THIS PART!
-  ... explain
+ -------------------------------- NEED TO UPDATE THIS SPECIFIC IMPORT --------------------------------
 */
 
 import {
@@ -47,7 +44,7 @@ import {
   LayerGroup as PrismaLayerGroup,
   MapGroup as PrismaMapGroup,
   hoverItem
-} from "@prisma/client";
+} from "@/prisma/generated_schema/NorthAmericaLandowners";
                                                                   
 // ---------------------------------------------------------------------------------------------------
 

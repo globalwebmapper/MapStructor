@@ -8,7 +8,7 @@ import NewStandaloneLayer from '../new-section-layer-stand-alone-component'
 import { MapZoomProps } from "@/app/models/maps/map.model";
 import NewLayerGroupForm from "../forms/LayerGroupForm";
 import Modal from 'react-modal';
-import { LayerGroup as PrismaLayerGroup, LayerData as PrismaLayer } from '@prisma/client';
+import { LayerGroup as PrismaLayerGroup, LayerData as PrismaLayer } from "@/prisma/generated_schema/NorthAmericaLandowners";
 import Loader from "../loading/loading.component";
 import { getFontawesomeIcon, parseFromString } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";

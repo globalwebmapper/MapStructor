@@ -1,6 +1,5 @@
-import { PrismaClient} from "@prisma/client";
+import { LayerData, PrismaClient} from "@/prisma/generated_schema/NorthAmericaLandowners";
 import { NextResponse } from "next/server";
-import { LayerData } from "@prisma/client";
 
 export async function GET() {
     const prisma = new PrismaClient();

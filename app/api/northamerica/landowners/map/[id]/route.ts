@@ -1,4 +1,4 @@
-import { PrismaClient, Map } from "@prisma/client";
+import { PrismaClient, Map } from "@/prisma/generated_schema/NorthAmericaLandowners";
 import { NextResponse } from "next/server";
 import { Auth } from "../../auth/auth";
 

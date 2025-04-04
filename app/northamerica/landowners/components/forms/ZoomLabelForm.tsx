@@ -1,6 +1,6 @@
 import { ZoomLabel } from "@/app/models/zoom-layer.model";
 import { useFormik } from "formik";
-import { ZoomLabel as PrismaZoomLabel } from "@prisma/client";
+import { ZoomLabel as PrismaZoomLabel } from "@/prisma/generated_schema/NorthAmericaLandowners";
 import { CSSProperties, useEffect, useState } from "react";
 
 

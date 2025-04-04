@@ -1,7 +1,7 @@
 import { FieldArray, FormikProvider, useFormik } from "formik";
 import { CSSProperties, useState } from "react";
 import ColorPickerButton from "./color-picker/color-picker-button.component";
-import { LayerData as PrismaLayer } from "@prisma/client";
+import { LayerData as PrismaLayer } from "@/prisma/generated_schema/NorthAmericaLandowners";
 import PreviewIcon from "./preview-icon.component";
 
 type LayerType =

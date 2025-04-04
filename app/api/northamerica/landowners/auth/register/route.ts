@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@/prisma/generated_schema/NorthAmericaLandowners";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { User } from "@prisma/client";
 import { Auth } from "../auth";
 
 const prisma = new PrismaClient();
