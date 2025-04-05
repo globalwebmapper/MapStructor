@@ -2,25 +2,15 @@ import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
 import { useState, useEffect } from "react";
 
 const SliderPopUp = (props: GenericPopUpProps) => {
-    const [renderedEntities, setRenderedEntities] = useState<{ nid: number | string, content: string }[]>([]);
-    const [lastNid, setLastNid] = useState<number | string | null>(null); // Track the last added pop-up
+    const [renderedEntities, setRenderedEntities] = useState<
+        { nid: number | string; content: string }[]
+    >([]);
+    const [lastNid, setLastNid] = useState<number | string | null>(null);
 
     const nid: number | string | null = props.nid ?? null;
 
-    // useEffect(() => {
-    // if (nid) {
-    //     fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
-    //         .then(res => res.json())
-    //         .then(data => {
-    //             setRenderedEntities([{ nid, content: data[0].rendered_entity }]);
-    //         })
-    //         .catch(err => console.error("Error fetching popup content:", err));
-    // }
-    // }, [nid]);  // This ensures the popup updates whenever nid changes
-
-
     useEffect(() => {
-        if (nid && nid !== lastNid) {  
+        if (nid && nid !== lastNid) {
             fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
                 .then((buffer) => buffer.json())
                 .then((res) => {
@@ -28,50 +18,29 @@ const SliderPopUp = (props: GenericPopUpProps) => {
 
                     setRenderedEntities((prevEntities) => {
                         if (props.type === "blue") {
-                            // ✅ Fix: When an event is clicked, clear all land grant pop-ups and show only the event
                             return [newEntity];
+                        } else {
+                            return [...prevEntities, newEntity];
                         }
-                        // ✅ Fix: Insert new land grant pop-ups at the TOP, ensuring no duplicate additions
-                        return [newEntity, ...prevEntities.filter(e => e.nid !== nid)];
                     });
 
-                    setLastNid(nid); // Update last added pop-up
+                    setLastNid(nid);
                 })
-                .catch((error) => {
-                    console.error("Error fetching pop-up data:", error);
-                });
+                .catch((err) => console.error("Error fetching popup content:", err));
         }
-    }, [nid, props.type, lastNid]);
+    }, [nid, lastNid, props.type]);
 
     return (
-        <div id="rightInfoBar" className="rightInfoBarBorder">
-            {renderedEntities.map((entity) => {
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(entity.content, 'text/html');
-
-                // Modify links to open in a new tab
-                let prefix = "https://encyclopedia.nahc-mapping.org";
-                let pattern = /(<a\s+href=")([^"]+)(")/g;
-                let modifiedHtmlString = "<h3 id='popupHeader'>" + props.layerName + "</h3><hr><br/>";
-
-                modifiedHtmlString += doc.body.innerHTML
-                    .replace(pattern, (_: any, p1: any, p2: any, p3: any) => {
-                        if (p2.slice(0, 4) === "http") return p1 + p2 + p3;
-                        return p1 + prefix + p2 + p3;
-                    })
-                    .replace(/(<a\s+[^>]*)(>)/g, (_: any, p1: any, p2: any) => p1 + ' target="_blank"' + p2)
-                    .replace(/(<img.*src=")([^"]+)(")/g, (_: any, p1: any, p2: any, p3: any) => {
-                        if (p2.slice(0, 4) === "http") return p1 + p2 + p3;
-                        return p1 + prefix + p2 + p3;
-                    });
-
-                return (
-                    <div key={entity.nid} className="popup-container">
-                        <div id={props.type + "SliderPopup"} dangerouslySetInnerHTML={{ __html: modifiedHtmlString }} />
-                    </div>
-                );
-            })}
-        </div>
+        <>
+            {renderedEntities.map((entity) => (
+                <div
+                    key={entity.nid}
+                    className="absolute top-[82px] right-0 max-h-[calc(100%-230px)] overflow-auto bg-white z-50 w-[270px] p-4 rounded-md shadow-lg"
+                >
+                    <div dangerouslySetInnerHTML={{ __html: entity.content }} />
+                </div>
+            ))}
+        </>
     );
 };
 
