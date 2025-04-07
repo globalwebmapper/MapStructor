@@ -74,23 +74,7 @@ export default function LayerForm(props: LayerFormProps) {
           props.layerConfig?.bottomRightBoundLongitude ?? null,
       zoomToBounds: props.layerConfig?.zoomToBounds ?? false,
       enableByDefault: props.layerConfig?.enableByDefault ?? false,
-
-
-
-
-
-
       topLayerClass: props.topLayerClass ?? props.layerConfig?.topLayerClass ?? "",
-
-
-
-
-
-
-
-
-
-
       infoId: props.layerConfig?.infoId ?? "",
       type: props.layerConfig?.type ?? ("" as LayerType),
       sourceType: props.layerConfig?.sourceType ?? "",
@@ -708,33 +692,11 @@ export default function LayerForm(props: LayerFormProps) {
           {/*  </label>*/}
           {/*</div>*/}
 
-
-
-
-
-
-
-
-
-
-
-
           {/* Got rid of this cause I don't think we need to show this */}
       {/* <div style={{ marginBottom: '15px' }}>
         <label htmlFor="topLayerClass" style={labelStyling}>Top Layer Class:</label>
         <input disabled type="text" id="topLayerClass" name="topLayerClass" onChange={formik.handleChange} value={formik.values.topLayerClass} style={boxStyling} />
       </div> */}
-
-
-
-
-
-
-
-
-
-
-
 
           <div style={{ marginBottom: "15px" }}>
             <label htmlFor="infoId" style={labelStyling}>

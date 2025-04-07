@@ -79,6 +79,7 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
                 groupName = {props.sectionLayerId} 
                 sectionName = {props.sectionLayerId}  
                 afterSubmit={closeWindow}
+                topLayerClass= {props.sectionLayerId}
                 >
                 </NewStandaloneLayerForm>
             </Modal>
