@@ -1,9 +1,7 @@
 import { MutableRefObject } from "react";
 import { ZoomLabel } from "../models/zoom-layer.model";
-import { LayerSpecification, Map } from "mapbox-gl";
-import { usePathname, useRouter } from "next/navigation";
+import { Map } from "mapbox-gl";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-
 
 export function createLabel(props: ZoomLabel, before: boolean) {
     let returnVal =  {
