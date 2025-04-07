@@ -367,7 +367,8 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
                     beforeOpen={props.beforeOpen}
                     afterClose={props.afterClose}
                     groupName={props.group.id}
-                    sectionName={props.sectionName}>
+                    sectionName={props.sectionName}
+                    topLayerClass={props.group.id}>
                     </NewSectionLayerGroupItem>
                 )
             }
