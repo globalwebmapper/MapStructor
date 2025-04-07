@@ -38,7 +38,7 @@ const MapForm = (props: MapFormProps) => {
             {
               try 
               {
-                await fetch('api/mappingNY/map', {
+                await fetch('/api/mappingNY/map', {
                   method: 'POST',
                   headers: {
                     'authorization': props.authToken ?? '',

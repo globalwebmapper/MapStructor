@@ -353,7 +353,7 @@ export default function LayerForm(props: LayerFormProps) {
       */
       if (submitType === "POST") {
         try {
-          const endpoint = props.standalone ? "api/northamerica/landowners/StandaloneLayers" : "api/northamerica/landowners/LayerData"
+          const endpoint = props.standalone ? "/api/northamerica/landowners/StandaloneLayers" : "/api/northamerica/landowners/LayerData"
           await fetch(endpoint, {
             method: "POST",
             headers: {

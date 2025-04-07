@@ -130,7 +130,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                     {
                       try 
                       {
-                        await fetch('api/mappingNY/LayerGroup', {
+                        await fetch('/api/mappingNY/LayerGroup', {
                           method: 'POST',
                           headers: {
                             'authorization': props.authToken,

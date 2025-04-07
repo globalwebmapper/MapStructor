@@ -353,7 +353,7 @@ export default function LayerForm(props: LayerFormProps) {
       */
       if (submitType === "POST") {
         try {
-          const endpoint = props.standalone ? "api/mappingNY/StandaloneLayers" : "api/mappingNY/LayerData"
+          const endpoint = props.standalone ? "/api/mappingNY/StandaloneLayers" : "/api/mappingNY/LayerData"
           await fetch(endpoint, {
             method: "POST",
             headers: {

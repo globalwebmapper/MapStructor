@@ -26,7 +26,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
                     {
                       try 
                       {
-                        await fetch('api/northamerica/landowners/LayerSection', {
+                        await fetch('/api/northamerica/landowners/LayerSection', {
                           method: 'POST',
                           headers: {
                             'authorization': props.authToken ?? '',

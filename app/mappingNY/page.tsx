@@ -509,7 +509,7 @@ export default function Home() {
 
       // Move the desired layer up (in the database)
       try {
-        fetch("api/mappingNY/LayerData", {
+        fetch("/api/mappingNY/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -522,7 +522,7 @@ export default function Home() {
 
       // Move the layer above down (in the database)
       try {
-        fetch("api/mappingNY/LayerData", {
+        fetch("/api/mappingNY/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -566,7 +566,7 @@ export default function Home() {
 
       // Move the desired layer down (in the database)
       try {
-        fetch("api/mappingNY/LayerData", {
+        fetch("/api/mappingNY/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -579,7 +579,7 @@ export default function Home() {
 
       // Move the layer below up (in the database)
       try {
-        fetch("api/mappingNY/LayerData", {
+        fetch("/api/mappingNY/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -617,7 +617,7 @@ export default function Home() {
       TEMP_layerOrder[layerOrder.length - 1] = TEMP_moveDownLayer;
 
       try {
-        fetch("api/mappingNY/LayerData", {
+        fetch("/api/mappingNY/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -629,7 +629,7 @@ export default function Home() {
       }
 
       try {
-        fetch("api/mappingNY/LayerData", {
+        fetch("/api/mappingNY/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

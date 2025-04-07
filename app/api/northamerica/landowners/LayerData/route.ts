@@ -18,12 +18,14 @@ export async function POST(request: Request) {
     const layerData:LayerData = await request.json()
     const prisma = new PrismaClient();
 
+    // Index within the topLayerClass
     const idx = await prisma.layerData.count({
         where: {
             topLayerClass: layerData.topLayerClass
         }
     })
 
+    // Index within the entire LayerData
     const viewIdx = await prisma.layerData.count({})
 
     try {
