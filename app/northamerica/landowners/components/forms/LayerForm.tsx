@@ -213,7 +213,7 @@ export default function LayerForm(props: LayerFormProps) {
 
     onSubmit: async (values) => {
       console.log("Values before submission:", values);
-      console.log(props.standalone);
+      console.log("Standalone?", props.standalone);
       const paint: Record<string, any> = {};
       const layout: Record<string, any> = values.layout || {};
 

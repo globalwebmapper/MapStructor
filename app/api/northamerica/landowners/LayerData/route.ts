@@ -18,17 +18,17 @@ export async function POST(request: Request) {
     const layerData:LayerData = await request.json()
     const prisma = new PrismaClient();
 
-    // Index within the topLayerClass
-    const idx = await prisma.layerData.count({
-        where: {
-            topLayerClass: layerData.topLayerClass
-        }
-    })
-
-    // Index within the entire LayerData
-    const viewIdx = await prisma.layerData.count({})
-
     try {
+        // Index within the topLayerClass
+        const idx = await prisma.layerData.count({
+            where: {
+                topLayerClass: layerData.topLayerClass
+            }
+        })
+
+        // Index within the entire LayerData
+        const viewIdx = await prisma.layerData.count({})
+
         const r = await prisma.layerData.create({
             data:{
                 name:layerData.name,
@@ -57,8 +57,6 @@ export async function POST(request: Request) {
                 hoverContent:layerData.hoverContent,
                 order:idx + 1,
                 viewOrder:viewIdx + 1,
-                
-                
             }
         })
         return NextResponse.json({

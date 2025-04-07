@@ -22,81 +22,78 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
           
         onSubmit: async (values) => {
             if(values.name?.length > 0) {
-                if(submitType === "POST")
-                    {
-                      try 
-                      {
-                        await fetch('/api/northamerica/landowners/LayerSection', {
-                          method: 'POST',
-                          headers: {
-                            'authorization': props.authToken ?? '',
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify(values),
-                        });
-                        alert('Layer Section added successfully');
-                        formik.resetForm();
-                        props.afterSubmit();
-                      } 
-                      catch (error: any) 
-                      {
-                        alert(`Error: ${error.message}`);
-                      }
-                    }
-                    else if(submitType === "UPDATE")
-                    {
-                      if(props.layerSection)
-                      {
-                        try
-                        {
-                          await fetch('/api/northamerica/landowners/LayerSection/' + props.layerSection.id, {
-                            method: 'PUT',
-                            headers: {
-                                'authorization': props.authToken,
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(values)
-                          });
-                          alert(`Layer Section Updated`);
-                          props.afterSubmit();
-                        }
-                        catch (error: any)
-                        {
-                          alert(`Error: ${error.message}`);
-                        }
-                      }
-                      else
-                      {
-                        alert(`Error: layerSection unpopulated`);
-                      }
-                    }
-                    else if(submitType === "DELETE")
-                    {
-                      if(props.layerSection)
-                        {
-                          try
-                          {
-                            await fetch('/api/northamerica/landowners/LayerSection/' + props.layerSection.id, {
-                              method: 'DELETE',
-                              headers: {
-                                'authorization': props.authToken,
-                                'Content-Type': 'application/json',
-                              },
-                              body: JSON.stringify(values)
-                            });
-                            alert(`Layer Section Deleted`);
-                            props.afterSubmit();
-                          }
-                          catch (error: any)
-                          {
-                            alert(`Error: ${error.message}`);
-                          }
-                        }
-                        else
-                        {
-                          alert(`Error: layerSection unpopulated`);
-                        }
-                    }
+              if(submitType === "POST") {
+                try {
+                  await fetch('/api/northamerica/landowners/LayerSection', {
+                    method: 'POST',
+                    headers: {
+                      'authorization': props.authToken ?? '',
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values),
+                  });
+                  
+                  alert('Layer Section added successfully');
+                  formik.resetForm();
+                  props.afterSubmit();
+                } 
+                
+                catch (error: any) {
+                  alert(`Error: ${error.message}`);
+                }
+              }
+              
+              else if(submitType === "UPDATE") {
+                if(props.layerSection) {
+                  try {
+                    await fetch('/api/northamerica/landowners/LayerSection/' + props.layerSection.id, {
+                      method: 'PUT',
+                      headers: {
+                        'authorization': props.authToken,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(values)
+                    });
+                    
+                    alert(`Layer Section Updated`);
+                    props.afterSubmit();
+                  }
+                  
+                  catch (error: any) {
+                    alert(`Error: ${error.message}`);
+                  }
+                }
+                
+                else {
+                  alert(`Error: layerSection unpopulated`);
+                }
+              }
+                    
+              else if(submitType === "DELETE") {
+                if(props.layerSection) {
+                  try {
+                    await fetch('/api/northamerica/landowners/LayerSection/' + props.layerSection.id, {
+                      method: 'DELETE',
+                      headers: {
+                        'authorization': props.authToken,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(values)
+                    });
+                            
+                    alert(`Layer Section Deleted`);
+                    props.afterSubmit();
+                  }
+                  
+                  catch (error: any) {
+                    alert(`Error: ${error.message}`);
+                  }
+                }
+                
+                else {
+                  alert(`Error: layerSection unpopulated`);
+                }
+              }
             }
         }
     });
