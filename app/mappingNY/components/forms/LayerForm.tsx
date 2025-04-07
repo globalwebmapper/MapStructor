@@ -37,6 +37,7 @@ type LayerFormProps = {
   afterSubmit: () => void;
   authToken: string;
   standalone: boolean;
+  topLayerClass?: string;
 };
 
 type ZoomLevel = { zoom: number; value: number };
@@ -73,7 +74,7 @@ export default function LayerForm(props: LayerFormProps) {
           props.layerConfig?.bottomRightBoundLongitude ?? null,
       zoomToBounds: props.layerConfig?.zoomToBounds ?? false,
       enableByDefault: props.layerConfig?.enableByDefault ?? false,
-      topLayerClass: props.layerConfig?.topLayerClass ?? "",
+      topLayerClass: props.topLayerClass ?? props.layerConfig?.topLayerClass ?? "",
       infoId: props.layerConfig?.infoId ?? "",
       type: props.layerConfig?.type ?? ("" as LayerType),
       sourceType: props.layerConfig?.sourceType ?? "",

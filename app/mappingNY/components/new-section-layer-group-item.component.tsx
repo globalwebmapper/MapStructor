@@ -11,7 +11,8 @@ type LayerFormButtonProps = {
     beforeOpen: () => void,
     afterClose: () => void,
     authToken: string,
-    inPreviewMode: boolean
+    inPreviewMode: boolean,
+    topLayerClass: string
 }
 
 const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
@@ -63,7 +64,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
                 onRequestClose={closeWindow}
                 contentLabel='New Layer'
             >
-                <LayerForm authToken={props.authToken} groupName={props.groupName} standalone = {false} sectionName={props.sectionName} afterSubmit={closeWindow}></LayerForm>
+                <LayerForm authToken={props.authToken} topLayerClass={props.topLayerClass} groupName={props.groupName} standalone = {false} sectionName={props.sectionName} afterSubmit={closeWindow}></LayerForm>
             </Modal>
         </>
     )
