@@ -1613,6 +1613,17 @@ export default function Home() {
               />
             </a>)
           }
+          {
+            (currAuthToken != null && currAuthToken.length > 0)
+            &&
+            (<a 
+              className="encyclopedia" 
+              onClick={() => setInPreviewMode(!inPreviewMode)} 
+              target="_blank"
+            >
+              {inPreviewMode ? 'Edit Mode' : 'Preview Mode'}
+            </a>)
+          }
         </div>
       </div>
 
