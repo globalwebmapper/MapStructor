@@ -10,9 +10,9 @@ type RulerComponentProps = {
 
 const RulerComponent = (props: RulerComponentProps) => {
     const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
-    var sliderStart: number = moment("01/01/1626").unix();
+    var sliderStart: number = moment("01/01/1850").unix();
     var sliderStartDrag: number = sliderStart;
-    var sliderEnd: number = moment("01/01/1700").unix();
+    var sliderEnd: number = moment("01/01/1950").unix();
     var sliderEndDrag: number = sliderEnd;
     var sliderMiddle: number = (sliderStart + sliderEnd) / 2;
     var tooltiPos: number = -100;
