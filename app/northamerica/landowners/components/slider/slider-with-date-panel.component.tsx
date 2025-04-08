@@ -68,8 +68,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   const middleSliderPosition = calculateSliderPosition(middleDate);
 
   // Variables for calculating the timeline labels
-  var sliderStart: number = moment("01/01/1850").unix();
-  var sliderEnd: number = moment("01/01/1950").unix();
+  var sliderStart: number = moment("1850-01-01", "YYYY-MM-DD").unix();
+  var sliderEnd: number = moment("1950-01-01", "YYYY-MM-DD").unix();
     
   var ruler_step: number = (sliderEnd - sliderStart) / 10,
   date_ruler1: number = sliderStart + ruler_step,
