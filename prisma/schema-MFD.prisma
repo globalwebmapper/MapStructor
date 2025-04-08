@@ -10,6 +10,7 @@
 generator client {
   provider = "prisma-client-js"
   output = "./generated_schema/myFirstDatabase"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

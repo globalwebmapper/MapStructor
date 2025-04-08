@@ -8,8 +8,9 @@
 // ====> npx prisma generate; npx prisma db push
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "./generated_schema/NorthAmericaLandowners"
+  provider      = "prisma-client-js"
+  output        = "./generated_schema/NorthAmericaLandowners"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
