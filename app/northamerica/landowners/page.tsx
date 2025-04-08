@@ -1,22 +1,41 @@
 "use client";
+
 import moment from "moment";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
-import SliderWithDatePanel from "../../components/slider/slider-with-date-panel.component";
-import { GenericPopUpProps } from "../../models/popups/pop-up.model";
-import SliderPopUp from "../../components/right-info-bar/popups/pop-up";
-import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "../../models/layers/layer.model";
-import { IconColors } from "../../models/colors.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
-import ExpandableLayerGroupSection from "../../components/layers/layer-group-section.component";
-import { FontAwesomeLayerIcons } from "../../models/font-awesome.model";
 import { CSSTransition } from "react-transition-group";
-import mapboxgl, { FilterSpecification, LngLatLike } from "mapbox-gl";
+import mapboxgl, { FilterSpecification } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "mapbox-gl-compare/dist/mapbox-gl-compare.css";
-import { MapFiltersGroup } from "../../models/maps/map-filters.model";
-import MapFilterWrapperComponent from "../../components/map-filters/map-filter-wrapper.component";
-import { MapItem, MapZoomProps } from "../../models/maps/map.model";
+import { usePathname, useRouter } from "next/navigation";
+import { ButtonLink } from "@/app/models/button-link.model";
+import "@fontsource/source-sans-pro";
+import "@fontsource/source-sans-pro/400.css"; // Specify weight
+import { getCookie } from "cookies-next";
+import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
+import { IconColors } from "@/app/models/colors.model";
+import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
+import { MapFiltersGroup } from "@/app/models/maps/map-filters.model";
+import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "@/app/models/layers/layer.model";
+import { MapItem, MapZoomProps } from "@/app/models/maps/map.model";
+import { PopupType } from "@/app/models/popups/pop-up-type.model";
+import { ZoomLabel } from "@/app/models/zoom-layer.model";
+import { addInteractivityToLabel, zoomToWorld } from "@/app/helpers/zoom-layer.helper";
+import { getFontawesomeIcon, parseFromString } from "@/app/helpers/font-awesome.helper";
+import "@/app/popup.css";
+
+import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
+import SliderPopUp from "./components/right-info-bar/popups/pop-up";
+import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
+import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapper.component";
+import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
+import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
+
+/*
+ -------------------------------- NEED TO UPDATE THIS SPECIFIC IMPORT --------------------------------
+*/
+
 import {
   Map as PrismaMap,
   ZoomLabel as PrismaZoomLabel,
@@ -25,20 +44,9 @@ import {
   LayerGroup as PrismaLayerGroup,
   MapGroup as PrismaMapGroup,
   hoverItem
-} from "@prisma/client";
-import "../../popup.css";
-import { PopupType } from "../../models/popups/pop-up-type.model";
-import { getFontawesomeIcon, parseFromString } from "../../helpers/font-awesome.helper";
-import NewLayerSectionForm from "../../components/forms/NewLayerSectionForm";
-import { ZoomLabel } from "../../models/zoom-layer.model";
-import { addInteractivityToLabel, zoomToWorld } from "../../helpers/zoom-layer.helper";
-import MapboxCompareWrapper from "../../components/map/mapbox-compare.component";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import { ButtonLink } from "@/app/models/button-link.model";
-import "@fontsource/source-sans-pro";
-import "@fontsource/source-sans-pro/400.css"; // Specify weight
-import "../../popup.css";
-import { getCookie } from "cookies-next";
+} from "@/prisma/generated_schema/NorthAmericaLandowners";
+                                                                  
+// ---------------------------------------------------------------------------------------------------
 
 
 
@@ -190,7 +198,7 @@ export default function Home() {
     setCurrLayers([]);
 
     // Call the API fetch for the sections
-    fetch("/api/LayerSection", {
+    fetch("/api/northamerica/landowners/LayerSection", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -258,7 +266,7 @@ export default function Home() {
     });
 
     // Once the layer sections have been created, call the API fetch for the layers themselves
-    fetch("/api/LayerData", {
+    fetch("/api/northamerica/landowners/LayerData", {
       method: "GET",
       headers: {
         authorization: currAuthToken ?? '',
@@ -275,7 +283,7 @@ export default function Home() {
 
   const getZoomLayers = () => {
     // Call the API fetch for the zooms
-    fetch("/api/ZoomLabel", {
+    fetch("/api/northamerica/landowners/ZoomLabel", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -363,7 +371,7 @@ export default function Home() {
     The layers are then fed to the frontend in the same format as existing layers so that they display in the same format and with the same icons.
   */
   const getStandaloneLayers = () => {
-    fetch("/api/StandaloneLayers", {
+    fetch("/api/northamerica/landowners/StandaloneLayers", {
       method: "GET",
       headers: {
         authorization: currAuthToken ?? '',
@@ -401,7 +409,7 @@ export default function Home() {
   
   const getMaps = () => {
     // Call the API fetch for the maps
-    fetch("/api/MapGroup", {
+    fetch("/api/northamerica/landowners/MapGroup", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -454,7 +462,7 @@ export default function Home() {
 
   const fetchButtonLinks = async () => {
     try {
-      const response = await fetch("/api/ButtonLink");
+      const response = await fetch("/api/northamerica/landowners/ButtonLink");
       const data = await response.json();
       if (data && data.buttonLinks) {
         setButtonLinks(data.buttonLinks);
@@ -510,7 +518,7 @@ export default function Home() {
 
       // Move the desired layer up (in the database)
       try {
-        fetch("api/LayerData", {
+        fetch("/api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -523,7 +531,7 @@ export default function Home() {
 
       // Move the layer above down (in the database)
       try {
-        fetch("api/LayerData", {
+        fetch("/api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -567,7 +575,7 @@ export default function Home() {
 
       // Move the desired layer down (in the database)
       try {
-        fetch("api/LayerData", {
+        fetch("/api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -580,7 +588,7 @@ export default function Home() {
 
       // Move the layer below up (in the database)
       try {
-        fetch("api/LayerData", {
+        fetch("/api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -618,7 +626,7 @@ export default function Home() {
       TEMP_layerOrder[layerOrder.length - 1] = TEMP_moveDownLayer;
 
       try {
-        fetch("api/LayerData", {
+        fetch("/api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -630,7 +638,7 @@ export default function Home() {
       }
 
       try {
-        fetch("api/LayerData", {
+        fetch("/api/northamerica/landowners/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -898,23 +906,6 @@ export default function Home() {
       addZoomLayers(currZoomLayers);
     }
   }, [currLayers, currBeforeMap, currAfterMap, currZoomLayers, hasDoneInitialZoom]);
-
-  // useEffect(() => {
-  //   // Fetch or filter the layers to get the standalone layers
-  //   const fetchStandaloneLayers = async () => {
-  //     try {
-  //       const response = await fetch('/api/layers'); // Replace with your actual API endpoint
-  //       const layers = await response.json();
-  //       const standaloneLayers = layers.filter((layer: SectionLayerItem) => layer.standalone === true);
-  //       setStandaloneLayers(standaloneLayers);
-  //     } 
-  //     catch (error) {
-  //       console.error('Error fetching standalone layers:', error);
-  //     }
-  //   };
-
-  //   fetchStandaloneLayers();
-  // }, []);
 
   /*
     Update the date filter for each layer when either thing happens
@@ -1589,483 +1580,335 @@ export default function Home() {
 
   return (
     <div id="app-body-main">
-      <input className="checker" type="checkbox" id="o" hidden />
-        <div className="modal">
-          <div className="modal-body">
-            <div className="modal-header">
-              <h1>ABOUT</h1>
-              <label htmlFor="o" id="close" title="Close">&times;</label>
-            </div>
-            <div className="modal-content">
-              New York City was founded by the Dutch in 1624 as
-              <i>New Amsterdam</i>, the capital of New Netherland. The New
-              Amsterdam History Center is devoted to documenting and mapping New
-              Amsterdam, its diverse people, landscapes, institutions and global
-              legacy today.
-              <p>
-                We have presented several versions of the <i>Castello Plan</i> and the
-                <i>Dutch Grants Map</i> here. You can see the settlement of
-                houses, farms, taverns and workshops, surrounded by walls. Over
-                the three centuries that followed, the area became the Financial
-                District. The east wall was torn down and named Wall Street. The
-                canals were paved over and turned into streets and in between
-                developed skysrapers, and the island was expanded with infill.
-                Above ground, almost nothing remains of New Amsterdam except the
-                original street pattern. Underground, archeologists have found
-                evidence of the plots of houses and gardens, Amsterdam yellow
-                brick, and pollen samples of plants.
-              </p>
-              You can swipe the map to compare the Castello Plan in 1660 to the
-              present, and explore each lot, where it shows what was there and
-              who lived there. Our next steps are to expand through the full
-              history of New Amsterdam with a timeline from 1624 to 1664, when
-              it was taken over by the English.
-              <p>
-                We need your help to make this work happen. Donate now to
-                develop the map and expand the research.
-              </p>
-            </div>
-          </div>
-        </div>
-
-
-
-
-
-        {/* ---------------------------------------- HEADER ---------------------------------------- */}
-        <div className="header" style={{height: "73px"}}>
-          <a href="http://newamsterdamhistorycenter.org" className="logo">
-            <img
-              id="logo-img-wide"
-              src="http://newamsterdamhistorycenter.org/wp-content/uploads/2018/02/cropped-cropped-sprite-1.png"
-            />
-            <img
-              id="logo-img"
-              src="icons/icon_57x57.png"
-            />
-          </a>
-
-          <div id="header_text" className="headerText">
-            <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Mapping Early New York</span>
-          </div>
-
-          <div className="header-right">
-            <a
-              className="encyclopedia"
-              href="https://newamsterdamhistorycenter.org/full-3d-model/"
-              target="_blank"
-            >
-              3D Map
-              <img
-                className="img2"
-                height="18"
-                src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                width="18"
-                style={{ marginLeft: "5px" }}
-              />
-            </a>
-            
-            <a
-              className="encyclopedia"
-              href="https://encyclopedia.nahc-mapping.org/"
-              target="_blank"
-            >
-              Encyclopedia
-              <img
-                className="img2"
-                height="18"
-                src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                width="18"
-                style={{ marginLeft: "5px" }}
-              />
-            </a>
-
-            {
-              (currAuthToken == null || currAuthToken.length == 0)
-              &&
-              (<a
-                className="encyclopedia" 
-                href="/login" 
-                target="_blank"
-              >
-                Sign In
-                <img
-                  className="img2"
-                  height="18"
-                  src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                  width="18"
-                  style={{ marginLeft: "5px" }}
-                />
-              </a>)
-            }
-            {
-              (currAuthToken != null && currAuthToken.length > 0)
-              &&
-              (<a 
-                className="encyclopedia" 
-                onClick={() => setInPreviewMode(!inPreviewMode)} 
-                target="_blank"
-              >
-                {inPreviewMode ? 'Edit Mode' : 'Preview Mode'}
-              </a>)
-            }
-
-            <label htmlFor="o" id="open-popup" style={{ display: "none" }}>
-              Open PopUp
-            </label>
-            
-            <label id="about" className="trigger-popup" title="Open">
-              ABOUT
-            </label>
-            
-            <i className="fa fa-2x fa-info-circle trigger-popup" id="info"></i>
-          </div>
-        </div>
-
-
-
-
-
-        {/* ---------------------------------------- LAYER PANEL ---------------------------------------- */}
-        <button
-          id="view-hide-layer-panel"
-          className={layerPanelVisible ? "" : "translated"}
-          onClick={() => {
-            if (layerPanelVisible) {
-              setLayerPanelVisible(false);
-              setLayerPopupBefore(popUpVisible);
-              setPopUpVisible(false);
-            }
-            else {
-              setLayerPanelVisible(true);
-              setPopUpVisible(layerPopupBefore);
-            }
-          }}
-        >
-          {
-            layerPanelVisible
-            ?
-            (<span id="dir-txt" style={{fontSize: '13px'}}>&#9204;</span>)
-            :
-            (<span id="dir-txt">⏵</span>)
-          }
-        </button>
-
-        <CSSTransition
-          in={popUpVisible}
-          timeout={500}
-          classNames="popup"
-          unmountOnExit
-        >
-          <SliderPopUp
-            layerName={popUp.layerName}
-            nid={popUp.nid}
-            type={popUp.type}
+      {/* ---------------------------------------- HEADER ---------------------------------------- */}
+      <div className="header" style={{height: "73px"}}>
+        <a href="/" className="logo">
+          <img
+            id="logo-img-wide"
+            src="/mapstructor_logo.png"
           />
-        </CSSTransition>
+        </a>
 
-        <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
-          <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
-          <p className="title">LAYERS</p>
-          <>
-            {(currSectionLayers ?? []).map((secLayer, idx) => {
-              return (
-                <ExpandableLayerGroupSection
-                  key={"section-layer-component-" + idx}
-                  inPreviewMode={inPreviewMode}
-                  authToken={currAuthToken}
-                  activeLayers={activeLayerIds}
-                  activeLayerCallback={(newActiveLayers: string[]) => {
-                    setActiveLayerIds(newActiveLayers);
-                  }}
-                  layersHeader={secLayer.label}
-                  layer={secLayer}
-                  afterSubmit={() => {
-                    getLayerSections();
-                  }}
-                  beforeOpen={beforeLayerFormModalOpen}
-                  afterClose={afterLayerFormModalCloseLayers}
-                  openWindow={beforeModalOpen}
-                  mapZoomCallback={(zoomProps: MapZoomProps) => {
-                    if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0});
-                    }
-                    else if (zoomProps.center) {
-                      currBeforeMap.current?.easeTo({
-                        center: zoomProps.center,
-                        zoom: zoomProps.zoom,
-                        bearing: zoomProps.bearing ?? 0,
-                        speed: zoomProps.speed,
-                        curve: zoomProps.curve,
-                        duration: zoomProps.duration,
-                        easing(t) {
-                          return t;
-                        },
-                      });
-                      if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                        router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
-                      }
-                    }
-                  }}
-                  getLayerSectionsCallback={getLayerSections}
-                  removeMapLayerCallback={(id: string) => removeMapLayerBothMaps(id)}
-                />
-              );
-            })}
-              
-            {/* 
-              This UI implementation is the means by which the actual standalone layers are displayed in the menu. 
-              The method works in the same way as the other parse layers functions, and brings in layers from our standalone api methods. 
-            */}
-            {/* {(standAloneLayers ?? []).map((layer, idx) => {
-              //console.log("Checking layer sections: ",layer);
-              return (
-                <Layer
-                  key={"standalone-layer-component-" + idx}
-                  item={{ ...layer, 
-                    isSolid: false, 
-                    iconType: parseFromString(layer.iconType), 
-                    zoom: layer.zoom ?? 0, 
-                    bearing: layer.bearing ?? 0,
-                    zoomToBounds: layer.zoomToBounds ?? false,
-                    center: layer.longitude != null && layer.latitude != null ? [layer.longitude, layer.latitude] : undefined,
-                    enableByDefault: layer.enableByDefault ?? false,
-                    bounds: layer.topLeftBoundLongitude && layer.topLeftBoundLatitude && layer.bottomRightBoundLongitude && layer.bottomRightBoundLatitude
-                      ?
-                      [
-                        [layer.topLeftBoundLongitude, layer.topLeftBoundLatitude],
-                        [layer.bottomRightBoundLongitude, layer.bottomRightBoundLatitude],
-                      ]
-                      : undefined,
-                      standalone: true,
-                      layerSectionId: layer.layerSection ?? undefined,
-                  }}
-                  activeLayers={activeLayerIds}
-                  activeLayerCallback={(newActiveLayers: string[]) => {
-                    setActiveLayerIds(newActiveLayers);
-                  }}
-                  openWindow={() => {}}
-                  editFormVisibleCallback={setModalOpen}
-                  mapZoomCallback={(zoomProps: MapZoomProps) => {
-                    if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
-                    }
-                    else if (zoomProps.center) {
-                      currBeforeMap.current?.easeTo({
-                        center: zoomProps.center,
-                        zoom: zoomProps.zoom,
-                        bearing: zoomProps.bearing ?? 0,
-                        speed: zoomProps.speed,
-                        curve: zoomProps.curve,
-                        duration: zoomProps.duration,
-                        easing(t) {
-                          return t;
-                        },
-                      });
-                      if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                        router.push(`${pathname}/#${zoomProps.zoom}/${zoomProps.center[0]}/${zoomProps.center[1]}/${zoomProps.bearing ?? 0}`);
-                      }
-                    }
-                  }}
-                  fetchLayerDataCallback={() => {}}
-                  afterSubmit={() => {}}
-                  authToken={currAuthToken}
-                  inPreviewMode={inPreviewMode}
-                />
-              );
-            })} */}
+        <div id="header_text" className="headerText">
+          <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Title Placeholder</span>
+        </div>
 
-            {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
-              (<div
-                style={{
-                  paddingTop: "15px",
-                  paddingLeft: "15px",
-                  paddingRight: "10px",
-                  textAlign: "center",
-                }}
-              >
-                <button id="post-button" onClick={() => setGroupFormOpen(true)}>
-                  <FontAwesomeIcon
-                    icon={getFontawesomeIcon(
-                      FontAwesomeLayerIcons.PLUS_SQUARE,
-                      true
-                    )}
-                  ></FontAwesomeIcon>{" "}
-                  New Group Folder
-                </button>
-              </div>)
-            }
-
-            {groupFormOpen &&
-              (<NewLayerSectionForm
-                authToken={currAuthToken}
-                afterSubmit={() => {
-                  setGroupFormOpen(false);
-                  getLayerSections();
-                }}
-                afterCancel={() => {
-                  setGroupFormOpen(false);
-                }}
-              ></NewLayerSectionForm>)
-            }
-
-            {!inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
-              (<>
-                <p className="title">Layer Ordering</p>
-                <button
-                  style={{
-                    marginLeft: "100px",
-                    marginBottom: "10px",
-                    border: "2px solid",
-                    padding: "5px",
-                    borderRadius: "5px",
-                  }}
-                  onClick={() => openOrderingMenu()}
-                >
-                  Expand/Collapse
-                </button>
-                {showLayerOrdering &&
-                  layerOrder.map((row) => (
-                    <div
-                      className="row"
-                      key={row.id}
-                      style={{ display: "flex" }}
-                    >
-                      <FontAwesomeIcon
-                        className="decrement-order"
-                        title="up"
-                        color="black"
-                        icon={getFontawesomeIcon(
-                          FontAwesomeLayerIcons.UP_ARROW
-                        )}
-                        onClick={() => moveLayerUp(row)}
-                        style={{ paddingLeft: "6px" }}
-                      />
-                      <FontAwesomeIcon
-                        className="increment-order"
-                        title="down"
-                        color="black"
-                        icon={getFontawesomeIcon(
-                          FontAwesomeLayerIcons.DOWN_ARROW
-                        )}
-                        onClick={() => moveLayerDown(row)}
-                        style={{ paddingLeft: "6px" }}
-                      />
-                      <FontAwesomeIcon
-                        icon={getFontawesomeIcon(parseFromString(row.iconType))}
-                        style={{
-                          color: row.iconColor,
-                          paddingLeft: "6px",
-                        }}
-                      />
-
-                      <div style={{ paddingLeft: "6px" }}>{row.label}</div>
-                    </div>
-                  ))
-                }
-              </>)
-            }
-            <br />
-            <p className="title"></p>
-          </>
-          
+        <div className="header-right">
+          {
+            (currAuthToken == null || currAuthToken.length == 0)
+            &&
+            (<a
+              className="encyclopedia" 
+              // Changed login structure to now be in the same folder as the page
+              href="./login" 
+              target="_blank"
+            >
+              Sign In
+              <img
+                className="img2"
+                height="18"
+                src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
+                width="18"
+                style={{ marginLeft: "5px" }}
+              />
+            </a>)
+          }
+          {
+            (currAuthToken != null && currAuthToken.length > 0)
+            &&
+            (<a 
+              className="encyclopedia" 
+              onClick={() => setInPreviewMode(!inPreviewMode)} 
+              target="_blank"
+            >
+              {inPreviewMode ? 'Edit Mode' : 'Preview Mode'}
+            </a>)
+          }
+        </div>
+      </div>
 
 
-          
-          
-          {/* ---------------------------------------- MAPS PANEL ---------------------------------------- */}
-          {beforeMapItem && hasDoneInitialZoom &&
-            (<>
-              <MapFilterWrapperComponent
+
+
+
+      {/* ---------------------------------------- LAYER PANEL ---------------------------------------- */}
+      <button
+        id="view-hide-layer-panel"
+        className={layerPanelVisible ? "" : "translated"}
+        onClick={() => {
+          if (layerPanelVisible) {
+            setLayerPanelVisible(false);
+            setLayerPopupBefore(popUpVisible);
+            setPopUpVisible(false);
+          }
+          else {
+            setLayerPanelVisible(true);
+            setPopUpVisible(layerPopupBefore);
+          }
+        }}
+      >
+        {
+          layerPanelVisible
+          ?
+          (<span id="dir-txt" style={{fontSize: '13px'}}>&#9204;</span>)
+          :
+          (<span id="dir-txt">⏵</span>)
+        }
+      </button>
+
+      <CSSTransition
+        in={popUpVisible}
+        timeout={500}
+        classNames="popup"
+        unmountOnExit
+      >
+        <SliderPopUp
+          layerName={popUp.layerName}
+          nid={popUp.nid}
+          type={popUp.type}
+        />
+      </CSSTransition>
+
+      <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
+        <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
+        <p className="title">LAYERS</p>
+        <>
+          {(currSectionLayers ?? []).map((secLayer, idx) => {
+            return (
+              <ExpandableLayerGroupSection
+                key={"section-layer-component-" + idx}
                 inPreviewMode={inPreviewMode}
                 authToken={currAuthToken}
-                beforeOpen={beforeModalOpen}
-                zoomToWorld={() => {
-                  zoomToWorld(currAfterMap);
-                  zoomToWorld(currBeforeMap);
+                activeLayers={activeLayerIds}
+                activeLayerCallback={(newActiveLayers: string[]) => {
+                  setActiveLayerIds(newActiveLayers);
                 }}
-                afterClose={afterModalCloseMaps}
-                beforeMapCallback={(map: MapItem) => {
-                  // Set beforeMap to selected map by changing the mapId
-                  setMapStyle(currBeforeMap, map.styleId);
+                layersHeader={secLayer.label}
+                layer={secLayer}
+                afterSubmit={() => {
+                  getLayerSections();
                 }}
-                afterMapCallback={(map: MapItem) => {
-                  // Set afterMap to selected map by changing the mapId
-                  setMapStyle(currAfterMap, map.styleId);
-                }}
-                defaultMap={{
-                  ...beforeMapItem,
-                  zoom: hashParams?.at(0) != null ? +(hashParams.at(0) ?? beforeMapItem.zoom) : beforeMapItem.zoom,
-                  center:
-                    [
-                      hashParams?.at(1) != null
-                      ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
-                      : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
-                      hashParams?.at(2) != null
-                      ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
-                      : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
-                    ],
-                  bearing: hashParams?.at(3) != null ? +(hashParams.at(3) ?? beforeMapItem.bearing) : beforeMapItem.bearing,
-                  infoId: ''
-                }}
-                mapGroups={mappedFilterItemGroups}
+                beforeOpen={beforeLayerFormModalOpen}
+                afterClose={afterLayerFormModalCloseLayers}
+                openWindow={beforeModalOpen}
                 mapZoomCallback={(zoomProps: MapZoomProps) => {
                   if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                    currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
+                    currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0});
                   }
                   else if (zoomProps.center) {
                     currBeforeMap.current?.easeTo({
                       center: zoomProps.center,
                       zoom: zoomProps.zoom,
-                      speed: zoomProps.speed,
                       bearing: zoomProps.bearing ?? 0,
+                      speed: zoomProps.speed,
                       curve: zoomProps.curve,
                       duration: zoomProps.duration,
                       easing(t) {
                         return t;
                       },
                     });
-
                     if (zoomProps?.zoom != null && zoomProps?.center != null) {
                       router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
                     }
                   }
                 }}
+                getLayerSectionsCallback={getLayerSections}
+                removeMapLayerCallback={(id: string) => removeMapLayerBothMaps(id)}
               />
-              <br />
-            </>
-          )}
-        </div>
+            );
+          })}
+
+          {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
+            (<div
+              style={{
+                paddingTop: "15px",
+                paddingLeft: "15px",
+                paddingRight: "10px",
+                textAlign: "center",
+              }}
+            >
+              <button id="post-button" onClick={() => setGroupFormOpen(true)}>
+                <FontAwesomeIcon
+                  icon={getFontawesomeIcon(
+                    FontAwesomeLayerIcons.PLUS_SQUARE,
+                    true
+                  )}
+                ></FontAwesomeIcon>{" "}
+                New Group Folder
+              </button>
+            </div>)
+          }
+
+          {groupFormOpen &&
+            (<NewLayerSectionForm
+              authToken={currAuthToken}
+              afterSubmit={() => {
+                setGroupFormOpen(false);
+                getLayerSections();
+              }}
+              afterCancel={() => {
+                setGroupFormOpen(false);
+              }}
+            ></NewLayerSectionForm>)
+          }
+
+          {!inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
+            (<>
+              <p className="title">Layer Ordering</p>
+              <button
+                style={{
+                  marginLeft: "100px",
+                  marginBottom: "10px",
+                  border: "2px solid",
+                  padding: "5px",
+                  borderRadius: "5px",
+                }}
+                onClick={() => openOrderingMenu()}
+              >
+                Expand/Collapse
+              </button>
+              {showLayerOrdering &&
+                layerOrder.map((row) => (
+                  <div
+                    className="row"
+                    key={row.id}
+                    style={{ display: "flex" }}
+                  >
+                    <FontAwesomeIcon
+                      className="decrement-order"
+                      title="up"
+                      color="black"
+                      icon={getFontawesomeIcon(
+                        FontAwesomeLayerIcons.UP_ARROW
+                      )}
+                      onClick={() => moveLayerUp(row)}
+                      style={{ paddingLeft: "6px" }}
+                    />
+                    <FontAwesomeIcon
+                      className="increment-order"
+                      title="down"
+                      color="black"
+                      icon={getFontawesomeIcon(
+                        FontAwesomeLayerIcons.DOWN_ARROW
+                      )}
+                      onClick={() => moveLayerDown(row)}
+                      style={{ paddingLeft: "6px" }}
+                    />
+                    <FontAwesomeIcon
+                      icon={getFontawesomeIcon(parseFromString(row.iconType))}
+                      style={{
+                        color: row.iconColor,
+                        paddingLeft: "6px",
+                      }}
+                    />
+
+                    <div style={{ paddingLeft: "6px" }}>{row.label}</div>
+                  </div>
+                ))
+              }
+            </>)
+          }
+          <br />
+          <p className="title"></p>
+        </>
+          
+
+
+          
+          
+        {/* ---------------------------------------- MAPS PANEL ---------------------------------------- */}
+        {beforeMapItem && hasDoneInitialZoom &&
+          (<>
+            <MapFilterWrapperComponent
+              inPreviewMode={inPreviewMode}
+              authToken={currAuthToken}
+              beforeOpen={beforeModalOpen}
+              zoomToWorld={() => {
+                zoomToWorld(currAfterMap);
+                zoomToWorld(currBeforeMap);
+              }}
+              afterClose={afterModalCloseMaps}
+              beforeMapCallback={(map: MapItem) => {
+                // Set beforeMap to selected map by changing the mapId
+                setMapStyle(currBeforeMap, map.styleId);
+              }}
+              afterMapCallback={(map: MapItem) => {
+                // Set afterMap to selected map by changing the mapId
+                setMapStyle(currAfterMap, map.styleId);
+              }}
+              defaultMap={{
+                ...beforeMapItem,
+                zoom: hashParams?.at(0) != null ? +(hashParams.at(0) ?? beforeMapItem.zoom) : beforeMapItem.zoom,
+                center:
+                  [
+                    hashParams?.at(1) != null
+                    ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
+                    : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
+                    hashParams?.at(2) != null
+                    ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
+                    : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
+                  ],
+                bearing: hashParams?.at(3) != null ? +(hashParams.at(3) ?? beforeMapItem.bearing) : beforeMapItem.bearing,
+                infoId: ''
+              }}
+              mapGroups={mappedFilterItemGroups}
+              mapZoomCallback={(zoomProps: MapZoomProps) => {
+                if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                  currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
+                }
+                else if (zoomProps.center) {
+                  currBeforeMap.current?.easeTo({
+                    center: zoomProps.center,
+                    zoom: zoomProps.zoom,
+                    speed: zoomProps.speed,
+                    bearing: zoomProps.bearing ?? 0,
+                    curve: zoomProps.curve,
+                    duration: zoomProps.duration,
+                    easing(t) {
+                      return t;
+                    },
+                  });
+
+                  if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                    router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
+                  }
+                }
+              }}
+            />
+            <br />
+          </>
+        )}
+      </div>
 
         
         
         
 
-        {/* ---------------------------------------- MAP ---------------------------------------- */}
-        <MapboxCompareWrapper
-          comparisonContainerRef={comparisonContainerRef}
-          beforeMapContainerRef={beforeMapContainerRef}
-          afterMapContainerRef={afterMapContainerRef}
-          beforeMapRef={currBeforeMap}
-          afterMapRef={currAfterMap}
-        ></MapboxCompareWrapper>
+      {/* ---------------------------------------- MAP ---------------------------------------- */}
+      <MapboxCompareWrapper
+        comparisonContainerRef={comparisonContainerRef}
+        beforeMapContainerRef={beforeMapContainerRef}
+        afterMapContainerRef={afterMapContainerRef}
+        beforeMapRef={currBeforeMap}
+        afterMapRef={currAfterMap}
+      ></MapboxCompareWrapper>
 
-        <div id="mobi-view-sidebar">
-          <i className="fa fa-bars fa-2x"></i>
-        </div>
-
-
+      <div id="mobi-view-sidebar">
+        <i className="fa fa-bars fa-2x"></i>
+      </div>
 
 
 
-        {/* ---------------------------------------- TIMELINE ---------------------------------------- */}
-        <SliderWithDatePanel
-          callback={(date: moment.Moment | null) => setCurrDate(date)}
-        ></SliderWithDatePanel>
 
-        <div id="loading">
-          <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
-        </div>
+
+      {/* ---------------------------------------- TIMELINE ---------------------------------------- */}
+      <SliderWithDatePanel
+        callback={(date: moment.Moment | null) => setCurrDate(date)}
+      ></SliderWithDatePanel>
+
+      <div id="loading">
+        <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
+      </div>
     </div>
   );
 }
