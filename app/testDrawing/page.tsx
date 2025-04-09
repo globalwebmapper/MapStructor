@@ -37,8 +37,6 @@ const Map = () => {
             map.on("click", (e) => {
                 if (!isAddingMarkersRef.current) return;
 
-                console.log("Adding marker at", e.lngLat);
-
                 // Create a GeoJSON feature to represent the marker
                 const markerFeature = {
                     type: "Feature",

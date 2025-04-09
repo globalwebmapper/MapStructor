@@ -16,6 +16,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@mapbox/mapbox-gl-draw": "^1.5.0",
     "@nextui-org/slider": "^2.2.15",
     "@nextui-org/system": "^2.2.5",
     "@nextui-org/theme": "^2.2.9",
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/mapbox__mapbox-gl-draw": "^1.4.8",
     "@types/mapbox-gl": "^3.4.0",
     "@types/node": "^20",
     "@types/react": "^18.3.5",
