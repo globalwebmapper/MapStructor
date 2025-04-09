@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import Link from 'next/link';
 
 export default function Page() {
   useEffect(() => {
@@ -29,6 +30,9 @@ export default function Page() {
         <div className="flex space-x-4">
           <a href="/mappingNY" className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600">MENY</a>
           <a href="/northamerica/landowners" className="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600">North America - Landowners</a>
+          <Link href="/draw">
+            <button className="p-4 m-2 bg-blue-500 text-white rounded-lg">Draw</button>
+          </Link>
         </div>
       </div>
     </main>
