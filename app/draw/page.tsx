@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -24,17 +26,27 @@ export default function DrawPage() {
                 controls: {
                     polygon: true,
                     trash: true,
+                    point: true,
                 },
             });
 
             map.addControl(draw);
+            map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+
+            // ✅ Add marker on click
+            map.on('click', (e) => {
+                new mapboxgl.Marker()
+                    .setLngLat(e.lngLat)
+                    .addTo(map);
+            });
+
             mapRef.current = map;
         }
     }, []);
 
     return (
-        <div className="h-screen w-screen">
-            <div ref={mapContainer} className="h-full w-full" />
+        <div className="fixed top-0 left-0 w-full h-full">
+            <div ref={mapContainer} className="w-full h-full" />
         </div>
     );
 }
