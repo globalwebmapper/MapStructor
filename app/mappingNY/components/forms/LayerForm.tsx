@@ -220,20 +220,25 @@ export default function LayerForm(props: LayerFormProps) {
 
       if (values.type === "fill") {
         paint["fill-color"] = values.fillColor ?? "#e3ed58";
-        paint["fill-opacity"] = [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          ...values.zoomLevels.flatMap((level) => [
-            level.zoom,
-            [
-              "case",
-              ["boolean", ["feature-state", "hover"], false],
-              level.value + 0.3 < 1 ? level.value + 0.3 : 1,
-              level.value,
-            ],
-          ]),
-        ];
+        // This was causing some new layers to not appear unless hovered over
+        // Revert to the original if Nitin wants you to
+        // By changing this, hovering over no longer makes the opacity increase (don't think that matters...)
+        // 
+        //   paint["fill-opacity"] = [
+        //     "interpolate",
+        //     ["linear"],
+        //     ["zoom"],
+        //     ...values.zoomLevels.flatMap((level) => [
+        //       level.zoom,
+        //       [
+        //         "case",
+        //         ["boolean", ["feature-state", "hover"], false],
+        //         level.value + 0.3 < 1 ? level.value + 0.3 : 1,
+        //         level.value,
+        //       ],
+        //     ]),
+        //   ];
+        paint["fill-opacity"] = values.fillOpacity ?? 0.5;
         paint["fill-outline-color"] = values.fillOutlineColor ?? "#FF0000";
       } else if (values.type === "symbol") {
         paint["text-color"] = values.textColor ?? "#000080";
