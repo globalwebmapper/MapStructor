@@ -38,49 +38,25 @@ export default function DrawPage() {
 
             map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
-            // ✅ Add marker on click
+            // Load saved drawings from localStorage
+            map.on('load', () => {
+                const saved = localStorage.getItem('saved-drawings');
+                if (saved) {
+                    try {
+                        const geojson = JSON.parse(saved);
+                        draw.set(geojson);
+                    } catch (err) {
+                        console.error('Invalid saved GeoJSON');
+                    }
+                }
+            });
+
+            // Add marker on click
             map.on('click', (e) => {
                 const marker = new mapboxgl.Marker()
                     .setLngLat(e.lngLat)
                     .addTo(map);
                 setMarkers((prev) => [...prev, marker]);
-            });
-
-            // ✅ Add sample GeoJSON layer
-            map.on('load', () => {
-                map.addSource('custom-geojson', {
-                    type: 'geojson',
-                    data: {
-                        type: 'FeatureCollection',
-                        features: [{
-                            type: 'Feature',
-                            geometry: {
-                                type: 'Polygon',
-                                coordinates: [
-                                    [
-                                        [-74.00, 40.70],
-                                        [-74.02, 40.70],
-                                        [-74.02, 40.72],
-                                        [-74.00, 40.72],
-                                        [-74.00, 40.70]
-                                    ]
-                                ]
-                            },
-                            properties: {}
-                        }]
-                    }
-                });
-
-                map.addLayer({
-                    id: 'custom-geojson-layer',
-                    type: 'fill',
-                    source: 'custom-geojson',
-                    layout: {},
-                    paint: {
-                        'fill-color': '#088',
-                        'fill-opacity': 0.5
-                    }
-                });
             });
 
             mapRef.current = map;
@@ -97,6 +73,29 @@ export default function DrawPage() {
         alert(JSON.stringify(data, null, 2));
     };
 
+    const saveDrawing = () => {
+        const data = drawRef.current?.getAll();
+        localStorage.setItem('saved-drawings', JSON.stringify(data));
+        alert('Drawing saved to localStorage!');
+    };
+
+    const loadGeoJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const geojson = JSON.parse(reader.result as string);
+                drawRef.current?.set(geojson);
+                alert('Custom GeoJSON loaded!');
+            } catch (err) {
+                alert('Invalid GeoJSON file.');
+            }
+        };
+        reader.readAsText(file);
+    };
+
     const toggleSatelliteView = () => {
         const map = mapRef.current;
         if (!map) return;
@@ -111,13 +110,19 @@ export default function DrawPage() {
 
     return (
         <div className="fixed top-0 left-0 w-full h-full">
-            {/* Floating toolbar */}
             <div className="absolute top-4 left-4 z-10 bg-white p-4 rounded shadow space-y-2">
                 <button onClick={clearMarkers} className="block w-full bg-red-500 text-white px-4 py-2 rounded">Clear Markers</button>
                 <button onClick={exportGeoJSON} className="block w-full bg-green-500 text-white px-4 py-2 rounded">Export GeoJSON</button>
+                <button onClick={saveDrawing} className="block w-full bg-purple-500 text-white px-4 py-2 rounded">Save Drawing</button>
                 <button onClick={toggleSatelliteView} className="block w-full bg-blue-500 text-white px-4 py-2 rounded">
                     {satelliteView ? 'Default View' : 'Satellite View'}
                 </button>
+                <input
+                    type="file"
+                    accept=".geojson,application/geo+json"
+                    onChange={loadGeoJSON}
+                    className="block w-full mt-2 text-sm"
+                />
             </div>
 
             <div ref={mapContainer} className="w-full h-full" />
