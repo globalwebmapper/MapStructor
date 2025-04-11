@@ -549,7 +549,8 @@ export default function LayerForm(props: LayerFormProps) {
                 style={checkboxStyling}
             />
           </div>
-
+          {props.standalone && (
+            <>
           {/*TODO: Possibly uncomment, or delete.  Need to confirm with Nitty this isn't needed anymore*/}
           <div style={{ marginBottom: "15px" }}>
             <label style={labelStyling}>Zoom Settings:</label>
@@ -702,6 +703,8 @@ export default function LayerForm(props: LayerFormProps) {
         <label htmlFor="topLayerClass" style={labelStyling}>Top Layer Class:</label>
         <input disabled type="text" id="topLayerClass" name="topLayerClass" onChange={formik.handleChange} value={formik.values.topLayerClass} style={boxStyling} />
       </div> */}
+      </>
+      )}
 
           <div style={{ marginBottom: "15px" }}>
             <label htmlFor="infoId" style={labelStyling}>
