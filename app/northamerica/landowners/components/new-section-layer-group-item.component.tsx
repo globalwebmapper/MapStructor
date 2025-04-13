@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from 'react-modal';
 import LayerForm from './forms/LayerForm';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,58 +16,137 @@ type LayerFormButtonProps = {
 }
 
 const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
-    const [isOpen, setIsOpen] = useState<boolean>(false);
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
+    const [showChoiceModal, setShowChoiceModal] = useState<boolean>(false);
+    const [showFormModal, setShowFormModal] = useState<boolean>(false);
 
     useEffect(() => {
-        const isAuthed: boolean = (props.authToken ?? '') != '';
+        const isAuthed: boolean = (props.authToken ?? '') !== '';
         const inPreviewMode: boolean = props.inPreviewMode ?? false;
-
         setShowEditorOptions(isAuthed && !inPreviewMode);
-    }, [props.authToken, props.inPreviewMode])
-    
-    const openWindow = () => {
-        props.beforeOpen()
-        setIsOpen(true)
+    }, [props.authToken, props.inPreviewMode]);
+
+    const openChoiceModal = () => {
+        props.beforeOpen();
+        setShowChoiceModal(true);
     }
 
-    const closeWindow = () => {
-        props.afterClose()
-        setIsOpen(false)
+    const closeAllModals = () => {
+        setShowChoiceModal(false);
+        setShowFormModal(false);
+        props.afterClose();
     }
 
-    // Necessary for the Modal to know what to hide
+    const handleImportLayer = () => {
+        setShowChoiceModal(false);
+        setShowFormModal(true);
+    }
+
+    const handleDrawLayer = () => {
+        alert("Draw Layer is not implemented yet.");
+    }
+
     Modal.setAppElement('#app-body-main');
 
     return (
         <>
-            {
-                showEditorOptions && (
-                    <div style={{paddingTop: '5px', paddingLeft: '15px', paddingRight: '10px', textAlign: 'center'}}>
-                        <button id='post-button' onClick={openWindow}>
-                            <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Layer
-                        </button>
-                    </div>
-                )
-            }
+            {showEditorOptions && (
+                <div style={{ paddingTop: '5px', paddingLeft: '15px', paddingRight: '10px', textAlign: 'center' }}>
+                    <button id='post-button' onClick={openChoiceModal}>
+                        <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)} /> New Layer
+                    </button>
+                </div>
+            )}
+
+            {/* Choice Modal */}
             <Modal
+                isOpen={showChoiceModal}
+                onRequestClose={closeAllModals}
+                contentLabel='New Layer Options'
                 style={{
                     overlay: {
                         zIndex: "1000",
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    },
+                    content: {
+                        position: 'static',
+                        inset: 'unset',
+                        width: '300px',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        background: '#fff',
+                        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+                        textAlign: 'center'
+                    }
+                }}
+            >
+                <h3 style={{ marginBottom: '20px' }}>Select Layer Type</h3>
+                <button
+                    onClick={handleImportLayer}
+                    style={{
+                        display: 'block',
+                        width: '100%',
+                        marginBottom: '10px',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        backgroundColor: '#f0f0f0',
+                        border: '1px solid #ccc',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s ease'
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#ffffff')}
+                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
+                >
+                    Import Layer
+                </button>
+                <button
+                    onClick={handleDrawLayer}
+                    style={{
+                        display: 'block',
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        backgroundColor: '#f0f0f0',
+                        border: '1px solid #ccc',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s ease'
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#ffffff')}
+                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
+                >
+                    Draw Layer
+                </button>
+            </Modal>
+
+            {/* Actual Form Modal */}
+            <Modal
+                isOpen={showFormModal}
+                onRequestClose={closeAllModals}
+                contentLabel='New Layer'
+                style={{
+                    overlay: {
+                        zIndex: "1000"
                     },
                     content: {
                         width: '30%',
                         right: '5px'
                     }
                 }}
-                isOpen={isOpen}
-                onRequestClose={closeWindow}
-                contentLabel='New Layer'
             >
-                <LayerForm authToken={props.authToken} topLayerClass={props.topLayerClass} groupName={props.groupName} standalone = {false} sectionName={props.sectionName} afterSubmit={closeWindow}></LayerForm>
+                <LayerForm
+                    authToken={props.authToken}
+                    topLayerClass={props.topLayerClass}
+                    groupName={props.groupName}
+                    standalone={false}
+                    sectionName={props.sectionName}
+                    afterSubmit={closeAllModals}
+                />
             </Modal>
         </>
-    )
+    );
 }
 
 export default NewSectionLayerGroupItem;
