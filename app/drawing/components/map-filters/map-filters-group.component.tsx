@@ -8,8 +8,8 @@ import { IconColors } from "@/app/models/colors.model";
 import { MapItem, MapZoomProps } from "@/app/models/maps/map.model";
 import NewMapGroupItem from "../new-map-group-item.component";
 import {CSSTransition} from 'react-transition-group';
-import { Map as PrismaMap } from "@/prisma/generated_schema/NorthAmericaLandowners";
-import { MapGroup as PrismaMapGroup } from "@/prisma/generated_schema/NorthAmericaLandowners"; 
+import { Map as PrismaMap } from "@/prisma/generated_schema/Drawing";
+import { MapGroup as PrismaMapGroup } from "@/prisma/generated_schema/Drawing"; 
 import Loader from "../loading/loading.component";
 import NewMapGroupForm from "../forms/NewMapGroupForm";
 import MapForm from "../forms/MapForm"

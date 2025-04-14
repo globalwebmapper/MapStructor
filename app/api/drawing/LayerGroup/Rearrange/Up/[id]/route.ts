@@ -1,4 +1,4 @@
-import { LayerGroup, PrismaClient } from "@/prisma/generated_schema/NorthAmericaLandowners";
+import { LayerGroup, PrismaClient } from "@/prisma/generated_schema/Drawing";
 import { NextResponse } from "next/server";
 
 export async function PUT(request: Request, context: any) {

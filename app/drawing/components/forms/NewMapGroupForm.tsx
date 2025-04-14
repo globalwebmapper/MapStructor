@@ -2,7 +2,7 @@ import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFormik } from "formik";
-import {MapGroup} from "@/prisma/generated_schema/NorthAmericaLandowners";
+import {MapGroup} from "@/prisma/generated_schema/Drawing";
 import { useState } from "react";
 
 type NewLayerSectionFormProps = {

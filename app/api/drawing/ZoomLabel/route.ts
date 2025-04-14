@@ -1,4 +1,4 @@
-import { PrismaClient, ZoomLabel } from "@/prisma/generated_schema/NorthAmericaLandowners";
+import { PrismaClient, ZoomLabel } from "@/prisma/generated_schema/Drawing";
 import { NextResponse } from "next/server";
 
 export async function GET() {

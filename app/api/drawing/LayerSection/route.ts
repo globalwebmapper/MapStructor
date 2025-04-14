@@ -1,4 +1,4 @@
-import { LayerSection, PrismaClient } from "@/prisma/generated_schema/NorthAmericaLandowners";
+import { LayerSection, PrismaClient } from "@/prisma/generated_schema/Drawing";
 import { NextResponse } from "next/server";
 import { Auth } from "../auth/auth";
 
