@@ -100,7 +100,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
                     onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#ffffff')}
                     onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
                 >
-                    Import Layer
+                    Add Tileset
                 </button>
                 <button
                     onClick={handleDrawLayer}
