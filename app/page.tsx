@@ -29,6 +29,7 @@ export default function Page() {
         <div className="flex space-x-4">
           <a href="/mappingNY" className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600">MENY</a>
           <a href="/northamerica/landowners" className="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600">North America - Landowners</a>
+          <a href="/drawing" className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-green-600">Drawing</a>
         </div>
       </div>
     </main>
