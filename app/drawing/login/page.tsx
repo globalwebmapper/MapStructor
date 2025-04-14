@@ -85,7 +85,7 @@ const Home = () => {
             setAuth(x.token); //set env token for auth
 
             // Route to the page you were logging in from
-            router.push('/northamerica/landowners');
+            router.push('/drawing');
           })
         } else {
           alert(`Failed to find a user with those credentials. Please try again.`);
