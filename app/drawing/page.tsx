@@ -198,7 +198,7 @@ export default function Home() {
     setCurrLayers([]);
 
     // Call the API fetch for the sections
-    fetch("/api/northamerica/landowners/LayerSection", {
+    fetch("/api/drawing/LayerSection", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -266,7 +266,7 @@ export default function Home() {
     });
 
     // Once the layer sections have been created, call the API fetch for the layers themselves
-    fetch("/api/northamerica/landowners/LayerData", {
+    fetch("/api/drawing/LayerData", {
       method: "GET",
       headers: {
         authorization: currAuthToken ?? '',
@@ -283,7 +283,7 @@ export default function Home() {
 
   const getZoomLayers = () => {
     // Call the API fetch for the zooms
-    fetch("/api/northamerica/landowners/ZoomLabel", {
+    fetch("/api/drawing/ZoomLabel", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -371,7 +371,7 @@ export default function Home() {
     The layers are then fed to the frontend in the same format as existing layers so that they display in the same format and with the same icons.
   */
   const getStandaloneLayers = () => {
-    fetch("/api/northamerica/landowners/StandaloneLayers", {
+    fetch("/api/drawing/StandaloneLayers", {
       method: "GET",
       headers: {
         authorization: currAuthToken ?? '',
@@ -409,7 +409,7 @@ export default function Home() {
   
   const getMaps = () => {
     // Call the API fetch for the maps
-    fetch("/api/northamerica/landowners/MapGroup", {
+    fetch("/api/drawing/MapGroup", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -462,7 +462,7 @@ export default function Home() {
 
   const fetchButtonLinks = async () => {
     try {
-      const response = await fetch("/api/northamerica/landowners/ButtonLink");
+      const response = await fetch("/api/drawing/ButtonLink");
       const data = await response.json();
       if (data && data.buttonLinks) {
         setButtonLinks(data.buttonLinks);
@@ -518,7 +518,7 @@ export default function Home() {
 
       // Move the desired layer up (in the database)
       try {
-        fetch("/api/northamerica/landowners/LayerData", {
+        fetch("/api/drawing/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -531,7 +531,7 @@ export default function Home() {
 
       // Move the layer above down (in the database)
       try {
-        fetch("/api/northamerica/landowners/LayerData", {
+        fetch("/api/drawing/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -575,7 +575,7 @@ export default function Home() {
 
       // Move the desired layer down (in the database)
       try {
-        fetch("/api/northamerica/landowners/LayerData", {
+        fetch("/api/drawing/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -588,7 +588,7 @@ export default function Home() {
 
       // Move the layer below up (in the database)
       try {
-        fetch("/api/northamerica/landowners/LayerData", {
+        fetch("/api/drawing/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -626,7 +626,7 @@ export default function Home() {
       TEMP_layerOrder[layerOrder.length - 1] = TEMP_moveDownLayer;
 
       try {
-        fetch("/api/northamerica/landowners/LayerData", {
+        fetch("/api/drawing/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -638,7 +638,7 @@ export default function Home() {
       }
 
       try {
-        fetch("/api/northamerica/landowners/LayerData", {
+        fetch("/api/drawing/LayerData", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

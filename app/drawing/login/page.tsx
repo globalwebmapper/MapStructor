@@ -69,7 +69,7 @@ const Home = () => {
         process.env.USERNAME =  values.username;
         process.env.PASSWORD = encrypted;
 
-        const response = await fetch('/api/northamerica/landowners/auth/login', {
+        const response = await fetch('/api/drawing/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
