@@ -1619,36 +1619,6 @@ export default function Home() {
 
   return (
     <div id="app-body-main">
-      {/* --------------------------------------- PASSWORD --------------------------------------- */}
-      {!pageVisible && (
-          <div
-            style={{
-              
-              zIndex: "99999",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100vh",
-              textAlign: "center"}}
-          >
-            <h1>In order to view page, enter the code</h1>
-            <input
-              id="code-input"
-              type="text"
-              placeholder="code..."
-              onChange={(e) => setPageCode(e.target.value)}
-              style={{padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333"}}
-            />
-            <button onClick={() => displayPage()} style={{padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333", backgroundColor: "lightgray"}}>Submit</button>
-          </div>
-        )
-      }
-
-
-
-
-
       {/* ---------------------------------------- HEADER ---------------------------------------- */}
       <div className="header" style={{height: "73px"}}>
         <a href="/" className="logo">
@@ -1695,6 +1665,35 @@ export default function Home() {
           }
         </div>
       </div>
+
+
+
+
+
+      {/* --------------------------------------- PASSWORD --------------------------------------- */}
+      {!pageVisible && (
+          <div
+            style={{
+              zIndex: "99999",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100vh",
+              textAlign: "center"}}
+          >
+            <h1>In order to view page, enter the code</h1>
+            <input
+              id="code-input"
+              type="text"
+              placeholder="code..."
+              onChange={(e) => setPageCode(e.target.value)}
+              style={{padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333"}}
+            />
+            <button onClick={() => displayPage()} style={{padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333", backgroundColor: "lightgray"}}>Submit</button>
+          </div>
+        )
+      }
 
 
 
