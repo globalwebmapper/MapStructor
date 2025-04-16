@@ -68,6 +68,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   const middleSliderPosition = calculateSliderPosition(middleDate);
 
   // ---------------------------------------- DATE function variables ----------------------------------------
+  const latestDateRef = useRef<moment.Moment | null>(null);
+
 
   // Parse the position of the slider button to get the date
   const updateDate = (position: number) => {
@@ -84,7 +86,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
     // Set the current data and trigger a callback
     setCurrDate(newDate);
-    props.callback(newDate);
+    latestDateRef.current = newDate;
+    // props.callback(newDate);
   };
 
   // ---------------------------------------- TIMELINE CLICK function variables ----------------------------------------
@@ -152,6 +155,10 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
   // When the mouse is released, the slider button is no longer being dragged
   const handleMouseUp = () => {
+    // Trigger update **after** releasing the mouse
+    if (currDate) {
+      props.callback(latestDateRef.current);
+    }
     setIsDragging(false);
   };
 
