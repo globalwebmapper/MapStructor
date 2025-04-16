@@ -1093,3 +1093,12 @@ button#zoom-world > i,
 button.zoom-labels > i {
   color: #555;
 }
+
+.mapbox-gl-draw_ctrl-draw-btn {
+  display: inline-block !important;
+}
+
+.mapbox-gl-draw_ctrl-group {
+  display: flex !important;
+  flex-direction: row !important; /* This can't be column for some reason */
+}
