@@ -1590,7 +1590,7 @@ export default function Home() {
         </a>
 
         <div id="header_text" className="headerText">
-          <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| North America - Landowners</span>
+          <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Drawing Dev</span>
         </div>
 
         <div className="header-right">
