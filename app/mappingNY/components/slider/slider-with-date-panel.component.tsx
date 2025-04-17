@@ -69,6 +69,16 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
   // ---------------------------------------- DATE function variables ----------------------------------------
 
+
+  // ---------------------------------------- COMMIT date change function ----------------------------------------
+
+  // Triggers the actual callback — only after user releases drag or clicks
+  const commitDateChange = () => {
+    if (currDate) {
+      props.callback(currDate);
+    }
+  };
+
   // Parse the position of the slider button to get the date
   const updateDate = (position: number) => {
     // Adding day of year doesn't change the year itself
@@ -84,7 +94,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
     // Set the current data and trigger a callback
     setCurrDate(newDate);
-    props.callback(newDate);
+    // props.callback(newDate);
   };
 
   // ---------------------------------------- TIMELINE CLICK function variables ----------------------------------------
@@ -103,6 +113,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
       // first param is x position of mouse, second is width of slider
       moveSlider(e.clientX - rect.left, rect.width);
+      commitDateChange();
     }
   };
 
@@ -153,6 +164,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   // When the mouse is released, the slider button is no longer being dragged
   const handleMouseUp = () => {
     setIsDragging(false);
+    commitDateChange(); // Trigger update after dragging stops
+
   };
 
   // ---------------------------------------- useEffects ----------------------------------------
@@ -171,6 +184,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   useEffect(() => {
     setSliderValue(middleSliderPosition);
     updateDate(middleSliderPosition);
+    commitDateChange();
   }, [middleSliderPosition]);
 
   // ---------------------------------------- CSS event variables ----------------------------------------
