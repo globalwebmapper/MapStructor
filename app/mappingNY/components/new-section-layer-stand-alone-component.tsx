@@ -98,6 +98,36 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
 
     return (
         <>
+            {editMode && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        bottom: '1rem',
+                        left: '1rem',
+                        zIndex: 10001, // super high to stay above map
+                    }}
+                >
+                    <button
+                        onClick={() => {
+                            if (drawRef.current) {
+                                const features = drawRef.current.getAll();
+                                console.log("🟢 Submitted GeoJSON features:", JSON.stringify(features));
+                            }
+                        }}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            backgroundColor: '#f8f8f8',
+                            border: '1px solid #ccc',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                        }}
+                    >
+                        Submit Drawn Features
+                    </button>
+                </div>
+            )}
+
             {showEditorOptions && (
                 <div style={{ paddingTop: '5px', paddingLeft: '15px', paddingRight: '10px', textAlign: 'center' }}>
                     <button id="post-button" onClick={openChoiceModal}>
