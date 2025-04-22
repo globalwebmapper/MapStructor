@@ -32,6 +32,21 @@ import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapp
 import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
 import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
 
+
+
+
+
+// CODE IN THIS FILE STILL USES PASSWORD PROTECTING THE MAIN PAGE, WHEN THAT IS NO LONGER NEEDED...
+// COPY AN EXISITING page.tsx FROM ANOTHER SUBFOLDER AND JUST MAKE THE MINOR MODIFICATIONS TO THE FOLLOWING:
+// 1. prisma import (below)
+// 2. MapBox API access token (if necessary, also below)
+// 3. MapBox style links
+// 4. API paths
+
+
+
+
+
 /*
  -------------------------------- NEED TO UPDATE THIS SPECIFIC IMPORT --------------------------------
 */
@@ -61,6 +76,10 @@ mapboxgl.accessToken = "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wM
 
 // HTML rendering for the page
 export default function Home() {
+  // ----------------------------- PROTECT PAGE ------------------------------
+  const [pageVisible, setPageVisible] = useState(false);
+  const [pageCode, setPageCode] = useState<string>("");
+
   // --------------------------------- MAPS ----------------------------------
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
@@ -72,7 +91,7 @@ export default function Home() {
   const [layerOrder, setLayerOrder] = useState<PrismaLayer[]>([]);
 
   // -------------------------------------------------------------------------
-  const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1950-01-01", "YYYY-MM-DD") );
   const [popUp, setPopUp] = useState<GenericPopUpProps>({
     layerName: "",
     nid: "",
@@ -113,6 +132,16 @@ export default function Home() {
   
   // Path to the site (before the hash parameters)
   const pathname = usePathname();
+
+
+
+
+
+  // -------------------------------------- SHOW PAGE OR NOT -------------------------------------
+  useEffect(() => {
+    const pastPageVisible = sessionStorage.getItem("pageVisible");
+    setPageVisible(pastPageVisible === "true");
+  }, []);
 
 
 
@@ -1574,6 +1603,16 @@ export default function Home() {
     getMaps();
   };
 
+  const displayPage = () => {
+    if(pageCode === "spring24nitin") {
+      sessionStorage.setItem("pageVisible", "true");
+      setPageVisible(true);
+    }
+    else {
+      alert("Incorrect code");
+    }
+  }
+
 
 
 
@@ -1631,254 +1670,287 @@ export default function Home() {
 
 
 
-      {/* ---------------------------------------- LAYER PANEL ---------------------------------------- */}
-      <button
-        id="view-hide-layer-panel"
-        className={layerPanelVisible ? "" : "translated"}
-        onClick={() => {
-          if (layerPanelVisible) {
-            setLayerPanelVisible(false);
-            setLayerPopupBefore(popUpVisible);
-            setPopUpVisible(false);
-          }
-          else {
-            setLayerPanelVisible(true);
-            setPopUpVisible(layerPopupBefore);
-          }
-        }}
-      >
-        {
-          layerPanelVisible
-          ?
-          (<span id="dir-txt" style={{fontSize: '13px'}}>&#9204;</span>)
-          :
-          (<span id="dir-txt">⏵</span>)
-        }
-      </button>
-
-      <CSSTransition
-        in={popUpVisible}
-        timeout={500}
-        classNames="popup"
-        unmountOnExit
-      >
-        <SliderPopUp
-          layerName={popUp.layerName}
-          nid={popUp.nid}
-          type={popUp.type}
-        />
-      </CSSTransition>
-
-      <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
-        <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
-        <p className="title">LAYERS</p>
-        <>
-          {(currSectionLayers ?? []).map((secLayer, idx) => {
-            return (
-              <ExpandableLayerGroupSection
-                key={"section-layer-component-" + idx}
-                inPreviewMode={inPreviewMode}
-                authToken={currAuthToken}
-                activeLayers={activeLayerIds}
-                activeLayerCallback={(newActiveLayers: string[]) => {
-                  setActiveLayerIds(newActiveLayers);
-                }}
-                layersHeader={secLayer.label}
-                layer={secLayer}
-                afterSubmit={() => {
-                  getLayerSections();
-                }}
-                beforeOpen={beforeLayerFormModalOpen}
-                afterClose={afterLayerFormModalCloseLayers}
-                openWindow={beforeModalOpen}
-                mapZoomCallback={(zoomProps: MapZoomProps) => {
-                  if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                    currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0});
-                  }
-                  else if (zoomProps.center) {
-                    currBeforeMap.current?.easeTo({
-                      center: zoomProps.center,
-                      zoom: zoomProps.zoom,
-                      bearing: zoomProps.bearing ?? 0,
-                      speed: zoomProps.speed,
-                      curve: zoomProps.curve,
-                      duration: zoomProps.duration,
-                      easing(t) {
-                        return t;
-                      },
-                    });
-                    if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                      router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
-                    }
-                  }
-                }}
-                getLayerSectionsCallback={getLayerSections}
-                removeMapLayerCallback={(id: string) => removeMapLayerBothMaps(id)}
-              />
-            );
-          })}
-
-          {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
-            (<div
-              style={{
-                paddingTop: "15px",
-                paddingLeft: "15px",
-                paddingRight: "10px",
-                textAlign: "center",
-              }}
-            >
-              <button id="post-button" onClick={() => setGroupFormOpen(true)}>
-                <FontAwesomeIcon
-                  icon={getFontawesomeIcon(
-                    FontAwesomeLayerIcons.PLUS_SQUARE,
-                    true
-                  )}
-                ></FontAwesomeIcon>{" "}
-                New Group Folder
-              </button>
-            </div>)
-          }
-
-          {groupFormOpen &&
-            (<NewLayerSectionForm
-              authToken={currAuthToken}
-              afterSubmit={() => {
-                setGroupFormOpen(false);
-                getLayerSections();
-              }}
-              afterCancel={() => {
-                setGroupFormOpen(false);
-              }}
-            ></NewLayerSectionForm>)
-          }
-
-          {!inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
-            (<>
-              <p className="title">Layer Ordering</p>
-              <button
-                style={{
-                  marginLeft: "100px",
-                  marginBottom: "10px",
-                  border: "2px solid",
-                  padding: "5px",
-                  borderRadius: "5px",
-                }}
-                onClick={() => openOrderingMenu()}
-              >
-                Expand/Collapse
-              </button>
-              {showLayerOrdering &&
-                layerOrder.map((row) => (
-                  <div
-                    className="row"
-                    key={row.id}
-                    style={{ display: "flex" }}
-                  >
-                    <FontAwesomeIcon
-                      className="decrement-order"
-                      title="up"
-                      color="black"
-                      icon={getFontawesomeIcon(
-                        FontAwesomeLayerIcons.UP_ARROW
-                      )}
-                      onClick={() => moveLayerUp(row)}
-                      style={{ paddingLeft: "6px" }}
-                    />
-                    <FontAwesomeIcon
-                      className="increment-order"
-                      title="down"
-                      color="black"
-                      icon={getFontawesomeIcon(
-                        FontAwesomeLayerIcons.DOWN_ARROW
-                      )}
-                      onClick={() => moveLayerDown(row)}
-                      style={{ paddingLeft: "6px" }}
-                    />
-                    <FontAwesomeIcon
-                      icon={getFontawesomeIcon(parseFromString(row.iconType))}
-                      style={{
-                        color: row.iconColor,
-                        paddingLeft: "6px",
-                      }}
-                    />
-
-                    <div style={{ paddingLeft: "6px" }}>{row.label}</div>
-                  </div>
-                ))
-              }
-            </>)
-          }
-          <br />
-          <p className="title"></p>
-        </>
-          
-
-
-          
-          
-        {/* ---------------------------------------- MAPS PANEL ---------------------------------------- */}
-        {beforeMapItem && hasDoneInitialZoom &&
-          (<>
-            <MapFilterWrapperComponent
-              inPreviewMode={inPreviewMode}
-              authToken={currAuthToken}
-              beforeOpen={beforeModalOpen}
-              zoomToWorld={() => {
-                zoomToWorld(currAfterMap);
-                zoomToWorld(currBeforeMap);
-              }}
-              afterClose={afterModalCloseMaps}
-              beforeMapCallback={(map: MapItem) => {
-                // Set beforeMap to selected map by changing the mapId
-                setMapStyle(currBeforeMap, map.styleId);
-              }}
-              afterMapCallback={(map: MapItem) => {
-                // Set afterMap to selected map by changing the mapId
-                setMapStyle(currAfterMap, map.styleId);
-              }}
-              defaultMap={{
-                ...beforeMapItem,
-                zoom: hashParams?.at(0) != null ? +(hashParams.at(0) ?? beforeMapItem.zoom) : beforeMapItem.zoom,
-                center:
-                  [
-                    hashParams?.at(1) != null
-                    ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
-                    : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
-                    hashParams?.at(2) != null
-                    ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
-                    : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
-                  ],
-                bearing: hashParams?.at(3) != null ? +(hashParams.at(3) ?? beforeMapItem.bearing) : beforeMapItem.bearing,
-                infoId: ''
-              }}
-              mapGroups={mappedFilterItemGroups}
-              mapZoomCallback={(zoomProps: MapZoomProps) => {
-                if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                  currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
-                }
-                else if (zoomProps.center) {
-                  currBeforeMap.current?.easeTo({
-                    center: zoomProps.center,
-                    zoom: zoomProps.zoom,
-                    speed: zoomProps.speed,
-                    bearing: zoomProps.bearing ?? 0,
-                    curve: zoomProps.curve,
-                    duration: zoomProps.duration,
-                    easing(t) {
-                      return t;
-                    },
-                  });
-
-                  if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                    router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
-                  }
-                }
-              }}
+      {/* --------------------------------------- PASSWORD --------------------------------------- */}
+      {!pageVisible && (
+          <div
+            style={{
+              zIndex: "99999",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100vh",
+              textAlign: "center"}}
+          >
+            <h1>In order to view page, enter the code</h1>
+            <input
+              id="code-input"
+              type="text"
+              placeholder="code..."
+              onChange={(e) => setPageCode(e.target.value)}
+              style={{padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333"}}
             />
-            <br />
-          </>
-        )}
-      </div>
+            <button onClick={() => displayPage()} style={{padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333", backgroundColor: "lightgray"}}>Submit</button>
+          </div>
+        )
+      }
+
+
+
+
+
+      {/* ---------------------------------------- LAYER PANEL ---------------------------------------- */}
+      {pageVisible && (
+        <>
+          <button
+            id="view-hide-layer-panel"
+            className={layerPanelVisible ? "" : "translated"}
+            onClick={() => {
+              if (layerPanelVisible) {
+                setLayerPanelVisible(false);
+                setLayerPopupBefore(popUpVisible);
+                setPopUpVisible(false);
+              }
+              else {
+                setLayerPanelVisible(true);
+                setPopUpVisible(layerPopupBefore);
+              }
+            }}
+          >
+            {
+              layerPanelVisible
+              ?
+              (<span id="dir-txt" style={{fontSize: '13px'}}>&#9204;</span>)
+              :
+              (<span id="dir-txt">⏵</span>)
+            }
+          </button>
+
+          <CSSTransition
+            in={popUpVisible}
+            timeout={500}
+            classNames="popup"
+            unmountOnExit
+          >
+            <SliderPopUp
+              layerName={popUp.layerName}
+              nid={popUp.nid}
+              type={popUp.type}
+            />
+          </CSSTransition>
+
+          <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
+            <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
+            <p className="title">LAYERS</p>
+            <>
+              {(currSectionLayers ?? []).map((secLayer, idx) => {
+                return (
+                  <ExpandableLayerGroupSection
+                    key={"section-layer-component-" + idx}
+                    inPreviewMode={inPreviewMode}
+                    authToken={currAuthToken}
+                    activeLayers={activeLayerIds}
+                    activeLayerCallback={(newActiveLayers: string[]) => {
+                      setActiveLayerIds(newActiveLayers);
+                    }}
+                    layersHeader={secLayer.label}
+                    layer={secLayer}
+                    afterSubmit={() => {
+                      getLayerSections();
+                    }}
+                    beforeOpen={beforeLayerFormModalOpen}
+                    afterClose={afterLayerFormModalCloseLayers}
+                    openWindow={beforeModalOpen}
+                    mapZoomCallback={(zoomProps: MapZoomProps) => {
+                      if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                        currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0});
+                      }
+                      else if (zoomProps.center) {
+                        currBeforeMap.current?.easeTo({
+                          center: zoomProps.center,
+                          zoom: zoomProps.zoom,
+                          bearing: zoomProps.bearing ?? 0,
+                          speed: zoomProps.speed,
+                          curve: zoomProps.curve,
+                          duration: zoomProps.duration,
+                          easing(t) {
+                            return t;
+                          },
+                        });
+                        if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                          router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
+                        }
+                      }
+                    }}
+                    getLayerSectionsCallback={getLayerSections}
+                    removeMapLayerCallback={(id: string) => removeMapLayerBothMaps(id)}
+                  />
+                );
+              })}
+
+              {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
+                (<div
+                  style={{
+                    paddingTop: "15px",
+                    paddingLeft: "15px",
+                    paddingRight: "10px",
+                    textAlign: "center",
+                  }}
+                >
+                  <button id="post-button" onClick={() => setGroupFormOpen(true)}>
+                    <FontAwesomeIcon
+                      icon={getFontawesomeIcon(
+                        FontAwesomeLayerIcons.PLUS_SQUARE,
+                        true
+                      )}
+                    ></FontAwesomeIcon>{" "}
+                    New Group Folder
+                  </button>
+                </div>)
+              }
+
+              {groupFormOpen &&
+                (<NewLayerSectionForm
+                  authToken={currAuthToken}
+                  afterSubmit={() => {
+                    setGroupFormOpen(false);
+                    getLayerSections();
+                  }}
+                  afterCancel={() => {
+                    setGroupFormOpen(false);
+                  }}
+                ></NewLayerSectionForm>)
+              }
+
+              {!inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
+                (<>
+                  <p className="title">Layer Ordering</p>
+                  <button
+                    style={{
+                      marginLeft: "100px",
+                      marginBottom: "10px",
+                      border: "2px solid",
+                      padding: "5px",
+                      borderRadius: "5px",
+                    }}
+                    onClick={() => openOrderingMenu()}
+                  >
+                    Expand/Collapse
+                  </button>
+                  {showLayerOrdering &&
+                    layerOrder.map((row) => (
+                      <div
+                        className="row"
+                        key={row.id}
+                        style={{ display: "flex" }}
+                      >
+                        <FontAwesomeIcon
+                          className="decrement-order"
+                          title="up"
+                          color="black"
+                          icon={getFontawesomeIcon(
+                            FontAwesomeLayerIcons.UP_ARROW
+                          )}
+                          onClick={() => moveLayerUp(row)}
+                          style={{ paddingLeft: "6px" }}
+                        />
+                        <FontAwesomeIcon
+                          className="increment-order"
+                          title="down"
+                          color="black"
+                          icon={getFontawesomeIcon(
+                            FontAwesomeLayerIcons.DOWN_ARROW
+                          )}
+                          onClick={() => moveLayerDown(row)}
+                          style={{ paddingLeft: "6px" }}
+                        />
+                        <FontAwesomeIcon
+                          icon={getFontawesomeIcon(parseFromString(row.iconType))}
+                          style={{
+                            color: row.iconColor,
+                            paddingLeft: "6px",
+                          }}
+                        />
+
+                        <div style={{ paddingLeft: "6px" }}>{row.label}</div>
+                      </div>
+                    ))
+                  }
+                </>)
+              }
+              <br />
+              <p className="title"></p>
+            </>
+              
+
+
+              
+              
+            {/* ---------------------------------------- MAPS PANEL ---------------------------------------- */}
+            {beforeMapItem && hasDoneInitialZoom &&
+              (<>
+                <MapFilterWrapperComponent
+                  inPreviewMode={inPreviewMode}
+                  authToken={currAuthToken}
+                  beforeOpen={beforeModalOpen}
+                  zoomToWorld={() => {
+                    zoomToWorld(currAfterMap);
+                    zoomToWorld(currBeforeMap);
+                  }}
+                  afterClose={afterModalCloseMaps}
+                  beforeMapCallback={(map: MapItem) => {
+                    // Set beforeMap to selected map by changing the mapId
+                    setMapStyle(currBeforeMap, map.styleId);
+                  }}
+                  afterMapCallback={(map: MapItem) => {
+                    // Set afterMap to selected map by changing the mapId
+                    setMapStyle(currAfterMap, map.styleId);
+                  }}
+                  defaultMap={{
+                    ...beforeMapItem,
+                    zoom: hashParams?.at(0) != null ? +(hashParams.at(0) ?? beforeMapItem.zoom) : beforeMapItem.zoom,
+                    center:
+                      [
+                        hashParams?.at(1) != null
+                        ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
+                        : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
+                        hashParams?.at(2) != null
+                        ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
+                        : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
+                      ],
+                    bearing: hashParams?.at(3) != null ? +(hashParams.at(3) ?? beforeMapItem.bearing) : beforeMapItem.bearing,
+                    infoId: ''
+                  }}
+                  mapGroups={mappedFilterItemGroups}
+                  mapZoomCallback={(zoomProps: MapZoomProps) => {
+                    if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
+                    }
+                    else if (zoomProps.center) {
+                      currBeforeMap.current?.easeTo({
+                        center: zoomProps.center,
+                        zoom: zoomProps.zoom,
+                        speed: zoomProps.speed,
+                        bearing: zoomProps.bearing ?? 0,
+                        curve: zoomProps.curve,
+                        duration: zoomProps.duration,
+                        easing(t) {
+                          return t;
+                        },
+                      });
+
+                      if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                        router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
+                      }
+                    }
+                  }}
+                />
+                <br />
+              </>
+            )}
+          </div>
+        </>
+      )}
 
         
         
@@ -1902,13 +1974,17 @@ export default function Home() {
 
 
       {/* ---------------------------------------- TIMELINE ---------------------------------------- */}
-      <SliderWithDatePanel
-        callback={(date: moment.Moment | null) => setCurrDate(date)}
-      ></SliderWithDatePanel>
+      {pageVisible && (
+        <>
+          <SliderWithDatePanel
+            callback={(date: moment.Moment | null) => setCurrDate(date)}
+          ></SliderWithDatePanel>
 
-      <div id="loading">
-        <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
-      </div>
+          <div id="loading">
+            <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
+          </div>
+        </>
+      )}
     </div>
   );
 }
