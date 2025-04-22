@@ -915,24 +915,22 @@ export default function Home() {
   useEffect(() => {
     if (!currDate) return;
 
-    var date = parseInt(currDate.format("YYYYMMDD"));
-
-    var dateFilter: FilterSpecification = [
+    const date = parseInt(currDate.format("YYYYMMDD"));
+    const dateFilter: FilterSpecification = [
       "all",
       ["<=", ["get", "DayStart"], date],
       [">=", ["get", "DayEnd"], date],
     ];
 
-    activeLayerIds.forEach((lid) => {
-      if (currBeforeMap.current?.getLayer(lid) !== null && currBeforeMap.current?.getLayer(lid)?.filter !== undefined) {
+    // Batch filter updates using requestAnimationFrame for smoother redraw
+    requestAnimationFrame(() => {
+      activeLayerIds.forEach((lid) => {
         currBeforeMap.current?.setFilter(lid, dateFilter);
-      }
-
-      if (currAfterMap.current?.getLayer(lid) !== null && currAfterMap.current?.getLayer(lid)?.filter !== undefined) {
         currAfterMap.current?.setFilter(lid, dateFilter);
-      }
+      });
     });
   }, [currDate, activeLayerIds]);
+
 
 
 
