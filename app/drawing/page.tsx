@@ -1010,6 +1010,54 @@ export default function Home() {
         ? JSON.parse(layerConfig.layout)
         : {};
 
+    if (layerConfig.sourceType === 'geojson') {
+      let geoJsonData;
+      try{
+        geoJsonData = JSON.parse(layerConfig.sourceUrl);
+      }
+      catch(error){
+        console.error("Invalid GeoJSON data in sourceURL:", error);
+        //return;
+      }
+
+      if (!beforeMap.current.getSource(layerConfig.sourceId)) {
+        console.log("adding source to before");
+        beforeMap.current.addSource(layerConfig.sourceId, {
+          type: "geojson",
+          data: geoJsonData,
+        });
+      }
+
+      if (!afterMap.current.getSource(layerConfig.sourceId)) {
+        console.log("adding source to after");
+        afterMap.current.addSource(layerConfig.sourceId, {
+          type: "geojson",
+          data: geoJsonData,
+        });
+      }
+
+      const layer = {
+        id: layerConfig.id,
+        type: layerConfig.type as mapboxgl.LayerSpecification["type"],
+        source: layerConfig.sourceId,
+        paint: parsedPaint,
+        layout: {
+          visibility: "none",
+          ...parsedLayout,
+        },
+      };
+  
+      if (!beforeMap.current.getLayer(layerConfig.id)) {
+      beforeMap.current.addLayer(layer as any); //mapboxgl.LayerSpecification
+      }
+
+      if (!afterMap.current.getLayer(layerConfig.id)) {
+        afterMap.current.addLayer(layer as any);
+      }
+  
+      return;
+    }
+
     if (layerTypes.includes(layerConfig.type)) {
       let paint = {};
       let layout = { ...parsedLayout };
@@ -1184,7 +1232,7 @@ export default function Home() {
       // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
       beforeMap.current?.on("load", () => {
         // Added the part after the && to help with "Resource already exists" error
-        if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.id)) {
+        if (!beforeMap.current?.getLayer(layerConfig.id) && !beforeMap.current?.getSource(layerConfig.sourceId)) {
           if (layerConfig.time) {
             beforeMap.current?.addLayer({
               ...(layerStuff as any),
@@ -1209,7 +1257,7 @@ export default function Home() {
       // Waiting for load of style before adding layer -- Fixes "Style not done loading" error
       afterMap.current?.on("load", () => {
         // Added the part after the && to help with "Resource already exists" error
-        if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.id)) {
+        if (!afterMap.current?.getLayer(layerConfig.id) && !afterMap.current?.getSource(layerConfig.sourceId)) {
           if (layerConfig.time) {
             afterMap.current?.addLayer({
               ...(layerStuff as any),
@@ -1231,8 +1279,11 @@ export default function Home() {
         }
       });
     }
+    console.log("Before map paint properties:", beforeMap.current?.getLayer(layerConfig.id)?.paint);
+  console.log("After map paint properties:", afterMap.current?.getLayer(layerConfig.id)?.paint);
   };
 
+  
 
 
 
