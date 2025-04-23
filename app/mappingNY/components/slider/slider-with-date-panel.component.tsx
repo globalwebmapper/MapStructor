@@ -331,6 +331,10 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   // Construct the div element for the slider button
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  // date 
+  const latestDateRef = useRef<moment.Moment | null>(currDate);
+
+
   // ---------------------------------------- static variables ----------------------------------------
 
   // Static variables for dates (based on the original MENY site)
@@ -361,10 +365,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   // ---------------------------------------- COMMIT date change function ----------------------------------------
 
   // Triggers the actual callback — only after user releases drag or clicks
-  const commitDateChange = () => {
-    if (currDate) {
-      props.callback(currDate);
-    }
+  const commitDateChange = (date: moment.Moment) => {
+    props.callback(date);
   };
 
   // Parse the position of the slider button to get the date
@@ -382,6 +384,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
     // Set the current data and trigger a callback
     setCurrDate(newDate);
+    latestDateRef.current = newDate;
+    return newDate;
     // props.callback(newDate);
   };
 
@@ -400,8 +404,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
       const rect = slider.getBoundingClientRect();
 
       // first param is x position of mouse, second is width of slider
-      moveSlider(e.clientX - rect.left, rect.width);
-      commitDateChange();
+      const date = moveSlider(e.clientX - rect.left, rect.width);
+      commitDateChange(date);
     }
   };
 
@@ -416,7 +420,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
     setSliderValue(position);
 
     // Using the position, update the date
-    updateDate(position);
+    const newDate = updateDate(position);
+    return newDate;
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -447,12 +452,12 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
       const rect = slider.getBoundingClientRect();
       moveSlider(e.clientX - rect.left, rect.width);
     }
-  }, 6);
+  }, 10);
 
   // When the mouse is released, the slider button is no longer being dragged
   const handleMouseUp = () => {
     setIsDragging(false);
-    commitDateChange(); // Trigger update after dragging stops
+    if (latestDateRef.current) commitDateChange(latestDateRef.current);
 
   };
 
@@ -471,8 +476,8 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   // Whenever the slider position has changed, update the necessary values
   useEffect(() => {
     setSliderValue(middleSliderPosition);
-    updateDate(middleSliderPosition);
-    commitDateChange();
+    const date = updateDate(middleSliderPosition);
+    commitDateChange(date);
   }, [middleSliderPosition]);
 
   // ---------------------------------------- CSS event variables ----------------------------------------
