@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Modal from 'react-modal';
 import LayerForm from './forms/LayerForm';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
+import { useMap } from "@/app/mappingNY/components/context/MapContext";
 
 type LayerFormButtonProps = {
     groupName: string,
@@ -19,12 +22,52 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
     const [showChoiceModal, setShowChoiceModal] = useState<boolean>(false);
     const [showFormModal, setShowFormModal] = useState<boolean>(false);
+    const [editMode, setEditMode] = useState<boolean>(false);
+    const drawRef = useRef<MapboxDraw | null>(null);
+    const { beforeMap } = useMap();
 
     useEffect(() => {
-        const isAuthed: boolean = (props.authToken ?? '') !== '';
-        const inPreviewMode: boolean = props.inPreviewMode ?? false;
+        const isAuthed = (props.authToken ?? '') !== '';
+        const inPreviewMode = props.inPreviewMode ?? false;
         setShowEditorOptions(isAuthed && !inPreviewMode);
     }, [props.authToken, props.inPreviewMode]);
+
+    useEffect(() => {
+        const map = beforeMap.current;
+        if (!map) return;
+
+        if (!drawRef.current) {
+            drawRef.current = new MapboxDraw({
+                displayControlsDefault: false,
+                controls: {
+                    point: true,
+                    line_string: true,
+                    polygon: true,
+                    trash: true
+                }
+            });
+        }
+
+        if (editMode) {
+            if (!map.hasControl(drawRef.current)) {
+                map.addControl(drawRef.current, "top-right");
+
+                const savedFeatures = sessionStorage.getItem("drawFeatures");
+                if (savedFeatures) {
+                    const features = JSON.parse(savedFeatures);
+                    drawRef.current.set(features);
+                }
+            }
+        } else {
+            if (map.hasControl(drawRef.current)) {
+                const features = drawRef.current.getAll();
+                if (features.features.length > 0) {
+                    sessionStorage.setItem("drawFeatures", JSON.stringify(features));
+                }
+                map.removeControl(drawRef.current);
+            }
+        }
+    }, [editMode, beforeMap]);
 
     const openChoiceModal = () => {
         props.beforeOpen();
@@ -34,6 +77,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
     const closeAllModals = () => {
         setShowChoiceModal(false);
         setShowFormModal(false);
+        setEditMode(false);
         props.afterClose();
     }
 
@@ -43,13 +87,45 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
     }
 
     const handleDrawLayer = () => {
-        alert("Draw Layer is not implemented yet.");
+        setShowChoiceModal(false);
+        setEditMode(true); // Let useEffect handle draw setup
     }
 
     Modal.setAppElement('#app-body-main');
 
     return (
         <>
+            {/* Submit button (bottom-left) */}
+            {editMode && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        bottom: '1rem',
+                        left: '1rem',
+                        zIndex: 10001,
+                    }}
+                >
+                    <button
+                        onClick={() => {
+                            if (drawRef.current) {
+                                const features = drawRef.current.getAll();
+                                console.log("🟢 Submitted GeoJSON features:", JSON.stringify(features));
+                            }
+                        }}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            backgroundColor: '#f8f8f8',
+                            border: '1px solid #ccc',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                        }}
+                    >
+                        Submit Drawn Features
+                    </button>
+                </div>
+            )}
+
             {showEditorOptions && (
                 <div style={{ paddingTop: '5px', paddingLeft: '15px', paddingRight: '10px', textAlign: 'center' }}>
                     <button id='post-button' onClick={openChoiceModal}>
@@ -86,17 +162,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
                 <h3 style={{ marginBottom: '20px' }}>Select Layer Type</h3>
                 <button
                     onClick={handleImportLayer}
-                    style={{
-                        display: 'block',
-                        width: '100%',
-                        marginBottom: '10px',
-                        padding: '10px',
-                        borderRadius: '8px',
-                        backgroundColor: '#f0f0f0',
-                        border: '1px solid #ccc',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.2s ease'
-                    }}
+                    style={modalButtonStyle}
                     onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#ffffff')}
                     onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
                 >
@@ -104,16 +170,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
                 </button>
                 <button
                     onClick={handleDrawLayer}
-                    style={{
-                        display: 'block',
-                        width: '100%',
-                        padding: '10px',
-                        borderRadius: '8px',
-                        backgroundColor: '#f0f0f0',
-                        border: '1px solid #ccc',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.2s ease'
-                    }}
+                    style={modalButtonStyle}
                     onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#ffffff')}
                     onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
                 >
@@ -121,7 +178,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
                 </button>
             </Modal>
 
-            {/* Actual Form Modal */}
+            {/* Form Modal */}
             <Modal
                 isOpen={showFormModal}
                 onRequestClose={closeAllModals}
@@ -148,5 +205,17 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
         </>
     );
 }
+
+const modalButtonStyle: React.CSSProperties = {
+    display: 'block',
+    width: '100%',
+    marginBottom: '10px',
+    padding: '10px',
+    borderRadius: '8px',
+    backgroundColor: '#f0f0f0',
+    border: '1px solid #ccc',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s ease'
+};
 
 export default NewSectionLayerGroupItem;
