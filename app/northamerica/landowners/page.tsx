@@ -941,31 +941,26 @@ export default function Home() {
   useEffect(() => {
     if (!currDate) return;
 
-    var date = parseInt(currDate.format("YYYYMMDD"));
-
-    var dateFilter: FilterSpecification = [
+    const date = parseInt(currDate.format("YYYYMMDD"));
+    const dateFilter: FilterSpecification = [
       "all",
       ["<=", ["get", "DayStart"], date],
       [">=", ["get", "DayEnd"], date],
     ];
 
-    activeLayerIds.forEach((lid) => {
-      if (currBeforeMap.current?.getLayer(lid) !== null && currBeforeMap.current?.getLayer(lid)?.filter !== undefined) {
-        currBeforeMap.current?.setFilter(lid, dateFilter);
-      }
+    const map = currBeforeMap.current;
+    const afterMap = currAfterMap.current;
 
-      if (currAfterMap.current?.getLayer(lid) !== null && currAfterMap.current?.getLayer(lid)?.filter !== undefined) {
-        currAfterMap.current?.setFilter(lid, dateFilter);
-      }
+    requestAnimationFrame(() => {
+      activeLayerIds.forEach((lid) => {
+        const visibility = map?.getLayoutProperty(lid, "visibility");
+        if (visibility !== "none") {
+          map?.setFilter(lid, dateFilter);
+          afterMap?.setFilter(lid, dateFilter);
+        }
+      });
     });
   }, [currDate, activeLayerIds]);
-
-
-
-
-
-
-
 
 
 

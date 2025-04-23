@@ -54,6 +54,13 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   // Static variable for moving the slider button
   const totalSliderSteps = totalYears * totalDaysInYear;
 
+
+  // 
+  const debouncedCallback = useRef(debounce((date: moment.Moment | null) => {
+    props.callback(date);
+  }, 200)).current;
+
+
   // Form a date-like value based on the position of the slider button
   const calculateSliderPosition = (date: moment.Moment) => {
     const year = date.year();
@@ -95,7 +102,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
     // Set the current data and trigger a callback
     setCurrDate(newDate);
-    props.callback(newDate);
+    debouncedCallback(newDate);
   };
 
   // ---------------------------------------- TIMELINE CLICK function variables ----------------------------------------
@@ -183,6 +190,19 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
     setSliderValue(middleSliderPosition);
     updateDate(middleSliderPosition);
   }, [middleSliderPosition]);
+
+  // mouseup listener in a useEffect so we trigger the actual update only after the user releases the drag
+  useEffect(() => {
+    const handleMouseUp = () => {
+      if (currDate) {
+        props.callback(currDate); // Fire only on release
+      }
+    };
+
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => window.removeEventListener("mouseup", handleMouseUp);
+  }, [currDate]);
+
 
   // ---------------------------------------- CSS event variables ----------------------------------------
 
