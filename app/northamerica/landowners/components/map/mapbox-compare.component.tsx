@@ -3,7 +3,7 @@ import mapboxgl, { Map } from 'mapbox-gl';
 import { RefObject, useEffect, useRef, useState } from "react";
 import '@/app/compare.css';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoiZ2xvYmFsd2VibWFwcGVyIiwiYSI6ImNtOTdqYWoyODA4Nm0yaW9rNzBsaXN4a3YifQ.qtMzRCt5fbHh-yogK64IYw';
+mapboxgl.accessToken = 'pk.eyJ1IjoiYXJlbi1hc2hsb2NrIiwiYSI6ImNtOHJ5ZW1xeTBuYTMybm9tMDBsNnhqOHAifQ.c7N8HeuFC2GbBwKyaIMCLA';
 
 interface MapboxCompareWrapperProps {
   comparisonContainerRef: RefObject<HTMLDivElement>;

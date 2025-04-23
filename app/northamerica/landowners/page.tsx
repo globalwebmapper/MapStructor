@@ -68,7 +68,7 @@ import {
 
 
 // IMPORTANT: MAPBOX ACCESS TOKEN
-mapboxgl.accessToken = "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wMGh2eSJ9.eJnHIk7wriv-Hp02T7mT3g";
+mapboxgl.accessToken = "pk.eyJ1IjoiYXJlbi1hc2hsb2NrIiwiYSI6ImNtOHJ5ZW1xeTBuYTMybm9tMDBsNnhqOHAifQ.c7N8HeuFC2GbBwKyaIMCLA";
 
 
 
@@ -181,8 +181,8 @@ export default function Home() {
       setBeforeMapItem({
         id: "0",
         name: "Current Satellite",
-        mapId: "clm2yrx1y025401p93v26bhyl",
-        styleId: "clm2yrx1y025401p93v26bhyl",
+        mapId: "cm9mvto7r00f401rw3kbb2soz",
+        styleId: "cm9mvto7r00f401rw3kbb2soz",
         groupId: "",
         zoom: Number(hashParams?.at(0) ?? 0),
         center: [Number(hashParams?.at(1) ?? 0), Number(hashParams?.at(2) ?? 0)],
@@ -699,7 +699,7 @@ export default function Home() {
     const defBeforeMap = new mapboxgl.Map({
       ...beforeMapItem,
       container: beforeMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/mapny/clm2yrx1y025401p93v26bhyl",
+      style: "mapbox://styles/aren-ashlock/cm9mvto7r00f401rw3kbb2soz",
       zoom: Number(hashParams?.at(0) ?? 0),
       center: [Number(hashParams?.at(1) ?? 0), Number(hashParams?.at(2) ?? 0)],
       bearing: Number(hashParams?.at(3) ?? 0),
@@ -710,7 +710,7 @@ export default function Home() {
     const defAfterMap = new mapboxgl.Map({
       ...beforeMapItem,
       container: afterMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/mapny/clm2yu5fg022801phfh479c8x",
+      style: "mapbox://styles/aren-ashlock/cm9mvto7r00f401rw3kbb2soz",
       zoom: Number(hashParams?.at(0) ?? 0),
       center: [Number(hashParams?.at(1) ?? 0), Number(hashParams?.at(2) ?? 0)],
       bearing: Number(hashParams?.at(3) ?? 0),
