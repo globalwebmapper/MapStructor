@@ -91,7 +91,7 @@ export default function Home() {
   const [layerOrder, setLayerOrder] = useState<PrismaLayer[]>([]);
 
   // -------------------------------------------------------------------------
-  const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1950-01-01", "YYYY-MM-DD"));
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
   const [popUp, setPopUp] = useState<GenericPopUpProps>({
     layerName: "",
     nid: "",
@@ -1589,16 +1589,6 @@ export default function Home() {
     getMaps();
   };
 
-  const displayPage = () => {
-    if (pageCode === "spring24nitin") {
-      sessionStorage.setItem("pageVisible", "true");
-      setPageVisible(true);
-    }
-    else {
-      alert("Incorrect code");
-    }
-  }
-
 
 
 
@@ -1656,62 +1646,30 @@ export default function Home() {
 
 
 
-      {/* --------------------------------------- PASSWORD --------------------------------------- */}
-      {!pageVisible && (
-        <div
-          style={{
-            zIndex: "99999",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100vh",
-            textAlign: "center"
-          }}
-        >
-          <h1>In order to view page, enter the code</h1>
-          <input
-            id="code-input"
-            type="text"
-            placeholder="code..."
-            onChange={(e) => setPageCode(e.target.value)}
-            style={{ padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333" }}
-          />
-          <button onClick={() => displayPage()} style={{ padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333", backgroundColor: "lightgray" }}>Submit</button>
-        </div>
-      )
-      }
-
-
-
-
-
       {/* ---------------------------------------- LAYER PANEL ---------------------------------------- */}
-      {pageVisible && (
-        <>
-          <button
-            id="view-hide-layer-panel"
-            className={layerPanelVisible ? "" : "translated"}
-            onClick={() => {
-              if (layerPanelVisible) {
-                setLayerPanelVisible(false);
-                setLayerPopupBefore(popUpVisible);
-                setPopUpVisible(false);
-              }
-              else {
-                setLayerPanelVisible(true);
-                setPopUpVisible(layerPopupBefore);
-              }
-            }}
-          >
-            {
-              layerPanelVisible
-                ?
-                (<span id="dir-txt" style={{ fontSize: '13px' }}>&#9204;</span>)
-                :
-                (<span id="dir-txt">⏵</span>)
-            }
-          </button>
+      <button
+        id="view-hide-layer-panel"
+        className={layerPanelVisible ? "" : "translated"}
+        onClick={() => {
+          if (layerPanelVisible) {
+            setLayerPanelVisible(false);
+            setLayerPopupBefore(popUpVisible);
+            setPopUpVisible(false);
+          }
+          else {
+            setLayerPanelVisible(true);
+            setPopUpVisible(layerPopupBefore);
+          }
+        }}
+      >
+        {
+          layerPanelVisible
+          ?
+          (<span id="dir-txt" style={{fontSize: '13px'}}>&#9204;</span>)
+          :
+          (<span id="dir-txt">⏵</span>)
+        }
+      </button>
 
           <CSSTransition
             in={popUpVisible}
@@ -1726,54 +1684,54 @@ export default function Home() {
             />
           </CSSTransition>
 
-          <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
-            <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
-            <p className="title">LAYERS</p>
-            <>
-              {(currSectionLayers ?? []).map((secLayer, idx) => {
-                return (
-                  <ExpandableLayerGroupSection
-                    key={"section-layer-component-" + idx}
-                    inPreviewMode={inPreviewMode}
-                    authToken={currAuthToken}
-                    activeLayers={activeLayerIds}
-                    activeLayerCallback={(newActiveLayers: string[]) => {
-                      setActiveLayerIds(newActiveLayers);
-                    }}
-                    layersHeader={secLayer.label}
-                    layer={secLayer}
-                    afterSubmit={() => {
-                      getLayerSections();
-                    }}
-                    beforeOpen={beforeLayerFormModalOpen}
-                    afterClose={afterLayerFormModalCloseLayers}
-                    openWindow={beforeModalOpen}
-                    mapZoomCallback={(zoomProps: MapZoomProps) => {
-                      if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                        currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
-                      }
-                      else if (zoomProps.center) {
-                        currBeforeMap.current?.easeTo({
-                          center: zoomProps.center,
-                          zoom: zoomProps.zoom,
-                          bearing: zoomProps.bearing ?? 0,
-                          speed: zoomProps.speed,
-                          curve: zoomProps.curve,
-                          duration: zoomProps.duration,
-                          easing(t) {
-                            return t;
-                          },
-                        });
-                        if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                          router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
-                        }
-                      }
-                    }}
-                    getLayerSectionsCallback={getLayerSections}
-                    removeMapLayerCallback={(id: string) => removeMapLayerBothMaps(id)}
-                  />
-                );
-              })}
+      <div id="studioMenu" className={layerPanelVisible ? "open" : "closed"}>
+        <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
+        <p className="title">LAYERS</p>
+        <>
+          {(currSectionLayers ?? []).map((secLayer, idx) => {
+            return (
+              <ExpandableLayerGroupSection
+                key={"section-layer-component-" + idx}
+                inPreviewMode={inPreviewMode}
+                authToken={currAuthToken}
+                activeLayers={activeLayerIds}
+                activeLayerCallback={(newActiveLayers: string[]) => {
+                  setActiveLayerIds(newActiveLayers);
+                }}
+                layersHeader={secLayer.label}
+                layer={secLayer}
+                afterSubmit={() => {
+                  getLayerSections();
+                }}
+                beforeOpen={beforeLayerFormModalOpen}
+                afterClose={afterLayerFormModalCloseLayers}
+                openWindow={beforeModalOpen}
+                mapZoomCallback={(zoomProps: MapZoomProps) => {
+                  if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                    currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0});
+                  }
+                  else if (zoomProps.center) {
+                    currBeforeMap.current?.easeTo({
+                      center: zoomProps.center,
+                      zoom: zoomProps.zoom,
+                      bearing: zoomProps.bearing ?? 0,
+                      speed: zoomProps.speed,
+                      curve: zoomProps.curve,
+                      duration: zoomProps.duration,
+                      easing(t) {
+                        return t;
+                      },
+                    });
+                    if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                      router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
+                    }
+                  }
+                }}
+                getLayerSectionsCallback={getLayerSections}
+                removeMapLayerCallback={(id: string) => removeMapLayerBothMaps(id)}
+              />
+            );
+          })}
 
               {!groupFormOpen && !inPreviewMode && (currAuthToken != null && currAuthToken.length > 0) &&
                 (<div
@@ -1859,85 +1817,83 @@ export default function Home() {
                           }}
                         />
 
-                        <div style={{ paddingLeft: "6px" }}>{row.label}</div>
-                      </div>
-                    ))
-                  }
-                </>)
+                    <div style={{ paddingLeft: "6px" }}>{row.label}</div>
+                  </div>
+                ))
               }
-              <br />
-              <p className="title"></p>
-            </>
-
-
-
-
-
-            {/* ---------------------------------------- MAPS PANEL ---------------------------------------- */}
-            {beforeMapItem && hasDoneInitialZoom &&
-              (<>
-                <MapFilterWrapperComponent
-                  inPreviewMode={inPreviewMode}
-                  authToken={currAuthToken}
-                  beforeOpen={beforeModalOpen}
-                  zoomToWorld={() => {
-                    zoomToWorld(currAfterMap);
-                    zoomToWorld(currBeforeMap);
-                  }}
-                  afterClose={afterModalCloseMaps}
-                  beforeMapCallback={(map: MapItem) => {
-                    // Set beforeMap to selected map by changing the mapId
-                    setMapStyle(currBeforeMap, map.styleId);
-                  }}
-                  afterMapCallback={(map: MapItem) => {
-                    // Set afterMap to selected map by changing the mapId
-                    setMapStyle(currAfterMap, map.styleId);
-                  }}
-                  defaultMap={{
-                    ...beforeMapItem,
-                    zoom: hashParams?.at(0) != null ? +(hashParams.at(0) ?? beforeMapItem.zoom) : beforeMapItem.zoom,
-                    center:
-                      [
-                        hashParams?.at(1) != null
-                          ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
-                          : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
-                        hashParams?.at(2) != null
-                          ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
-                          : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
-                      ],
-                    bearing: hashParams?.at(3) != null ? +(hashParams.at(3) ?? beforeMapItem.bearing) : beforeMapItem.bearing,
-                    infoId: ''
-                  }}
-                  mapGroups={mappedFilterItemGroups}
-                  mapZoomCallback={(zoomProps: MapZoomProps) => {
-                    if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                      currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
-                    }
-                    else if (zoomProps.center) {
-                      currBeforeMap.current?.easeTo({
-                        center: zoomProps.center,
-                        zoom: zoomProps.zoom,
-                        speed: zoomProps.speed,
-                        bearing: zoomProps.bearing ?? 0,
-                        curve: zoomProps.curve,
-                        duration: zoomProps.duration,
-                        easing(t) {
-                          return t;
-                        },
-                      });
-
-                      if (zoomProps?.zoom != null && zoomProps?.center != null) {
-                        router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
-                      }
-                    }
-                  }}
-                />
-                <br />
-              </>
-              )}
-          </div>
+            </>)
+          }
+          <br />
+          <p className="title"></p>
         </>
-      )}
+          
+
+
+          
+          
+        {/* ---------------------------------------- MAPS PANEL ---------------------------------------- */}
+        {beforeMapItem && hasDoneInitialZoom &&
+          (<>
+            <MapFilterWrapperComponent
+              inPreviewMode={inPreviewMode}
+              authToken={currAuthToken}
+              beforeOpen={beforeModalOpen}
+              zoomToWorld={() => {
+                zoomToWorld(currAfterMap);
+                zoomToWorld(currBeforeMap);
+              }}
+              afterClose={afterModalCloseMaps}
+              beforeMapCallback={(map: MapItem) => {
+                // Set beforeMap to selected map by changing the mapId
+                setMapStyle(currBeforeMap, map.styleId);
+              }}
+              afterMapCallback={(map: MapItem) => {
+                // Set afterMap to selected map by changing the mapId
+                setMapStyle(currAfterMap, map.styleId);
+              }}
+              defaultMap={{
+                ...beforeMapItem,
+                zoom: hashParams?.at(0) != null ? +(hashParams.at(0) ?? beforeMapItem.zoom) : beforeMapItem.zoom,
+                center:
+                  [
+                    hashParams?.at(1) != null
+                    ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
+                    : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
+                    hashParams?.at(2) != null
+                    ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
+                    : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
+                  ],
+                bearing: hashParams?.at(3) != null ? +(hashParams.at(3) ?? beforeMapItem.bearing) : beforeMapItem.bearing,
+                infoId: ''
+              }}
+              mapGroups={mappedFilterItemGroups}
+              mapZoomCallback={(zoomProps: MapZoomProps) => {
+                if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                  currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
+                }
+                else if (zoomProps.center) {
+                  currBeforeMap.current?.easeTo({
+                    center: zoomProps.center,
+                    zoom: zoomProps.zoom,
+                    speed: zoomProps.speed,
+                    bearing: zoomProps.bearing ?? 0,
+                    curve: zoomProps.curve,
+                    duration: zoomProps.duration,
+                    easing(t) {
+                      return t;
+                    },
+                  });
+
+                  if (zoomProps?.zoom != null && zoomProps?.center != null) {
+                    router.push(`${pathname}/#${zoomProps.zoom.toFixed(2)}/${zoomProps.center[0].toFixed(6)}/${zoomProps.center[1].toFixed(6)}/${zoomProps.bearing?.toFixed(1) ?? 0}`);
+                  }
+                }
+              }}
+            />
+            <br />
+          </>
+        )}
+      </div>
 
 
 
