@@ -270,7 +270,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/subhambhattacharya/Desktop/senior-design/sd07_web-map/prisma/generated_schema/NorthAmericaLandowners",
+      "value": "/Users/arenashlock/Documents/COMS_402c/GitLab/sd07_web-map/prisma/generated_schema/NorthAmericaLandowners",
       "fromEnvVar": null
     },
     "config": {
@@ -288,7 +288,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/subhambhattacharya/Desktop/senior-design/sd07_web-map/prisma/schema-NAL.prisma",
+    "sourceFilePath": "/Users/arenashlock/Documents/COMS_402c/GitLab/sd07_web-map/prisma/schema-NAL.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
