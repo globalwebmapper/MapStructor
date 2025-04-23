@@ -1,5 +1,5 @@
 // Import various things from React
-import React, { useState, useRef, useEffect } from "react"; 
+import React, { useState, useRef, useEffect } from "react";
 // Import moment for date manipulation
 import moment from "moment";
 // Import the stuff for the blue box in the bottom right of the map screen that displays the date
@@ -49,7 +49,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   const minYear = 1850;
   const maxYear = 1950;
   const totalYears = maxYear - minYear + 1;
-  const totalDaysInYear = 365; 
+  const totalDaysInYear = 365;
 
   // Static variable for moving the slider button
   const totalSliderSteps = totalYears * totalDaysInYear;
@@ -58,31 +58,25 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   const calculateSliderPosition = (date: moment.Moment) => {
     const year = date.year();
     const dayOfYear = date.dayOfYear();
-    const yearOffset = year - minYear; 
+    const yearOffset = year - minYear;
     return (yearOffset * totalDaysInYear) + dayOfYear;
   };
 
   // Set the original slider position to the very middle of the timeline
   const middleYear = Math.floor((minYear + maxYear) / 2);
-  const middleDate = moment(`${middleYear}-01-01`, "YYYY-MM-DD"); 
+  const middleDate = moment(`${middleYear}-01-01`, "YYYY-MM-DD");
   const middleSliderPosition = calculateSliderPosition(middleDate);
 
   // Variables for calculating the timeline labels
   var sliderStart: number = moment("1850-01-01", "YYYY-MM-DD").unix();
   var sliderEnd: number = moment("1950-01-01", "YYYY-MM-DD").unix();
-    
+
   var ruler_step: number = (sliderEnd - sliderStart) / 10,
-  date_ruler1: number = sliderStart + ruler_step,
-  date_ruler2: number = sliderStart + ruler_step * 3,
-  date_ruler3: number = sliderStart + ruler_step * 5,
-  date_ruler4: number = sliderStart + ruler_step * 7,
-  date_ruler5: number = sliderStart + ruler_step * 9; 
-
-  // debounce funtion
-  const debouncedCallback = useRef(debounce((date: moment.Moment | null) => {
-    props.callback(date);
-  }, 200)).current;
-
+    date_ruler1: number = sliderStart + ruler_step,
+    date_ruler2: number = sliderStart + ruler_step * 3,
+    date_ruler3: number = sliderStart + ruler_step * 5,
+    date_ruler4: number = sliderStart + ruler_step * 7,
+    date_ruler5: number = sliderStart + ruler_step * 9;
 
   // ---------------------------------------- DATE function variables ----------------------------------------
 
@@ -93,15 +87,15 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
     // Given the offset, calculate the actual year value
     const newYear = minYear + Math.floor(yearOffset);
     const dayOfYear = Math.round((yearOffset % 1) * totalDaysInYear);
-    
+
     // Check if the date is the max date or not
-    const newDate = newYear === maxYear 
-      ? moment("1950-01-01", "YYYY-MM-DD") 
+    const newDate = newYear === maxYear
+      ? moment("1950-01-01", "YYYY-MM-DD")
       : moment().year(newYear).dayOfYear(Math.min(dayOfYear, totalDaysInYear));
 
     // Set the current data and trigger a callback
     setCurrDate(newDate);
-    debouncedCallback(newDate);
+    props.callback(newDate);
   };
 
   // ---------------------------------------- TIMELINE CLICK function variables ----------------------------------------
@@ -109,7 +103,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   // When the timeline is clicked and just released, move the slider button to that position
   const handleTimelineClick = (e: React.MouseEvent) => {
     // Basically if "TIME SLIDE" is showing, hide it
-    if(showTimeSlideText) {
+    if (showTimeSlideText) {
       setShowTimeSlideText(false);
     }
 
@@ -134,12 +128,12 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
     setSliderValue(position);
 
     // Using the position, update the date
-    updateDate(position); 
+    updateDate(position);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     // Basically if "TIME SLIDE" is showing, hide it
-    if(showTimeSlideText) {
+    if (showTimeSlideText) {
       setShowTimeSlideText(false);
     }
 
@@ -165,7 +159,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
       const rect = slider.getBoundingClientRect();
       moveSlider(e.clientX - rect.left, rect.width);
     }
-  }, 6); 
+  }, 6);
 
   // When the mouse is released, the slider button is no longer being dragged
   const handleMouseUp = () => {
@@ -186,21 +180,9 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
   // Whenever the slider position has changed, update the necessary values
   useEffect(() => {
-    setSliderValue(middleSliderPosition); 
-    updateDate(middleSliderPosition); 
+    setSliderValue(middleSliderPosition);
+    updateDate(middleSliderPosition);
   }, [middleSliderPosition]);
-
-  useEffect(() => {
-    const handleMouseUp = () => {
-      if (currDate) {
-        props.callback(currDate); // Fire only on release
-      }
-    };
-
-    window.addEventListener("mouseup", handleMouseUp);
-    return () => window.removeEventListener("mouseup", handleMouseUp);
-  }, [currDate]);
-
 
   // ---------------------------------------- CSS event variables ----------------------------------------
 
@@ -239,44 +221,44 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
       >
         <div id="slider"
           style={{
-            backgroundColor: timelineColor 
+            backgroundColor: timelineColor
           }}
         >
           <div className="timeline" onClick={handleTimelineClick}>
             {/* Tick #1 */}
             <div className="year">
-              <span id="ruler-date1">{ moment.unix(date_ruler1).year() ?? '...' }</span>
+              <span id="ruler-date1">{moment.unix(date_ruler1).year() ?? '...'}</span>
               <span className="timeline-ruler"></span>
             </div>
             {/* Tick #2 */}
             <div className="year">
-              <span id="ruler-date2">{ moment.unix(date_ruler2).year() ?? '...' }</span>
+              <span id="ruler-date2">{moment.unix(date_ruler2).year() ?? '...'}</span>
               <span className="timeline-ruler"></span>
             </div>
             {
-              showTimeSlideText ? 
-              (
-                <div className="year">
-                  <span id="ruler-date3">&nbsp;  ⇦ &nbsp; TIME &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SLIDE &nbsp; ⇨ &nbsp; &nbsp; &nbsp; &nbsp;</span>
-                  <span className="timeline-ruler"></span>
-                </div>
-              )
-              : // If the time slider has been moved, "TIME SLIDE" text will be hidden and replaced with the middle year
-              (
-                <div className="year">
-                  <span id="ruler-date3">{ moment.unix(date_ruler3).year() ?? '...' }</span>
-                  <span className="timeline-ruler"></span>
-                </div>
-              )
+              showTimeSlideText ?
+                (
+                  <div className="year">
+                    <span id="ruler-date3">&nbsp;  ⇦ &nbsp; TIME &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SLIDE &nbsp; ⇨ &nbsp; &nbsp; &nbsp; &nbsp;</span>
+                    <span className="timeline-ruler"></span>
+                  </div>
+                )
+                : // If the time slider has been moved, "TIME SLIDE" text will be hidden and replaced with the middle year
+                (
+                  <div className="year">
+                    <span id="ruler-date3">{moment.unix(date_ruler3).year() ?? '...'}</span>
+                    <span className="timeline-ruler"></span>
+                  </div>
+                )
             }
             {/* Tick #4 */}
             <div className="year">
-              <span id="ruler-date4">{ moment.unix(date_ruler4).year() ?? '...' }</span>
+              <span id="ruler-date4">{moment.unix(date_ruler4).year() ?? '...'}</span>
               <span className="timeline-ruler"></span>
             </div>
             {/* Tick #5 */}
             <div className="year">
-              <span id="ruler-date5">{ moment.unix(date_ruler5).year() ?? '...' }</span>
+              <span id="ruler-date5">{moment.unix(date_ruler5).year() ?? '...'}</span>
               <span className="timeline-ruler"></span>
             </div>
           </div>
@@ -295,12 +277,12 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
           {/* The style of the button slider */}
           <div
             className="slider-handle-horizontal"
-            style={{ 
-              left: `${(sliderValue / totalSliderSteps) * 100}%`, 
-              backgroundColor: sliderColor 
-            }} 
-            onMouseEnter={hoverSlider} 
-            onMouseLeave={offHoverSlider} 
+            style={{
+              left: `${(sliderValue / totalSliderSteps) * 100}%`,
+              backgroundColor: sliderColor
+            }}
+            onMouseEnter={hoverSlider}
+            onMouseLeave={offHoverSlider}
           ></div>
         </div>
       </div>
