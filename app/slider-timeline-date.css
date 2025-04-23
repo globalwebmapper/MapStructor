@@ -8,16 +8,21 @@
   float: right;
   bottom: 80px;
   right: 20px;
-  height: 60px;
-  width: 238px;
-
-  border: solid 4px #000000;
+  border: solid 3px #000000;
   border-radius: 8px;
   background: #3989c1;
-
-  text-align: center;
-
+  /* background: #ffd2d2; */
+  /* background: #e0ecf5; */
+  padding: 0px 17px;
+  /* font-size: 21px; */
+  /* color: #000000; */
+  color: #ffffff;
   z-index: 500;
+  word-spacing: 5px;
+  min-width: 210px;
+  text-align: right;
+  height: 50px;
+  text-align: center;
 }
 
 /* Date text -- inside the blue box */
