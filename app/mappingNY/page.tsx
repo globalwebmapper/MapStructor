@@ -964,6 +964,54 @@ export default function Home() {
             ? JSON.parse(layerConfig.layout)
             : {};
 
+            if (layerConfig.sourceType === 'geojson') {
+                let geoJsonData;
+                try{
+                  geoJsonData = JSON.parse(layerConfig.sourceUrl);
+                }
+                catch(error){
+                  console.error("Invalid GeoJSON data in sourceURL:", error);
+                  //return;
+                }
+          
+                if (!beforeMap.current.getSource(layerConfig.sourceId)) {
+                  console.log("adding source to before");
+                  beforeMap.current.addSource(layerConfig.sourceId, {
+                    type: "geojson",
+                    data: geoJsonData,
+                  });
+                }
+          
+                if (!afterMap.current.getSource(layerConfig.sourceId)) {
+                  console.log("adding source to after");
+                  afterMap.current.addSource(layerConfig.sourceId, {
+                    type: "geojson",
+                    data: geoJsonData,
+                  });
+                }
+          
+                const layer = {
+                  id: layerConfig.id,
+                  type: layerConfig.type as mapboxgl.LayerSpecification["type"],
+                  source: layerConfig.sourceId,
+                  paint: parsedPaint,
+                  layout: {
+                    visibility: "none",
+                    ...parsedLayout,
+                  },
+                };
+            
+                if (!beforeMap.current.getLayer(layerConfig.id)) {
+                beforeMap.current.addLayer(layer as any); //mapboxgl.LayerSpecification
+                }
+          
+                if (!afterMap.current.getLayer(layerConfig.id)) {
+                  afterMap.current.addLayer(layer as any);
+                }
+            
+                return;
+              }
+
         if (layerTypes.includes(layerConfig.type)) {
             let paint = {};
             let layout = {...parsedLayout};

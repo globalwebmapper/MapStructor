@@ -30,6 +30,73 @@ type SourceType =
     | "model"
     | "batched-model";
 
+    type InitialValues = {
+      name: string;
+      iconColor: string;
+      iconType: string;
+      label: string;
+      longitude: number | null;
+      latitude: number | null;
+      zoom: number | null;
+      bearing: number | null;
+      topLeftBoundLatitude: number | null;
+      topLeftBoundLongitude: number | null;
+      bottomRightBoundLatitude: number | null;
+      bottomRightBoundLongitude: number | null;
+      zoomToBounds: boolean;
+      enableByDefault: boolean;
+      topLayerClass: string;
+      infoId: string;
+      type: LayerType;
+      sourceType: SourceType;
+      sourceUrl: string;
+      sourceId: string;
+      paint: string;
+      sourceLayer: string;
+      hover: boolean;
+      click: boolean;
+      time: boolean;
+      hoverStyle: string;
+      clickStyle: string;
+      clickHeader: string;
+      hoverContent: { label: string; type: string }[];
+      fillColor: string;
+      fillOpacity: number;
+      fillOutlineColor: string;
+      textColor: string;
+      textHaloColor: string;
+      textHaloWidth: number;
+      circleColor: string;
+      circleOpacity: number;
+      circleRadius: number;
+      circleStrokeColor: string;
+      circleStrokeWidth: number;
+      lineColor: string;
+      lineWidth: number;
+      lineBlur: number;
+      lineOpacity: number;
+      textSizeDefault: number;
+      useTextSizeZoomStyling: boolean;
+      useIconSizeZoomStyling: boolean;
+      useLineZoomStyling: boolean;
+      useFillZoomStyling: boolean;
+      useCircleZoomStyling: boolean;
+      iconSizeDefault: number;
+      zoomLevels: ZoomLevel[];
+      textZoomLevels: ZoomLevel[];
+      circleRadiusZoomLevels: ZoomLevel[];
+      lineWidthZoomLevels: ZoomLevel[];
+      layout: {
+        "text-field": string;
+        "text-size": number | (string | number)[]; // Can be a number or an array for interpolation
+        "text-offset": [number, number];
+        "icon-image": string;
+        "icon-size": number | (string | number)[]; // Can be a number or an array for interpolation
+      };
+      standalone: boolean;
+    };
+
+
 type LayerFormProps = {
   groupName: string;
   sectionName: string;
@@ -38,6 +105,7 @@ type LayerFormProps = {
   authToken: string;
   standalone: boolean;
   topLayerClass?: string;
+  initialValues?: InitialValues;
 };
 
 type ZoomLevel = { zoom: number; value: number };
@@ -55,7 +123,7 @@ export default function LayerForm(props: LayerFormProps) {
 
   const formik = useFormik({
     enableReinitialize: true,
-    initialValues: {
+    initialValues: props.initialValues ?? {
       name: props.layerConfig?.name ?? "",
       iconColor: props.layerConfig?.iconColor ?? "#000000",
       iconType: props.layerConfig?.iconType ?? "",

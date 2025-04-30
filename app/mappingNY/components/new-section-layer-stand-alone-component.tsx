@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Modal from 'react-modal';
+import Modal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
@@ -20,10 +20,12 @@ type LayerFormButtonProps = {
 };
 
 const NewStandaloneLayer = (props: LayerFormButtonProps) => {
+    
     const [showEditorOptions, setShowEditorOptions] = useState<boolean>(false);
     const [showChoiceModal, setShowChoiceModal] = useState<boolean>(false);
     const [showFormModal, setShowFormModal] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [layerData, setLayerData] = useState<any>(null); // State to hold layer data for the form
     const drawRef = useRef<MapboxDraw | null>(null);
     const { beforeMap } = useMap();
 
@@ -44,8 +46,8 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
                     point: true,
                     line_string: true,
                     polygon: true,
-                    trash: true
-                }
+                    trash: true,
+                },
             });
         }
 
@@ -93,34 +95,75 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
         setEditMode(true);
     };
 
+    const handleSubmitDrawnFeatures = () => {
+        if (drawRef.current) {
+            const features = drawRef.current.getAll();
+            console.log("🟢 Submitted GeoJSON features:", JSON.stringify(features));
 
-    Modal.setAppElement('#app-body-main');
+            // Prepare layer data with features as sourceUrl
+            const newLayerData = {
+                name: "",
+                iconColor: "",
+                iconType: "",
+                label: "",
+                longitude: 0,
+                latitude: 0,
+                zoom: 0,
+                bearing: 0,
+                topLayerClass: "",
+                infoId: "",
+                type: "line",
+                sourceType: "geojson",
+                sourceUrl: JSON.stringify(features), // Pre-populate sourceUrl with features
+                sourceId: "",
+                paint: "{\"line-color\":\"#ff0040\",\"line-width\":8,\"line-blur\":0,\"line-opacity\":1}",
+                layout: "{\"text-field\":\"{name}\",\"text-size\":12,\"text-offset\":[0,1],\"icon-image\":\"\",\"icon-size\":0.5}",
+                sourceLayer: "",
+                hover: false,
+                time: false,
+                click: false,
+                hoverStyle: "",
+                clickStyle: "",
+                clickHeader: "",
+                order: 1,
+                viewOrder: 1,
+                standalone: true,
+                hoverContent: [],
+                topLeftBoundLatitude: null,
+                topLeftBoundLongitude: null,
+                bottomRightBoundLatitude: null,
+                bottomRightBoundLongitude: null,
+                zoomToBounds: false,
+                enableByDefault: false,
+            };
+
+            setLayerData(newLayerData); // Set the layer data for the form
+            setShowFormModal(true); // Open the form modal
+        }
+    };
+
+    Modal.setAppElement("#app-body-main");
 
     return (
         <>
             {editMode && (
                 <div
                     style={{
-                        position: 'fixed',
-                        bottom: '1rem',
-                        left: '1rem',
+                        position: "fixed",
+                        bottom: "1rem",
+                        left: "1rem",
                         zIndex: 10001, // super high to stay above map
                     }}
                 >
                     <button
-                        onClick={() => {
-                            if (drawRef.current) {
-                                const features = drawRef.current.getAll();
-                                console.log("🟢 Submitted GeoJSON features:", JSON.stringify(features));
-                            }
-                        }}
+                        onClick={handleSubmitDrawnFeatures}
                         style={{
-                            padding: '0.5rem 1rem',
-                            backgroundColor: '#f8f8f8',
-                            border: '1px solid #ccc',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                            padding: "0.5rem 1rem",
+                            backgroundColor: "#f8f8f8",
+                            border: "1px solid #ccc",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
                         }}
                     >
                         Submit Drawn Features
@@ -129,7 +172,7 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
             )}
 
             {showEditorOptions && (
-                <div style={{ paddingTop: '5px', paddingLeft: '15px', paddingRight: '10px', textAlign: 'center' }}>
+                <div style={{ paddingTop: "5px", paddingLeft: "15px", paddingRight: "10px", textAlign: "center" }}>
                     <button id="post-button" onClick={openChoiceModal}>
                         <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)} /> New Standalone Layer
                     </button>
@@ -147,7 +190,7 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
                         backgroundColor: "rgba(0,0,0,0.5)",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center"
+                        justifyContent: "center",
                     },
                     content: {
                         position: "static",
@@ -157,8 +200,8 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
                         borderRadius: "12px",
                         background: "#fff",
                         boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-                        textAlign: "center"
-                    }
+                        textAlign: "center",
+                    },
                 }}
             >
                 <h3 style={{ marginBottom: "20px" }}>Select Layer Type</h3>
@@ -188,19 +231,22 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
                 style={{
                     overlay: { zIndex: "1000" },
                     content: {
-                        width: '30%',
-                        right: '5px'
-                    }
+                        width: "30%",
+                        right: "5px",
+                    },
                 }}
             >
-                <NewStandaloneLayerForm
-                    authToken={props.authToken}
-                    standalone={true}
-                    groupName={props.sectionLayerId}
-                    sectionName={props.sectionLayerId}
-                    afterSubmit={closeAllModals}
-                    topLayerClass={props.sectionLayerId}
-                />
+                {layerData && (
+                    <NewStandaloneLayerForm
+                        authToken={props.authToken}
+                        standalone={true}
+                        groupName={props.sectionLayerId}
+                        sectionName={props.sectionLayerId}
+                        afterSubmit={closeAllModals}
+                        topLayerClass={props.sectionLayerId}
+                        initialValues={layerData} // Pass the layer data to the form
+                    />
+                )}
             </Modal>
         </>
     );
@@ -215,7 +261,7 @@ const buttonStyle: React.CSSProperties = {
     backgroundColor: "#f0f0f0",
     border: "1px solid #ccc",
     cursor: "pointer",
-    transition: "background-color 0.2s ease"
+    transition: "background-color 0.2s ease",
 };
 
 export default NewStandaloneLayer;
