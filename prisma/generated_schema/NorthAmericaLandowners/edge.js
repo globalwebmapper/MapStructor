@@ -269,7 +269,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\gelin\\OneDrive\\Documents\\Iowa State University\\COMS 402\\sd07_web-map\\prisma\\generated_schema\\NorthAmericaLandowners",
+      "value": "/Users/arenashlock/Documents/COMS_402c/GitLab/sd07_web-map/prisma/generated_schema/NorthAmericaLandowners",
       "fromEnvVar": null
     },
     "config": {
@@ -278,7 +278,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       },
       {
@@ -287,7 +287,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\gelin\\OneDrive\\Documents\\Iowa State University\\COMS 402\\sd07_web-map\\prisma\\schema-NAL.prisma",
+    "sourceFilePath": "/Users/arenashlock/Documents/COMS_402c/GitLab/sd07_web-map/prisma/schema-NAL.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
