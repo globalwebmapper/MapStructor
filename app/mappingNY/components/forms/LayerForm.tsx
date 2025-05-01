@@ -30,6 +30,12 @@ type SourceType =
     | "model"
     | "batched-model";
 
+    type InitialValues = {
+      sourceType: SourceType;
+      sourceUrl: string;
+    };
+
+
 type LayerFormProps = {
   groupName: string;
   sectionName: string;
@@ -38,6 +44,7 @@ type LayerFormProps = {
   authToken: string;
   standalone: boolean;
   topLayerClass?: string;
+  initialValues?: InitialValues;
 };
 
 type ZoomLevel = { zoom: number; value: number };
@@ -77,8 +84,8 @@ export default function LayerForm(props: LayerFormProps) {
       topLayerClass: props.topLayerClass ?? props.layerConfig?.topLayerClass ?? "",
       infoId: props.layerConfig?.infoId ?? "",
       type: props.layerConfig?.type ?? ("" as LayerType),
-      sourceType: props.layerConfig?.sourceType ?? "",
-      sourceUrl: props.layerConfig?.sourceUrl ?? "",
+      sourceType: props.initialValues?.sourceType ?? props.layerConfig?.sourceType ?? "",
+      sourceUrl: props.initialValues?.sourceUrl ?? props.layerConfig?.sourceUrl ?? "",
       sourceId: props.layerConfig?.sourceId ?? "",
       paint: props.layerConfig?.paint ?? "",
       sourceLayer: props.layerConfig?.sourceLayer ?? "",
@@ -357,23 +364,38 @@ export default function LayerForm(props: LayerFormProps) {
         The edits to the below method allow the endpoint to discern if the layer is of standalone type or not
         and then call the correct post api method for pushing it to the database.
       */
-      if (submitType === "POST") {
-        try {
-          const endpoint = props.standalone ? "/api/mappingNY/StandaloneLayers" : "/api/mappingNY/LayerData"
-          await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              authorization: props.authToken ?? "",
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ ...layerData }),
-          });
-          alert("Layer added successfully");
-          formik.resetForm();
-          props.afterSubmit();
-        } catch (error: any) {
-          alert(`Error: ${error.message}`);
-        }
+        if (submitType === "POST") {
+          try {
+              const endpoint = props.standalone ? "/api/mappingNY/StandaloneLayers" : "/api/mappingNY/LayerData";
+              console.log("POST Endpoint:", endpoint);
+              console.log("POST Payload:", JSON.stringify(layerData, null, 2)); // Pretty-print the payload
+      
+              const response = await fetch(endpoint, {
+                  method: "POST",
+                  headers: {
+                      authorization: props.authToken ?? "",
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ ...layerData }),
+              });
+      
+              // Log the response status and body
+              console.log("Response Status:", response.status);
+              const responseBody = await response.json();
+              console.log("Response Body:", responseBody);
+      
+              if (!response.ok) {
+                  throw new Error(responseBody.message || "Failed to add layer");
+              }
+      
+              alert("Layer added successfully");
+              formik.resetForm();
+              props.afterSubmit();
+              console.log(props.afterSubmit);
+          } catch (error: any) {
+              console.error("Error during POST request:", error);
+              alert(`Error: ${error.message}`);
+          }
       } else if (submitType === "UPDATE") {
         console.log("Inital stuff:" , { ...layerData });
         console.log("JSon String: ", JSON.stringify({...layerData}));
@@ -419,6 +441,7 @@ export default function LayerForm(props: LayerFormProps) {
             });
             alert(`Layer Deleted`);
             props.afterSubmit();
+            console.log(props.afterSubmit);
           } catch (error: any) {
             alert(`Error: ${error.message}`);
           }

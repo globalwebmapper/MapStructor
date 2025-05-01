@@ -31,6 +31,7 @@ import ExpandableLayerGroupSection from "./components/layers/layer-group-section
 import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapper.component";
 import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
 import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
+import { MapContext } from "@/app/northamerica/landowners/components/context/MapContext";
 
 
 
@@ -60,7 +61,7 @@ import {
   MapGroup as PrismaMapGroup,
   hoverItem
 } from "@/prisma/generated_schema/NorthAmericaLandowners";
-                                                                  
+
 // ---------------------------------------------------------------------------------------------------
 
 
@@ -129,7 +130,7 @@ export default function Home() {
 
   // Route to the desired URL
   const router = useRouter();
-  
+
   // Path to the site (before the hash parameters)
   const pathname = usePathname();
 
@@ -203,7 +204,7 @@ export default function Home() {
       getStandaloneLayers();
       getMaps();
       fetchButtonLinks();
-      
+
       setHasDoneInitialZoom(true);
     }
   }, []);
@@ -277,18 +278,18 @@ export default function Home() {
                         : FontAwesomeLayerIcons.LINE,
                       isSolid: false,
                     };
-                                
+
                     return newDBMap;
                   }) ?? []
                 };
-                    
+
                 return mappedGroup;
               })
             };
 
             return layer;
           });
-          
+
           setSectionLayers(returnSectionLayers);
         }
       });
@@ -426,16 +427,16 @@ export default function Home() {
               iconType: layer.iconType ? parseFromString(layer.iconType) : FontAwesomeLayerIcons.LINE,
               isSolid: false,
             };
-            
+
             return newLayer;
           });
-                  
+
           setStandaloneLayers(standaloneLayers);
         }
       });
     });
   };
-  
+
   const getMaps = () => {
     // Call the API fetch for the maps
     fetch("/api/northamerica/landowners/MapGroup", {
@@ -447,7 +448,7 @@ export default function Home() {
       maps.json()?.then((parsed) => {
         if (!!parsed && !!parsed.groups && parsed.groups.length) {
           let groups: PrismaMapGroup[] = parsed.groups;
-                
+
           let mapFilterGroups: MapFiltersGroup[] = groups.map((grp, idx) => {
             let mappedGroup: MapFiltersGroup = {
               id: grp.id,
@@ -455,7 +456,7 @@ export default function Home() {
               label: grp.label,
               maps: (grp as any).maps.map((x: PrismaMap) => {
                 console.log("ZOOOOOM", x.zoomToBounds ?? false, x)
-                    
+
                 let newDBMap: MapItem = {
                   id: x.id,
                   mapId: x.mapId,
@@ -471,14 +472,14 @@ export default function Home() {
                   name: x.mapName,
                   infoId: x.infoId ?? ''
                 };
-                        
+
                 return newDBMap;
               })
             };
-                    
+
             return mappedGroup;
           });
-                
+
           setMappedFilterItemGroups(mapFilterGroups);
         }
       }).catch((err) => {
@@ -630,7 +631,7 @@ export default function Home() {
 
       // Update the useState for future data
       setLayerOrder(TEMP_layerOrder);
-    } 
+    }
 
     // NEEDS TO BE AN ELSE IF -- Otherwise, it doesn't handle case of moving outside index range (ATA 3/18/25)
     else if (beforeIndex == layerOrder.length) {
@@ -793,7 +794,7 @@ export default function Home() {
 
         // Set the useState for any other use of the hash parameters
         setHashParams([zoom.toFixed(2).toString(), center.lat.toFixed(6).toString(), center.lng.toFixed(6).toString(), bearing.toFixed(1).toString(), pitch.toFixed(0).toString()]);
-        
+
         // Set local storage for potential reloads
         sessionStorage.setItem("hashZoom", zoom.toFixed(2).toString());
         sessionStorage.setItem("hashLat", center.lat.toFixed(6).toString());
@@ -814,7 +815,7 @@ export default function Home() {
       currBeforeMap.current?.off('moveend', updateHashParams);
       currAfterMap.current?.off('moveend', updateHashParams);
     };
-  }, [MapboxCompare, hasDoneInitialZoom]); 
+  }, [MapboxCompare, hasDoneInitialZoom]);
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -824,7 +825,7 @@ export default function Home() {
       if (!currBeforeMap.current?.isStyleLoaded() || !currAfterMap.current?.isStyleLoaded()) return;
 
       currLayers.forEach((layer) => {
-        if ( 
+        if (
             activeLayerIds.includes(layer.id) &&
             currBeforeMap.current?.getLayer(layer.id)
         ) {
@@ -1265,15 +1266,15 @@ export default function Home() {
 
 
 
-  
+
 
 
 
 
 
   function createHandleEvent(
-    beforeMap: MutableRefObject<mapboxgl.Map | null>, 
-    afterMap: MutableRefObject<mapboxgl.Map | null>, 
+    beforeMap: MutableRefObject<mapboxgl.Map | null>,
+    afterMap: MutableRefObject<mapboxgl.Map | null>,
     layerConfig: PrismaLayer
   ) {
     let hoveredId: string | number | undefined = undefined;
@@ -1618,6 +1619,8 @@ export default function Home() {
 
 
   return (
+      <MapContext.Provider value={{ beforeMap: currBeforeMap }}>
+          <div id="app-body-main">
     <div id="app-body-main">
       {/* ---------------------------------------- HEADER ---------------------------------------- */}
       <div className="header" style={{height: "73px"}}>
@@ -1637,9 +1640,9 @@ export default function Home() {
             (currAuthToken == null || currAuthToken.length == 0)
             &&
             (<a
-              className="encyclopedia" 
+              className="encyclopedia"
               // Changed login structure to now be in the same folder as the page
-              href="./login" 
+              href="./login"
               target="_blank"
             >
               Sign In
@@ -1655,9 +1658,9 @@ export default function Home() {
           {
             (currAuthToken != null && currAuthToken.length > 0)
             &&
-            (<a 
-              className="encyclopedia" 
-              onClick={() => setInPreviewMode(!inPreviewMode)} 
+            (<a
+              className="encyclopedia"
+              onClick={() => setInPreviewMode(!inPreviewMode)}
               target="_blank"
             >
               {inPreviewMode ? 'Edit Mode' : 'Preview Mode'}
@@ -1952,9 +1955,9 @@ export default function Home() {
         </>
       )}
 
-        
-        
-        
+
+
+
 
       {/* ---------------------------------------- MAP ---------------------------------------- */}
       <MapboxCompareWrapper
@@ -1986,5 +1989,7 @@ export default function Home() {
         </>
       )}
     </div>
+          </div>
+      </MapContext.Provider>
   );
 }
