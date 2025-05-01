@@ -106,9 +106,9 @@ const ExpandableLayerGroup = (props: LayerGroupProps) => {
      * Expands or collapses the layer group.
      */
     const toggleGroup = (e: any) => {
-        if(props.group.items.length > 0) {
+        // if(props.group.items.length > 0) {
             setLayerGroupExpanded(!layerGroupIsExpanded)
-        }
+        //}
         e.stopPropagation();
     }
 

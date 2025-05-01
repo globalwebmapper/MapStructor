@@ -227,20 +227,25 @@ export default function LayerForm(props: LayerFormProps) {
 
       if (values.type === "fill") {
         paint["fill-color"] = values.fillColor ?? "#e3ed58";
-        paint["fill-opacity"] = [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          ...values.zoomLevels.flatMap((level) => [
-            level.zoom,
-            [
-              "case",
-              ["boolean", ["feature-state", "hover"], false],
-              level.value + 0.3 < 1 ? level.value + 0.3 : 1,
-              level.value,
-            ],
-          ]),
-        ];
+        // This was causing some new layers to not appear unless hovered over
+        // Revert to the original if Nitin wants you to
+        // By changing this, hovering over no longer makes the opacity increase (don't think that matters...)
+        // 
+        //   paint["fill-opacity"] = [
+        //     "interpolate",
+        //     ["linear"],
+        //     ["zoom"],
+        //     ...values.zoomLevels.flatMap((level) => [
+        //       level.zoom,
+        //       [
+        //         "case",
+        //         ["boolean", ["feature-state", "hover"], false],
+        //         level.value + 0.3 < 1 ? level.value + 0.3 : 1,
+        //         level.value,
+        //       ],
+        //     ]),
+        //   ];
+        paint["fill-opacity"] = values.fillOpacity ?? 0.5;
         paint["fill-outline-color"] = values.fillOutlineColor ?? "#FF0000";
       } else if (values.type === "symbol") {
         paint["text-color"] = values.textColor ?? "#000080";
@@ -567,43 +572,44 @@ export default function LayerForm(props: LayerFormProps) {
                 style={checkboxStyling}
             />
           </div>
-
+          {props.standalone && (
+            <>
           {/*TODO: Possibly uncomment, or delete.  Need to confirm with Nitty this isn't needed anymore*/}
-          {/*<div style={{ marginBottom: "15px" }}>*/}
-          {/*  <label style={labelStyling}>Zoom Settings</label>*/}
-          {/*  <p>*/}
-          {/*    Longitude/Latitude are used to zoom to center, Bounds are used to*/}
-          {/*    zoom to bounds.*/}
-          {/*  </p>*/}
-          {/*</div>*/}
+          <div style={{ marginBottom: "15px" }}>
+            <label style={labelStyling}>Zoom Settings:</label>
+            {/* <p>
+              Longitude/Latitude are used to zoom to center, Bounds are used to
+              zoom to bounds.
+           </p> */}
+          </div>
 
-          {/*<div style={{ marginBottom: "15px" }}>*/}
-          {/*  <label htmlFor="longitude" style={labelStyling}>*/}
-          {/*    Longitude:*/}
-          {/*  </label>*/}
-          {/*  <input*/}
-          {/*      type="number"*/}
-          {/*      id="longitude"*/}
-          {/*      name="longitude"*/}
-          {/*      onChange={formik.handleChange}*/}
-          {/*      value={formik.values.longitude ?? undefined}*/}
-          {/*      style={boxStyling}*/}
-          {/*  />*/}
-          {/*</div>*/}
+          <div style={{ marginBottom: "15px" }}>
+            <label htmlFor="longitude" style={labelStyling}>
+              Longitude:
+            </label>
+            <input
+                type="number"
+                id="longitude"
+                name="longitude"
+                onChange={formik.handleChange}
+                value={formik.values.longitude ?? undefined}
+                style={boxStyling}
+            />
+          </div>
 
-          {/*<div style={{ marginBottom: "15px" }}>*/}
-          {/*  <label htmlFor="latitude" style={labelStyling}>*/}
-          {/*    Latitude:*/}
-          {/*  </label>*/}
-          {/*  <input*/}
-          {/*      type="number"*/}
-          {/*      id="latitude"*/}
-          {/*      name="latitude"*/}
-          {/*      onChange={formik.handleChange}*/}
-          {/*      value={formik.values.latitude ?? undefined}*/}
-          {/*      style={boxStyling}*/}
-          {/*  />*/}
-          {/*</div>*/}
+          <div style={{ marginBottom: "15px" }}>
+           <label htmlFor="latitude" style={labelStyling}>
+             Latitude:
+           </label>
+           <input
+                type="number"
+                id="latitude"
+                name="latitude"
+               onChange={formik.handleChange}
+                value={formik.values.latitude ?? undefined}
+                style={boxStyling}
+            />
+          </div>
 
           {/*<div style={{ marginBottom: "15px" }}>*/}
           {/*  <label htmlFor="topLeftBoundLatitude" style={labelStyling}>*/}
@@ -661,33 +667,33 @@ export default function LayerForm(props: LayerFormProps) {
           {/*  />*/}
           {/*</div>*/}
 
-          {/*<div style={{ marginBottom: "15px" }}>*/}
-          {/*  <label htmlFor="zoom" style={labelStyling}>*/}
-          {/*    Zoom:*/}
-          {/*  </label>*/}
-          {/*  <input*/}
-          {/*      type="number"*/}
-          {/*      id="zoom"*/}
-          {/*      name="zoom"*/}
-          {/*      onChange={formik.handleChange}*/}
-          {/*      value={formik.values.zoom ?? undefined}*/}
-          {/*      style={boxStyling}*/}
-          {/*  />*/}
-          {/*</div>*/}
+          <div style={{ marginBottom: "15px" }}>
+            <label htmlFor="zoom" style={labelStyling}>
+              Zoom:
+            </label>
+            <input
+                type="number"
+                id="zoom"
+                name="zoom"
+                onChange={formik.handleChange}
+                value={formik.values.zoom ?? undefined}
+                style={boxStyling}
+            />
+          </div>
 
-          {/*<div style={{ marginBottom: "15px" }}>*/}
-          {/*  <label htmlFor="bearing" style={labelStyling}>*/}
-          {/*    Bearing:*/}
-          {/*  </label>*/}
-          {/*  <input*/}
-          {/*      type="number"*/}
-          {/*      id="bearing"*/}
-          {/*      name="bearing"*/}
-          {/*      onChange={formik.handleChange}*/}
-          {/*      value={formik.values.bearing ?? undefined}*/}
-          {/*      style={boxStyling}*/}
-          {/*  />*/}
-          {/*</div>*/}
+          <div style={{ marginBottom: "15px" }}>
+            <label htmlFor="bearing" style={labelStyling}>
+              Bearing:
+            </label>
+            <input
+                type="number"
+                id="bearing"
+                name="bearing"
+                onChange={formik.handleChange}
+                value={formik.values.bearing ?? undefined}
+                style={boxStyling}
+            />
+          </div>
 
           {/*<div style={{ marginBottom: "30px" }}>*/}
           {/*  <label style={labelStyling}>Where Should This Zoom To?</label>*/}
@@ -720,6 +726,8 @@ export default function LayerForm(props: LayerFormProps) {
         <label htmlFor="topLayerClass" style={labelStyling}>Top Layer Class:</label>
         <input disabled type="text" id="topLayerClass" name="topLayerClass" onChange={formik.handleChange} value={formik.values.topLayerClass} style={boxStyling} />
       </div> */}
+      </>
+      )}
 
           <div style={{ marginBottom: "15px" }}>
             <label htmlFor="infoId" style={labelStyling}>
