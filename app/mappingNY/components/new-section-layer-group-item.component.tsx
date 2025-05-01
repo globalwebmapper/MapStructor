@@ -23,6 +23,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
     const [showChoiceModal, setShowChoiceModal] = useState<boolean>(false);
     const [showFormModal, setShowFormModal] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [layerData, setLayerData] = useState<any>(null); // State to hold layer data for the form
     const drawRef = useRef<MapboxDraw | null>(null);
     const { beforeMap } = useMap();
 
@@ -91,6 +92,27 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
         setEditMode(true); // Let useEffect handle draw setup
     }
 
+    const handleSubmitDrawnFeatures = () => {
+        if (drawRef.current) {
+            const features = drawRef.current.getAll();
+            console.log("🟢 Submitted GeoJSON features:", JSON.stringify(features));
+            
+            if (features.features.length === 0) {
+                alert("No features to submit!");
+                return;
+            }
+
+            // Prepare layer data with features as sourceUrl
+            const newLayerData = {
+                sourceType: "geojson",
+                sourceUrl: JSON.stringify(features), // Pre-populate sourceUrl with features 
+            };
+
+            setLayerData(newLayerData); // Set the layer data for the form
+            setShowFormModal(true); // Open the form modal
+        }
+    };
+
     Modal.setAppElement('#app-body-main');
 
     return (
@@ -106,12 +128,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
                     }}
                 >
                     <button
-                        onClick={() => {
-                            if (drawRef.current) {
-                                const features = drawRef.current.getAll();
-                                console.log("🟢 Submitted GeoJSON features:", JSON.stringify(features));
-                            }
-                        }}
+                        onClick={handleSubmitDrawnFeatures}
                         style={{
                             padding: '0.5rem 1rem',
                             backgroundColor: '#f8f8f8',
@@ -199,7 +216,13 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
                     groupName={props.groupName}
                     standalone={false}
                     sectionName={props.sectionName}
-                    afterSubmit={closeAllModals}
+                    afterSubmit={() => {
+                        closeAllModals(); // Close the modal
+                        if (drawRef.current) {
+                         drawRef.current.deleteAll(); // Clear all drawn features
+                            }
+                         }}
+                    initialValues={layerData} 
                 />
             </Modal>
         </>

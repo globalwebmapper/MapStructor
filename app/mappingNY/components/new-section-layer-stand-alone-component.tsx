@@ -99,42 +99,16 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
         if (drawRef.current) {
             const features = drawRef.current.getAll();
             console.log("🟢 Submitted GeoJSON features:", JSON.stringify(features));
+            
+            if (features.features.length === 0) {
+                alert("No features to submit!");
+                return;
+            }
 
             // Prepare layer data with features as sourceUrl
             const newLayerData = {
-                name: "",
-                iconColor: "",
-                iconType: "",
-                label: "",
-                longitude: 0,
-                latitude: 0,
-                zoom: 0,
-                bearing: 0,
-                topLayerClass: "",
-                infoId: "",
-                type: "line",
                 sourceType: "geojson",
-                sourceUrl: JSON.stringify(features), // Pre-populate sourceUrl with features
-                sourceId: "",
-                paint: "{\"line-color\":\"#ff0040\",\"line-width\":8,\"line-blur\":0,\"line-opacity\":1}",
-                layout: "{\"text-field\":\"{name}\",\"text-size\":12,\"text-offset\":[0,1],\"icon-image\":\"\",\"icon-size\":0.5}",
-                sourceLayer: "",
-                hover: false,
-                time: false,
-                click: false,
-                hoverStyle: "",
-                clickStyle: "",
-                clickHeader: "",
-                order: 1,
-                viewOrder: 1,
-                standalone: true,
-                hoverContent: [],
-                topLeftBoundLatitude: null,
-                topLeftBoundLongitude: null,
-                bottomRightBoundLatitude: null,
-                bottomRightBoundLongitude: null,
-                zoomToBounds: false,
-                enableByDefault: false,
+                sourceUrl: JSON.stringify(features), // Pre-populate sourceUrl with features 
             };
 
             setLayerData(newLayerData); // Set the layer data for the form
@@ -236,17 +210,20 @@ const NewStandaloneLayer = (props: LayerFormButtonProps) => {
                     },
                 }}
             >
-                {layerData && (
                     <NewStandaloneLayerForm
                         authToken={props.authToken}
                         standalone={true}
                         groupName={props.sectionLayerId}
                         sectionName={props.sectionLayerId}
-                        afterSubmit={closeAllModals}
+                        afterSubmit={() => {
+                        closeAllModals(); // Close the modal
+                        if (drawRef.current) {
+                         drawRef.current.deleteAll(); // Clear all drawn features
+                            }
+                         }}
                         topLayerClass={props.sectionLayerId}
                         initialValues={layerData} // Pass the layer data to the form
                     />
-                )}
             </Modal>
         </>
     );

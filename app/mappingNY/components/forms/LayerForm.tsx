@@ -31,69 +31,8 @@ type SourceType =
     | "batched-model";
 
     type InitialValues = {
-      name: string;
-      iconColor: string;
-      iconType: string;
-      label: string;
-      longitude: number | null;
-      latitude: number | null;
-      zoom: number | null;
-      bearing: number | null;
-      topLeftBoundLatitude: number | null;
-      topLeftBoundLongitude: number | null;
-      bottomRightBoundLatitude: number | null;
-      bottomRightBoundLongitude: number | null;
-      zoomToBounds: boolean;
-      enableByDefault: boolean;
-      topLayerClass: string;
-      infoId: string;
-      type: LayerType;
       sourceType: SourceType;
       sourceUrl: string;
-      sourceId: string;
-      paint: string;
-      sourceLayer: string;
-      hover: boolean;
-      click: boolean;
-      time: boolean;
-      hoverStyle: string;
-      clickStyle: string;
-      clickHeader: string;
-      hoverContent: { label: string; type: string }[];
-      fillColor: string;
-      fillOpacity: number;
-      fillOutlineColor: string;
-      textColor: string;
-      textHaloColor: string;
-      textHaloWidth: number;
-      circleColor: string;
-      circleOpacity: number;
-      circleRadius: number;
-      circleStrokeColor: string;
-      circleStrokeWidth: number;
-      lineColor: string;
-      lineWidth: number;
-      lineBlur: number;
-      lineOpacity: number;
-      textSizeDefault: number;
-      useTextSizeZoomStyling: boolean;
-      useIconSizeZoomStyling: boolean;
-      useLineZoomStyling: boolean;
-      useFillZoomStyling: boolean;
-      useCircleZoomStyling: boolean;
-      iconSizeDefault: number;
-      zoomLevels: ZoomLevel[];
-      textZoomLevels: ZoomLevel[];
-      circleRadiusZoomLevels: ZoomLevel[];
-      lineWidthZoomLevels: ZoomLevel[];
-      layout: {
-        "text-field": string;
-        "text-size": number | (string | number)[]; // Can be a number or an array for interpolation
-        "text-offset": [number, number];
-        "icon-image": string;
-        "icon-size": number | (string | number)[]; // Can be a number or an array for interpolation
-      };
-      standalone: boolean;
     };
 
 
@@ -123,7 +62,7 @@ export default function LayerForm(props: LayerFormProps) {
 
   const formik = useFormik({
     enableReinitialize: true,
-    initialValues: props.initialValues ?? {
+    initialValues: {
       name: props.layerConfig?.name ?? "",
       iconColor: props.layerConfig?.iconColor ?? "#000000",
       iconType: props.layerConfig?.iconType ?? "",
@@ -145,8 +84,8 @@ export default function LayerForm(props: LayerFormProps) {
       topLayerClass: props.topLayerClass ?? props.layerConfig?.topLayerClass ?? "",
       infoId: props.layerConfig?.infoId ?? "",
       type: props.layerConfig?.type ?? ("" as LayerType),
-      sourceType: props.layerConfig?.sourceType ?? "",
-      sourceUrl: props.layerConfig?.sourceUrl ?? "",
+      sourceType: props.initialValues?.sourceType ?? props.layerConfig?.sourceType ?? "",
+      sourceUrl: props.initialValues?.sourceUrl ?? props.layerConfig?.sourceUrl ?? "",
       sourceId: props.layerConfig?.sourceId ?? "",
       paint: props.layerConfig?.paint ?? "",
       sourceLayer: props.layerConfig?.sourceLayer ?? "",
@@ -420,23 +359,38 @@ export default function LayerForm(props: LayerFormProps) {
         The edits to the below method allow the endpoint to discern if the layer is of standalone type or not
         and then call the correct post api method for pushing it to the database.
       */
-      if (submitType === "POST") {
-        try {
-          const endpoint = props.standalone ? "/api/mappingNY/StandaloneLayers" : "/api/mappingNY/LayerData"
-          await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              authorization: props.authToken ?? "",
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ ...layerData }),
-          });
-          alert("Layer added successfully");
-          formik.resetForm();
-          props.afterSubmit();
-        } catch (error: any) {
-          alert(`Error: ${error.message}`);
-        }
+        if (submitType === "POST") {
+          try {
+              const endpoint = props.standalone ? "/api/mappingNY/StandaloneLayers" : "/api/mappingNY/LayerData";
+              console.log("POST Endpoint:", endpoint);
+              console.log("POST Payload:", JSON.stringify(layerData, null, 2)); // Pretty-print the payload
+      
+              const response = await fetch(endpoint, {
+                  method: "POST",
+                  headers: {
+                      authorization: props.authToken ?? "",
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ ...layerData }),
+              });
+      
+              // Log the response status and body
+              console.log("Response Status:", response.status);
+              const responseBody = await response.json();
+              console.log("Response Body:", responseBody);
+      
+              if (!response.ok) {
+                  throw new Error(responseBody.message || "Failed to add layer");
+              }
+      
+              alert("Layer added successfully");
+              formik.resetForm();
+              props.afterSubmit();
+              console.log(props.afterSubmit);
+          } catch (error: any) {
+              console.error("Error during POST request:", error);
+              alert(`Error: ${error.message}`);
+          }
       } else if (submitType === "UPDATE") {
         console.log("Inital stuff:" , { ...layerData });
         console.log("JSon String: ", JSON.stringify({...layerData}));
@@ -482,6 +436,7 @@ export default function LayerForm(props: LayerFormProps) {
             });
             alert(`Layer Deleted`);
             props.afterSubmit();
+            console.log(props.afterSubmit);
           } catch (error: any) {
             alert(`Error: ${error.message}`);
           }

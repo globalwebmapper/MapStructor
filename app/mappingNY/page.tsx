@@ -1489,7 +1489,9 @@ export default function Home() {
             }
             //Remove layer and source from map
             map.current!.removeLayer(id);
+            if(map.current!.getSource(id)){
             map.current!.removeSource(id);
+            }
             //Clean up the stored handler
             delete (map.current as any)._eventHandlers[id];
         }
