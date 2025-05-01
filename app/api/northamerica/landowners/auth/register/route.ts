@@ -8,12 +8,13 @@ const prisma = new PrismaClient();
 // Register 
 export async function POST(request: Request) {
 
-    if(!Auth(request)){ //protected endpoint
-        return NextResponse.json({
-            message: "Not Authorized",
-            error: "Auth Token Invaild",
-        }, {status: 401});
-      }
+    // Not needed since we are CREATING a user, not AUTHENTICATING
+    // if(!Auth(request)){ //protected endpoint
+    //     return NextResponse.json({
+    //         message: "Not Authorized",
+    //         error: "Auth Token Invaild",
+    //     }, {status: 401});
+    //   }
       
     const user: User = await request.json();
 

@@ -92,7 +92,7 @@ export default function Home() {
   const [layerOrder, setLayerOrder] = useState<PrismaLayer[]>([]);
 
   // -------------------------------------------------------------------------
-  const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1950-01-01", "YYYY-MM-DD") );
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1950-01-01", "YYYY-MM-DD"));
   const [popUp, setPopUp] = useState<GenericPopUpProps>({
     layerName: "",
     nid: "",
@@ -162,7 +162,7 @@ export default function Home() {
       const previousBearing = sessionStorage.getItem("hashBearing");
       const previousPitch = sessionStorage.getItem("hashPitch");
 
-      if(previousZoom && previousLat && previousLng && previousBearing && previousPitch) {
+      if (previousZoom && previousLat && previousLng && previousBearing && previousPitch) {
         // Logs for debugging
         /* console.log("After reload -- PREVIOUS HASH FOUND");
         console.log("Zoom", previousZoom);
@@ -324,70 +324,70 @@ export default function Home() {
           let labels: PrismaZoomLabel[] = parsed.zoomLabel;
 
           let parsedZoomLabels: ZoomLabel[] =
-              labels?.map((lbl) => {
-                let currLbl: ZoomLabel = {
-                  title: lbl.title,
-                  center:
-                      lbl.centerLongitude && lbl.centerLatitude
-                          ? [lbl.centerLongitude, lbl.centerLatitude]
-                          : undefined,
-                  bounds:
-                      lbl.topLeftBoundLongitude &&
-                      lbl.topLeftBoundLatitude &&
-                      lbl.bottomRightBoundLongitude &&
-                      lbl.bottomRightBoundLatitude
-                          ? [
-                            [lbl.topLeftBoundLongitude, lbl.topLeftBoundLatitude],
-                            [
-                              lbl.bottomRightBoundLongitude,
-                              lbl.bottomRightBoundLatitude,
-                            ],
-                          ]
-                          : undefined,
-                  zoom: lbl.zoom ?? undefined,
-                  bearing: lbl.bearing ?? undefined,
-                  zoomToBounds: false,
-                  textStyling: {
-                    useTextSizeZoomStyling: lbl.useTextSizeZoomStyling,
-                    textSizeDefault: lbl.textSizeDefault,
-                    textSizeStops: [
-                      [lbl.textSizeStopsZoom1, lbl.textSizeStopsVal1],
-                      [lbl.textSizeStopsZoom2, lbl.textSizeStopsVal2],
-                    ],
-                    useTextColorZoomStyling: lbl.useTextColorZoomStyling,
-                    textColorDefault: lbl.textColorDefault,
-                    textColorStops: [
-                      [lbl.textColorStopsZoom1, lbl.textColorStopsVal1],
-                      [lbl.textColorStopsZoom2, lbl.textColorStopsVal2],
-                    ],
-                    useTextHaloWidthZoomStyling: lbl.useTextHaloWidthZoomStyling,
-                    textHaloWidthDefault: lbl.textHaloWidthDefault,
-                    textHaloWidthStops: [
-                      [lbl.textHaloWidthStopsZoom1, lbl.textHaloBlurStopsVal1],
-                      [lbl.textHaloWidthStopsZoom2, lbl.textHaloBlurStopsVal2],
-                    ],
-                    useTextHaloBlurZoomStyling: lbl.useTextHaloBlurZoomStyling,
-                    textHaloBlurDefault: lbl.textHaloBlurDefault,
-                    textHaloBlurStops: [
-                      [lbl.textHaloBlurStopsZoom1, lbl.textHaloBlurStopsVal1],
-                      [lbl.textHaloBlurStopsZoom2, lbl.textHaloBlurStopsVal2],
-                    ],
-                    useTextHaloColorZoomStyling: lbl.useTextHaloColorZoomStyling,
-                    textHaloColorDefault: lbl.textHaloColorDefault,
-                    textHaloColorStops: [
-                      [lbl.textHaloColorStopsZoom1, lbl.textHaloColorStopsVal1],
-                      [lbl.textHaloColorStopsZoom2, lbl.textHaloColorStopsVal2],
-                    ],
-                    useTextOpacityZoomStyling: lbl.useTextOpacityZoomStyling,
-                    textOpacityDefault: lbl.textOpacityDefault,
-                    textOpacityStops: [
-                      [lbl.textOpacityStopsZoom1, lbl.textOpacityStopsVal1],
-                      [lbl.textOpacityStopsZoom2, lbl.textOpacityStopsVal2],
-                    ],
-                  },
-                };
-                return currLbl;
-              }) ?? [];
+            labels?.map((lbl) => {
+              let currLbl: ZoomLabel = {
+                title: lbl.title,
+                center:
+                  lbl.centerLongitude && lbl.centerLatitude
+                    ? [lbl.centerLongitude, lbl.centerLatitude]
+                    : undefined,
+                bounds:
+                  lbl.topLeftBoundLongitude &&
+                    lbl.topLeftBoundLatitude &&
+                    lbl.bottomRightBoundLongitude &&
+                    lbl.bottomRightBoundLatitude
+                    ? [
+                      [lbl.topLeftBoundLongitude, lbl.topLeftBoundLatitude],
+                      [
+                        lbl.bottomRightBoundLongitude,
+                        lbl.bottomRightBoundLatitude,
+                      ],
+                    ]
+                    : undefined,
+                zoom: lbl.zoom ?? undefined,
+                bearing: lbl.bearing ?? undefined,
+                zoomToBounds: false,
+                textStyling: {
+                  useTextSizeZoomStyling: lbl.useTextSizeZoomStyling,
+                  textSizeDefault: lbl.textSizeDefault,
+                  textSizeStops: [
+                    [lbl.textSizeStopsZoom1, lbl.textSizeStopsVal1],
+                    [lbl.textSizeStopsZoom2, lbl.textSizeStopsVal2],
+                  ],
+                  useTextColorZoomStyling: lbl.useTextColorZoomStyling,
+                  textColorDefault: lbl.textColorDefault,
+                  textColorStops: [
+                    [lbl.textColorStopsZoom1, lbl.textColorStopsVal1],
+                    [lbl.textColorStopsZoom2, lbl.textColorStopsVal2],
+                  ],
+                  useTextHaloWidthZoomStyling: lbl.useTextHaloWidthZoomStyling,
+                  textHaloWidthDefault: lbl.textHaloWidthDefault,
+                  textHaloWidthStops: [
+                    [lbl.textHaloWidthStopsZoom1, lbl.textHaloBlurStopsVal1],
+                    [lbl.textHaloWidthStopsZoom2, lbl.textHaloBlurStopsVal2],
+                  ],
+                  useTextHaloBlurZoomStyling: lbl.useTextHaloBlurZoomStyling,
+                  textHaloBlurDefault: lbl.textHaloBlurDefault,
+                  textHaloBlurStops: [
+                    [lbl.textHaloBlurStopsZoom1, lbl.textHaloBlurStopsVal1],
+                    [lbl.textHaloBlurStopsZoom2, lbl.textHaloBlurStopsVal2],
+                  ],
+                  useTextHaloColorZoomStyling: lbl.useTextHaloColorZoomStyling,
+                  textHaloColorDefault: lbl.textHaloColorDefault,
+                  textHaloColorStops: [
+                    [lbl.textHaloColorStopsZoom1, lbl.textHaloColorStopsVal1],
+                    [lbl.textHaloColorStopsZoom2, lbl.textHaloColorStopsVal2],
+                  ],
+                  useTextOpacityZoomStyling: lbl.useTextOpacityZoomStyling,
+                  textOpacityDefault: lbl.textOpacityDefault,
+                  textOpacityStops: [
+                    [lbl.textOpacityStopsZoom1, lbl.textOpacityStopsVal1],
+                    [lbl.textOpacityStopsZoom2, lbl.textOpacityStopsVal2],
+                  ],
+                },
+              };
+              return currLbl;
+            }) ?? [];
           addZoomLayers(parsedZoomLabels);
           setCurrZoomLayers(parsedZoomLabels);
         }
@@ -746,7 +746,7 @@ export default function Home() {
     );
 
     const compareSwiper = document.querySelector(
-        ".compare-swiper"
+      ".compare-swiper"
     ) as HTMLElement;
     if (compareSwiper && !modalOpen) {
       compareSwiper.innerHTML = "";
@@ -826,37 +826,34 @@ export default function Home() {
 
       currLayers.forEach((layer) => {
         if (
-            activeLayerIds.includes(layer.id) &&
-            currBeforeMap.current?.getLayer(layer.id)
+          activeLayerIds.includes(layer.id) &&
+          currBeforeMap.current?.getLayer(layer.id)
         ) {
           currBeforeMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
           currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "visible");
         }
         else {
           currBeforeMap.current!.setLayoutProperty(
-              layer.id,
-              "visibility",
-              "none"
+            layer.id,
+            "visibility",
+            "none"
           );
           currAfterMap.current!.setLayoutProperty(
-              layer.id,
-              "visibility",
-              "none"
+            layer.id,
+            "visibility",
+            "none"
           );
           const popupBefore = activePopupsBefore.current.get(layer.id);
           const popupAfter = activePopupsAfter.current.get(layer.id);
-          if (popupBefore)
-          {
+          if (popupBefore) {
             popupBefore.remove();
             activePopupsBefore.current.delete(layer.id);
           }
-          if (popupAfter)
-          {
+          if (popupAfter) {
             popupAfter.remove();
             activePopupsAfter.current.delete(layer.id);
           }
-          if(popUpVisible)
-          {
+          if (popUpVisible) {
             setPopUpVisible(false);
           }
         }
@@ -890,13 +887,13 @@ export default function Home() {
   useEffect(() => {
     if (!MapboxCompare || !comparisonContainerRef.current) return;
     const mapboxCompare = new MapboxCompare(
-        currBeforeMap.current,
-        currAfterMap.current,
-        comparisonContainerRef.current as HTMLElement
+      currBeforeMap.current,
+      currAfterMap.current,
+      comparisonContainerRef.current as HTMLElement
     );
 
     const compareSwiper = document.querySelector(
-        ".compare-swiper"
+      ".compare-swiper"
     ) as HTMLElement;
     if (compareSwiper && !modalOpen) {
       compareSwiper.innerHTML = "";
@@ -945,37 +942,32 @@ export default function Home() {
   useEffect(() => {
     if (!currDate) return;
 
-    var date = parseInt(currDate.format("YYYYMMDD"));
-
-    var dateFilter: FilterSpecification = [
+    const date = parseInt(currDate.format("YYYYMMDD"));
+    const dateFilter: FilterSpecification = [
       "all",
       ["<=", ["get", "DayStart"], date],
       [">=", ["get", "DayEnd"], date],
     ];
 
-    activeLayerIds.forEach((lid) => {
-      if (currBeforeMap.current?.getLayer(lid) !== null && currBeforeMap.current?.getLayer(lid)?.filter !== undefined) {
-        currBeforeMap.current?.setFilter(lid, dateFilter);
-      }
+    const map = currBeforeMap.current;
+    const afterMap = currAfterMap.current;
 
-      if (currAfterMap.current?.getLayer(lid) !== null && currAfterMap.current?.getLayer(lid)?.filter !== undefined) {
-        currAfterMap.current?.setFilter(lid, dateFilter);
-      }
+    requestAnimationFrame(() => {
+      activeLayerIds.forEach((lid) => {
+        const visibility = map?.getLayoutProperty(lid, "visibility");
+        if (visibility !== "none") {
+          map?.setFilter(lid, dateFilter);
+          afterMap?.setFilter(lid, dateFilter);
+        }
+      });
     });
   }, [currDate, activeLayerIds]);
 
 
 
-
-
-
-
-
-
-
   const setMapStyle = (
-      map: MutableRefObject<mapboxgl.Map | null>,
-      mapId: string
+    map: MutableRefObject<mapboxgl.Map | null>,
+    mapId: string
   ) => {
     if (map?.current) {
       map.current.setStyle(`mapbox://styles/mapny/${mapId.trim()}`);
@@ -993,27 +985,27 @@ export default function Home() {
     if (currAfterMap != null && currBeforeMap != null) {
       layerData.forEach((label) => {
         addInteractivityToLabel(
-            currAfterMap,
-            label,
-            false,
-            router,
-            pathname ?? ""
+          currAfterMap,
+          label,
+          false,
+          router,
+          pathname ?? ""
         );
         addInteractivityToLabel(
-            currBeforeMap,
-            label,
-            true,
-            router,
-            pathname ?? ""
+          currBeforeMap,
+          label,
+          true,
+          router,
+          pathname ?? ""
         );
       });
     }
   };
 
   const addMapLayer = (
-      beforeMap: MutableRefObject<mapboxgl.Map | null>,
-      afterMap: MutableRefObject<mapboxgl.Map | null>,
-      layerConfig: PrismaLayer
+    beforeMap: MutableRefObject<mapboxgl.Map | null>,
+    afterMap: MutableRefObject<mapboxgl.Map | null>,
+    layerConfig: PrismaLayer
   ) => {
     if (beforeMap?.current == null || afterMap?.current == null) return;
 
@@ -1037,8 +1029,8 @@ export default function Home() {
     // Parses the paint string into a JSON object
     const parsedPaint = layerConfig.paint ? JSON.parse(layerConfig.paint) : {};
     const parsedLayout = layerConfig.layout
-        ? JSON.parse(layerConfig.layout)
-        : {};
+      ? JSON.parse(layerConfig.layout)
+      : {};
 
     if (layerTypes.includes(layerConfig.type)) {
       let paint = {};
@@ -1068,36 +1060,36 @@ export default function Home() {
           "text-field": parsedLayout["text-field"] ?? "{name}", // Default text
           // "text-offset": Array.isArray(parsedLayout["text-offset"]),
           "text-size": Array.isArray(parsedLayout["text-size"])
-              ? parsedLayout["text-size"] // Use existing interpolation array
-              : parsedLayout["text-size"]?.useTextSizeZoomStyling
-                  ? [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                    ...(parsedLayout["text-size"].textSizeStops ?? [
-                      6,
-                      0,
-                      8,
-                      7,
-                      15,
-                      17,
-                      20,
-                      25, // Invisible at zoom 8, visible and larger as you zoom in
-                    ]),
-                  ]
-                  : parsedLayout["text-size"]?.textSizeDefault ?? 12,
-          "text-anchor": parsedLayout["text-anchor"] ?? "top",
-          "icon-image": parsedLayout["icon-image"] ?? "marker-icon",
-          "icon-size": parsedLayout["icon-size"]?.useIconSizeZoomStyling
+            ? parsedLayout["text-size"] // Use existing interpolation array
+            : parsedLayout["text-size"]?.useTextSizeZoomStyling
               ? [
                 "interpolate",
                 ["linear"],
                 ["zoom"],
-                ...(parsedLayout["icon-size"].iconSizeStops ?? [
-                  8, 0.5, 15, 1.0,
+                ...(parsedLayout["text-size"].textSizeStops ?? [
+                  6,
+                  0,
+                  8,
+                  7,
+                  15,
+                  17,
+                  20,
+                  25, // Invisible at zoom 8, visible and larger as you zoom in
                 ]),
               ]
-              : parsedLayout["icon-size"]?.iconSizeDefault ?? 0.5,
+              : parsedLayout["text-size"]?.textSizeDefault ?? 12,
+          "text-anchor": parsedLayout["text-anchor"] ?? "top",
+          "icon-image": parsedLayout["icon-image"] ?? "marker-icon",
+          "icon-size": parsedLayout["icon-size"]?.useIconSizeZoomStyling
+            ? [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              ...(parsedLayout["icon-size"].iconSizeStops ?? [
+                8, 0.5, 15, 1.0,
+              ]),
+            ]
+            : parsedLayout["icon-size"]?.iconSizeDefault ?? 0.5,
         };
       } else if (layerConfig.type === "circle") {
         paint = {
@@ -1117,7 +1109,7 @@ export default function Home() {
             ]),
           ],
           "circle-stroke-color":
-              parsedPaint["circle-stroke-color"] ?? "#000000",
+            parsedPaint["circle-stroke-color"] ?? "#000000",
           "circle-stroke-width": parsedPaint["circle-stroke-width"] ?? 1,
           "circle-stroke-opacity": parsedPaint["circle-stroke-opacity"] ?? [
             "interpolate",
@@ -1231,7 +1223,7 @@ export default function Home() {
 
           // Store the reference to the handler in a way you can access it later if needed
           (beforeMap.current as any)._eventHandlers =
-              (beforeMap.current as any)._eventHandlers || {};
+            (beforeMap.current as any)._eventHandlers || {};
           (beforeMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
       });
@@ -1256,7 +1248,7 @@ export default function Home() {
 
           // Store the reference to the handler in a way you can access it later if needed
           (afterMap.current as any)._eventHandlers =
-              (afterMap.current as any)._eventHandlers || {};
+            (afterMap.current as any)._eventHandlers || {};
           (afterMap.current as any)._eventHandlers[layerConfig.id] = handleEvent;
         }
       });
@@ -1285,10 +1277,10 @@ export default function Home() {
     var newNid: number | string | undefined;
     var previousName: string | undefined;
     var newName: string | undefined;
-    let beforeHoverPopup = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
-    let beforeClickHoverPopUp = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
-    let afterHoverPopup = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
-    let afterClickHoverPopUp = new mapboxgl.Popup({closeOnClick: false, closeButton: false});
+    let beforeHoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false });
+    let beforeClickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false });
+    let afterHoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false });
+    let afterClickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false });
 
 
 
@@ -1304,19 +1296,15 @@ export default function Home() {
         const nidVals = nIdPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
         const unknowNid = nidVals.length > 0 ? nidVals[0] : undefined;
 
-        if(typeof unknowNid === 'number')
-        {
+        if (typeof unknowNid === 'number') {
           newNid = unknowNid;
         }
-        else
-        {
+        else {
           const match = unknowNid.match(/\d+/);
-          if(match)
-          {
+          if (match) {
             newNid = parseInt(match[0], 10);
           }
-          else
-          {
+          else {
             newNid = undefined;
           }
         }
@@ -1353,9 +1341,9 @@ export default function Home() {
           activePopupsBefore.current.delete(layerConfig.id);
           activePopupsAfter.current.delete(layerConfig.id);
         } else if (
-            clickVisible &&
-            previousName &&
-            previousName === newName
+          clickVisible &&
+          previousName &&
+          previousName === newName
         ) {
           clickVisible = false;
           setPopUpVisible(clickVisible);
@@ -1376,7 +1364,7 @@ export default function Home() {
         }
       } else if (e.type === "mousemove" && layerConfig.hover) {
         hoverStyleString =
-            "<div class='" + layerConfig.hoverStyle + "HoverPopup'>";
+          "<div class='" + layerConfig.hoverStyle + "HoverPopup'>";
         //Setup some sort of check on LayerConfig
         //Sample data maybe? [{label: "", type: "LOT"}, {label: "Name", type: "NAME"}, {label: "", type: "DATE-START"}, {label: "", type: "DATE-END"}]
         layerConfig.hoverContent.map((item: hoverItem) => {
@@ -1387,16 +1375,14 @@ export default function Home() {
             let namePropNames: string[] = ['name', 'Name', 'NAME', 'name_txt', 'OwnerName', 'to'];
             const nameVals = namePropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
             const name: string = nameVals.length > 0 ? nameVals[0] : undefined;
-            if(name)
-            {
+            if (name) {
               hoverStyleString += name + "<br>";
             }
           } else if (item.type === "LOT") {
             let lotPropNames: string[] = ['LOT2', 'TAXLOT', 'Lot', 'dutchlot', 'lot2'];
             const lotVals = lotPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
             const lot: string = lotVals.length > 0 ? lotVals[0] : undefined;
-            if(lot)
-            {
+            if (lot) {
               hoverStyleString += lot + "<br>";
             }
           } else if (item.type === "DATE-START") {
@@ -1406,12 +1392,10 @@ export default function Home() {
             let yearStartPropNames: string[] = ['year1'];
             const yearStartVals = yearStartPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
             const yearStart: string = yearStartVals.length > 0 ? yearStartVals[0] : undefined;
-            if(dayStart)
-            {
+            if (dayStart) {
               hoverStyleString += dayStart + ", ";
             }
-            if(yearStart)
-            {
+            if (yearStart) {
               hoverStyleString += yearStart;
             }
             hoverStyleString += "<br>";
@@ -1422,12 +1406,10 @@ export default function Home() {
             let yearEndPropNames: string[] = ['year2'];
             const yearEndVals = yearEndPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
             const yearEnd: string = yearEndVals.length > 0 ? yearEndVals[0] : undefined;
-            if(dayEnd)
-            {
+            if (dayEnd) {
               hoverStyleString += dayEnd + ", ";
             }
-            if(yearEnd)
-            {
+            if (yearEnd) {
               hoverStyleString += yearEnd;
             }
             hoverStyleString += "<br>";
@@ -1435,8 +1417,7 @@ export default function Home() {
             let addressPropNames: string[] = ['Address'];
             const addressVals = addressPropNames.map(x => e.features[0].properties[x]).filter(y => y != null);
             const address: string = addressVals.length > 0 ? addressVals[0] : undefined;
-            if(address)
-            {
+            if (address) {
               hoverStyleString += address + "<br>";
             }
           }
@@ -1445,72 +1426,72 @@ export default function Home() {
         if (e.features?.length) {
           if (hoveredId !== null) {
             beforeMap.current!.setFeatureState(
-                {
-                  source: layerConfig.id,
-                  sourceLayer: layerConfig.sourceLayer,
-                  id: hoveredId,
-                } as any,
-                { hover: false }
+              {
+                source: layerConfig.id,
+                sourceLayer: layerConfig.sourceLayer,
+                id: hoveredId,
+              } as any,
+              { hover: false }
             );
             afterMap.current!.setFeatureState(
-                {
-                  source: layerConfig.id,
-                  sourceLayer: layerConfig.sourceLayer,
-                  id: hoveredId,
-                } as any,
-                { hover: false }
+              {
+                source: layerConfig.id,
+                sourceLayer: layerConfig.sourceLayer,
+                id: hoveredId,
+              } as any,
+              { hover: false }
             );
           }
 
           if (e.features[0].id !== undefined) {
             hoveredId = e.features[0].id;
             beforeMap.current!.setFeatureState(
-                {
-                  source: layerConfig.id,
-                  sourceLayer: layerConfig.sourceLayer,
-                  id: hoveredId,
-                } as any,
-                { hover: true }
+              {
+                source: layerConfig.id,
+                sourceLayer: layerConfig.sourceLayer,
+                id: hoveredId,
+              } as any,
+              { hover: true }
             );
             beforeMap.current!.getCanvas().style.cursor = "pointer";
             afterMap.current!.setFeatureState(
-                {
-                  source: layerConfig.id,
-                  sourceLayer: layerConfig.sourceLayer,
-                  id: hoveredId,
-                } as any,
-                { hover: true }
+              {
+                source: layerConfig.id,
+                sourceLayer: layerConfig.sourceLayer,
+                id: hoveredId,
+              } as any,
+              { hover: true }
             );
             afterMap.current!.getCanvas().style.cursor = "pointer";
           }
           beforeHoverPopup
-              .setHTML(hoverStyleString)
-              .setLngLat(e.lngLat)
-              .addTo(beforeMap.current!);
+            .setHTML(hoverStyleString)
+            .setLngLat(e.lngLat)
+            .addTo(beforeMap.current!);
           afterHoverPopup
-              .setHTML(hoverStyleString)
-              .setLngLat(e.lngLat)
-              .addTo(afterMap.current!);
+            .setHTML(hoverStyleString)
+            .setLngLat(e.lngLat)
+            .addTo(afterMap.current!);
         }
       } else if (e.type === "mouseleave" && layerConfig.hover) {
         beforeMap.current!.getCanvas().style.cursor = "";
         afterMap.current!.getCanvas().style.cursor = "";
         if (hoveredId) {
           beforeMap.current!.setFeatureState(
-              {
-                source: layerConfig.id,
-                sourceLayer: layerConfig.sourceLayer,
-                id: hoveredId,
-              },
-              { hover: false }
+            {
+              source: layerConfig.id,
+              sourceLayer: layerConfig.sourceLayer,
+              id: hoveredId,
+            },
+            { hover: false }
           );
           afterMap.current!.setFeatureState(
-              {
-                source: layerConfig.id,
-                sourceLayer: layerConfig.sourceLayer,
-                id: hoveredId,
-              },
-              { hover: false }
+            {
+              source: layerConfig.id,
+              sourceLayer: layerConfig.sourceLayer,
+              id: hoveredId,
+            },
+            { hover: false }
           );
           hoveredId = undefined;
         }
@@ -1525,8 +1506,8 @@ export default function Home() {
     removeMapLayer(currAfterMap, id);
   };
   const removeMapLayer = (
-      map: MutableRefObject<mapboxgl.Map | null>,
-      id: string
+    map: MutableRefObject<mapboxgl.Map | null>,
+    id: string
   ) => {
     if (map === null) return;
     //Remove the layer
@@ -1605,7 +1586,7 @@ export default function Home() {
   };
 
   const displayPage = () => {
-    if(pageCode === "spring24nitin") {
+    if (pageCode === "spring24nitin") {
       sessionStorage.setItem("pageVisible", "true");
       setPageVisible(true);
     }
@@ -1623,7 +1604,7 @@ export default function Home() {
           <div id="app-body-main">
     <div id="app-body-main">
       {/* ---------------------------------------- HEADER ---------------------------------------- */}
-      <div className="header" style={{height: "73px"}}>
+      <div className="header" style={{ height: "73px" }}>
         <a href="/" className="logo">
           <img
             id="logo-img-wide"
@@ -1632,7 +1613,7 @@ export default function Home() {
         </a>
 
         <div id="header_text" className="headerText">
-          <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| North America - Landowners</span>
+          <span id="headerTextSuffix" style={{ fontSize: "24.3px" }}>| North America - Landowners</span>
         </div>
 
         <div className="header-right">
@@ -1675,27 +1656,28 @@ export default function Home() {
 
       {/* --------------------------------------- PASSWORD --------------------------------------- */}
       {!pageVisible && (
-          <div
-            style={{
-              zIndex: "99999",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100vh",
-              textAlign: "center"}}
-          >
-            <h1>In order to view page, enter the code</h1>
-            <input
-              id="code-input"
-              type="text"
-              placeholder="code..."
-              onChange={(e) => setPageCode(e.target.value)}
-              style={{padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333"}}
-            />
-            <button onClick={() => displayPage()} style={{padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333", backgroundColor: "lightgray"}}>Submit</button>
-          </div>
-        )
+        <div
+          style={{
+            zIndex: "99999",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
+            textAlign: "center"
+          }}
+        >
+          <h1>In order to view page, enter the code</h1>
+          <input
+            id="code-input"
+            type="text"
+            placeholder="code..."
+            onChange={(e) => setPageCode(e.target.value)}
+            style={{ padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333" }}
+          />
+          <button onClick={() => displayPage()} style={{ padding: "10px", fontSize: "16px", marginTop: "10px", border: "2px solid #333", backgroundColor: "lightgray" }}>Submit</button>
+        </div>
+      )
       }
 
 
@@ -1722,10 +1704,10 @@ export default function Home() {
           >
             {
               layerPanelVisible
-              ?
-              (<span id="dir-txt" style={{fontSize: '13px'}}>&#9204;</span>)
-              :
-              (<span id="dir-txt">⏵</span>)
+                ?
+                (<span id="dir-txt" style={{ fontSize: '13px' }}>&#9204;</span>)
+                :
+                (<span id="dir-txt">⏵</span>)
             }
           </button>
 
@@ -1765,8 +1747,8 @@ export default function Home() {
                     afterClose={afterLayerFormModalCloseLayers}
                     openWindow={beforeModalOpen}
                     mapZoomCallback={(zoomProps: MapZoomProps) => {
-                      if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
-                        currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0});
+                      if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                        currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
                       }
                       else if (zoomProps.center) {
                         currBeforeMap.current?.easeTo({
@@ -1884,11 +1866,11 @@ export default function Home() {
               <br />
               <p className="title"></p>
             </>
-              
 
 
-              
-              
+
+
+
             {/* ---------------------------------------- MAPS PANEL ---------------------------------------- */}
             {beforeMapItem && hasDoneInitialZoom &&
               (<>
@@ -1915,18 +1897,18 @@ export default function Home() {
                     center:
                       [
                         hashParams?.at(1) != null
-                        ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
-                        : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
+                          ? +(hashParams.at(1) ?? (beforeMapItem.center ? beforeMapItem.center[0] : 0))
+                          : (beforeMapItem.center ? beforeMapItem.center[0] : 0),
                         hashParams?.at(2) != null
-                        ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
-                        : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
+                          ? +(hashParams.at(2) ?? (beforeMapItem.center ? beforeMapItem.center[1] : 0))
+                          : (beforeMapItem.center ? beforeMapItem.center[1] : 0),
                       ],
                     bearing: hashParams?.at(3) != null ? +(hashParams.at(3) ?? beforeMapItem.bearing) : beforeMapItem.bearing,
                     infoId: ''
                   }}
                   mapGroups={mappedFilterItemGroups}
                   mapZoomCallback={(zoomProps: MapZoomProps) => {
-                    if(zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
+                    if (zoomProps.bounds != null && (zoomProps.zoomToBounds ?? false)) {
                       currBeforeMap.current?.fitBounds(zoomProps.bounds, { bearing: zoomProps.bearing ?? 0 });
                     }
                     else if (zoomProps.center) {
@@ -1950,7 +1932,7 @@ export default function Home() {
                 />
                 <br />
               </>
-            )}
+              )}
           </div>
         </>
       )}

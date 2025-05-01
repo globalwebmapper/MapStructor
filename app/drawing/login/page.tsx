@@ -1,13 +1,21 @@
 "use client"
 import { useFormik } from 'formik';
-import { CSSProperties } from 'react';
+import { CSSProperties, useState } from 'react';
 import '@/app/globals.css';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { setCookie } from 'cookies-next';
 import * as crypto from 'crypto';
 
+
+
+// If implementing the signup feature, use the code from this page and /app/api/drawing/auth/register/route.ts
+
+
+
 const Home = () => {
+
+  const [signup, setSignup] = useState(false);
 
   const buttonStyling: CSSProperties = {
     float: 'left',
@@ -45,6 +53,22 @@ const Home = () => {
     marginTop: '30px'
   }
 
+  const checkboxStyling: CSSProperties = {
+    position: 'relative',
+    marginRight: '0px',
+    zIndex: 2, // Ensure it is on top
+    width: '240px',
+    textAlign: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e8e1da',
+    lineHeight: '25px',
+    borderRadius: '4px',
+    border: 'solid black',
+    fontWeight: 'bold',
+    fontSize: '15px',
+    float: 'right'
+  }
+
   const imageStyling: CSSProperties = {
     objectFit: 'cover'
   }
@@ -62,36 +86,64 @@ const Home = () => {
     },
 
     onSubmit: async (values) => {
-      try {
+      const encrypted = encrypt(values.password);
 
-        const encrypted = encrypt(values.password);
+      process.env.USERNAME =  values.username;
+      process.env.PASSWORD = encrypted;
 
-        process.env.USERNAME =  values.username;
-        process.env.PASSWORD = encrypted;
+      if(signup === true) {
+        console.log(JSON.stringify({...values, encrypted}));
 
-        const response = await fetch('/api/drawing/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({...values, encrypted}),
-        });
+        try {
+          const response = await fetch('/api/drawing/auth/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({...values, encrypted}),
+          });
 
-        formik.resetForm();
+          formik.resetForm();
+        
+          if(response.ok) {
+            alert(`User created successfully!`);
+          } else {
+            alert(`Failed to create user. Please try again, but use a different username.`);
+          }
 
-        if(response.ok) {
-
-          response.json().then(x => {
-            setAuth(x.token); //set env token for auth
-
-            // Route to the page you were logging in from
-            router.push('/drawing');
-          })
-        } else {
-          alert(`Failed to find a user with those credentials. Please try again.`);
+          setSignup(false); // Reset signup state after submission
+        } catch (error) {
+          alert(`Signup Error: ${error}`);
         }
-      } catch (error) {
-        alert(`Login Error: ${error}`);
+      }
+
+      else {
+        console.log(JSON.stringify({...values, encrypted}));
+
+        try {
+          const response = await fetch('/api/drawing/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({...values, encrypted}),
+          });
+  
+          formik.resetForm();
+
+          if(response.ok) {
+            response.json().then(x => {
+              setAuth(x.token); //set env token for auth
+  
+              // Route to the page you were logging in from
+              router.push('/drawing');
+            })
+          } else {
+            alert(`Failed to find a user with those credentials. Please try again.`);
+          }
+        } catch (error) {
+          alert(`Login Error: ${error}`);
+        }
       }
     },
   });
@@ -127,7 +179,6 @@ const Home = () => {
   };
 
   return (
-    <>
     <div id='app-body-main'>
       <div className="header" style={{height: "73px"}}>
         <a href="/" className="logo">
@@ -138,39 +189,47 @@ const Home = () => {
         </a>
 
         <div id="header_text" className="headerText">
-          <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Title Placeholder</span>
+          <span id="headerTextSuffix" style={{fontSize: "24.3px"}}>| Login - Drawing Dev</span>
         </div>
       </div>
 
       <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
 
-      <Image 
-        src="/castello_newest.jpg" 
-        alt="Background"
-        fill 
-        style={imageStyling}
-      />
-      <div style={imageOverlayStyling}></div> 
-      <div style={formStyling}>
-      <form onSubmit={formik.handleSubmit} style={{ maxWidth: '400px', margin: '0 auto', paddingTop: '30px' }}>          
-          <div style={{ marginBottom: '15px', color: '#333' }}>
-              <label htmlFor="username" style={labelStyling}>Username:</label>
-              <input type="text" id="username" name="username" onChange={formik.handleChange} value={formik.values.username} style={boxStyling} />
-          </div>
-          
-          <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="password" style={labelStyling}>Password:</label>
-              <input type="password" id="password" name="password" onChange={formik.handleChange} value={formik.values.password} style={boxStyling} />
-          </div>
-          <button style={buttonStyling}
-            type="submit">
-            Submit
-          </button>
-        </form>
+        <Image 
+          src="/castello_newest.jpg" 
+          alt="Background"
+          fill 
+          style={imageStyling}
+        />
+        <div style={imageOverlayStyling}></div> 
+        <div style={formStyling}>
+          <form onSubmit={formik.handleSubmit} style={{ maxWidth: '400px', margin: '0 auto', paddingTop: '30px' }}>          
+            <div style={{ marginBottom: '15px', color: '#333' }}>
+                <label htmlFor="username" style={labelStyling}>Username:</label>
+                <input type="text" id="username" name="username" onChange={formik.handleChange} value={formik.values.username} style={boxStyling} />
+            </div>
+            
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="password" style={labelStyling}>Password:</label>
+                <input type="password" id="password" name="password" onChange={formik.handleChange} value={formik.values.password} style={boxStyling} />
+            </div>
+            <div style={{display: 'inline-block', width: '400px'}}>
+              <div style={checkboxStyling}>Check to Register Account &nbsp;
+                  <input
+                    type="checkbox"
+                    checked={signup}
+                    onChange={(e) => setSignup(e.target.checked)}
+                  />
+              </div>
+              <button style={buttonStyling}
+                type="submit">
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-      </div>
-      </div>
-    </>
+    </div>
   );
 }
 
