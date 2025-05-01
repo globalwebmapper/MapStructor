@@ -269,7 +269,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/subhambhattacharya/Desktop/senior-design/sd07_web-map/prisma/generated_schema/myFirstDatabase",
+      "value": "/Users/arenashlock/Documents/COMS_402c/GitLab/sd07_web-map/prisma/generated_schema/myFirstDatabase",
       "fromEnvVar": null
     },
     "config": {
@@ -278,7 +278,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       },
       {
@@ -287,7 +287,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/subhambhattacharya/Desktop/senior-design/sd07_web-map/prisma/schema-MFD.prisma",
+    "sourceFilePath": "/Users/arenashlock/Documents/COMS_402c/GitLab/sd07_web-map/prisma/schema-MFD.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

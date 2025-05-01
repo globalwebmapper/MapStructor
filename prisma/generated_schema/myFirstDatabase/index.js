@@ -270,7 +270,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/subhambhattacharya/Desktop/senior-design/sd07_web-map/prisma/generated_schema/myFirstDatabase",
+      "value": "/Users/arenashlock/Documents/COMS_402c/GitLab/sd07_web-map/prisma/generated_schema/myFirstDatabase",
       "fromEnvVar": null
     },
     "config": {
@@ -279,7 +279,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       },
       {
@@ -288,7 +288,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/subhambhattacharya/Desktop/senior-design/sd07_web-map/prisma/schema-MFD.prisma",
+    "sourceFilePath": "/Users/arenashlock/Documents/COMS_402c/GitLab/sd07_web-map/prisma/schema-MFD.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -350,8 +350,12 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "prisma/generated_schema/myFirstDatabase/query_engine-windows.dll.node")
+path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
+path.join(process.cwd(), "prisma/generated_schema/myFirstDatabase/libquery_engine-darwin-arm64.dylib.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-rhel-openssl-3.0.x.so.node");
+path.join(process.cwd(), "prisma/generated_schema/myFirstDatabase/libquery_engine-rhel-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "prisma/generated_schema/myFirstDatabase/schema.prisma")
