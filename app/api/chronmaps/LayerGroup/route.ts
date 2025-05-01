@@ -1,4 +1,4 @@
-import { LayerGroup, PrismaClient} from "@/prisma/generated_schema/NorthAmericaLandowners";
+import { LayerGroup, PrismaClient} from "@/prisma/generated_schema/chronmaps";
 import { NextResponse } from "next/server";
 import { Auth } from "../auth/auth";
 
