@@ -1,4 +1,4 @@
-import { LayerData, PrismaClient} from "@/prisma/generated_schema/NorthAmericaLandowners";
+import { LayerData, PrismaClient} from "@/prisma/generated_schema/chronmaps";
 import { NextResponse } from "next/server";
 
 export async function GET() {

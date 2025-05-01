@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/prisma/generated_schema/NorthAmericaLandowners";
+import { PrismaClient } from "@/prisma/generated_schema/chronmaps";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";

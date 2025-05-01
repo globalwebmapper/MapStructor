@@ -1,4 +1,4 @@
-import { PrismaClient, User } from "@/prisma/generated_schema/NorthAmericaLandowners";
+import { PrismaClient, User } from "@/prisma/generated_schema/chronmaps";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { Auth } from "../auth";

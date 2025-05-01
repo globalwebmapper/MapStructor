@@ -16,9 +16,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```text
+MapStructor/
+└── app/                 → mapstructor.org
+    ├── chronmaps/       → mapstructor.org/chronmaps (Nitin + coworker's project)
+    ├── drawing/         → mapstructor.org/drawing (for drawing tools development)
+    ├── mappingNY/       → mapstructor.org/mappingNY (original MENY project)
+    └── northamerica/
+        └── landowners/  → mapstructor.org/northamerica/landowners (first attempt at another instance)
+```
 
 ## Learn More
 

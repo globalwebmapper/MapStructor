@@ -1,4 +1,4 @@
-import { PrismaClient, ButtonLink } from "@/prisma/generated_schema/NorthAmericaLandowners";
+import { PrismaClient, ButtonLink } from "@/prisma/generated_schema/chronmaps";
 import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
