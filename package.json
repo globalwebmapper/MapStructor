@@ -3,11 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "generate_prisma": "npm run gen_MFD && npm run gen_NAL && npm run gen_CHR && npm run gen_DRW",
+    "gen_MFD": "prisma generate --schema=prisma/schema-MFD.prisma && prisma db push --schema=prisma/schema-MFD.prisma",
+    "gen_NAL": "prisma generate --schema=prisma/schema-NAL.prisma && prisma db push --schema=prisma/schema-NAL.prisma",
+    "gen_CHR": "prisma generate --schema=prisma/schema-CHR.prisma && prisma db push --schema=prisma/schema-CHR.prisma",
+    "gen_DRW": "prisma generate --schema=prisma/schema-DRW.prisma && prisma db push --schema=prisma/schema-DRW.prisma",
+    "dev": "npm run generate_prisma && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate && npm run build"
+    "postinstall": "npm run generate_prisma && npm run build"
   },
   "dependencies": {
     "@fontsource/source-sans-pro": "^5.1.0",
