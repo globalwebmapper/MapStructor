@@ -31,6 +31,7 @@ import ExpandableLayerGroupSection from "./components/layers/layer-group-section
 import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapper.component";
 import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
 import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
+import { MapContext } from "@/app/northamerica/landowners/components/context/MapContext";
 
 
 
@@ -1599,6 +1600,8 @@ export default function Home() {
 
 
   return (
+      <MapContext.Provider value={{ beforeMap: currBeforeMap }}>
+          <div id="app-body-main">
     <div id="app-body-main">
       {/* ---------------------------------------- HEADER ---------------------------------------- */}
       <div className="header" style={{ height: "73px" }}>
@@ -1968,5 +1971,7 @@ export default function Home() {
         </>
       )}
     </div>
+          </div>
+      </MapContext.Provider>
   );
 }
