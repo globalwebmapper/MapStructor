@@ -26,7 +26,15 @@ MapStructor
    |_ northamerica
       |_ landowners -> mapstructor.org/northamerica/landowners (first attempt at another instance)
 
-<pre lang="markdown"><code> ``` MapStructor/ └── app/ → mapstructor.org ├── chronmaps/ → mapstructor.org/chronmaps (Nitin + coworker's project) ├── drawing/ → mapstructor.org/drawing (for drawing tools development) ├── mappingNY/ → mapstructor.org/mappingNY (original MENY project) └── northamerica/ └── landowners/ → mapstructor.org/northamerica/landowners (first attempt at another instance) ``` </code></pre>
+```text
+MapStructor/
+└── app/                        → mapstructor.org
+    ├── chronmaps/              → mapstructor.org/chronmaps (Nitin + coworker's project)
+    ├── drawing/                → mapstructor.org/drawing (for drawing tools development)
+    ├── mappingNY/              → mapstructor.org/mappingNY (original MENY project)
+    └── northamerica/
+        └── landowners/         → mapstructor.org/northamerica/landowners (first attempt at another instance)
+```
 
 ## Learn More
 
