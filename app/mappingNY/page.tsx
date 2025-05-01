@@ -1,48 +1,65 @@
 "use client";
+
 import moment from "moment";
-import {MutableRefObject, useEffect, useRef, useState} from "react";
-import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
-import {GenericPopUpProps} from "@/app/models/popups/pop-up.model";
-import SliderPopUp from "./components/right-info-bar/popups/pop-up";
-import {SectionLayer, SectionLayerGroup, SectionLayerItem} from "../models/layers/layer.model";
-import {IconColors} from "@/app/models/colors.model";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowCircleLeft} from "@fortawesome/free-solid-svg-icons";
-import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
-import {FontAwesomeLayerIcons} from "@/app/models/font-awesome.model";
-import {CSSTransition} from "react-transition-group";
-import mapboxgl, {FilterSpecification, LngLatLike} from "mapbox-gl";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
+import { CSSTransition } from "react-transition-group";
+import mapboxgl, { FilterSpecification } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "mapbox-gl-compare/dist/mapbox-gl-compare.css";
-import {MapFiltersGroup} from "@/app/models/maps/map-filters.model";
-import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapper.component";
-import {MapItem, MapZoomProps} from "@/app/models/maps/map.model";
-import {
-    Map as PrismaMap,
-    ZoomLabel as PrismaZoomLabel,
-    LayerSection as PrismaLayerSection,
-    LayerData as PrismaLayer,
-    LayerGroup as PrismaLayerGroup,
-    MapGroup as PrismaMapGroup,
-    hoverItem
-} from "@/prisma/generated_schema/myFirstDatabase";
-import "@/app/popup.css";
-import {PopupType} from "@/app/models/popups/pop-up-type.model";
-import {getFontawesomeIcon, parseFromString} from "../helpers/font-awesome.helper";
-import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
-import {ZoomLabel} from "@/app/models/zoom-layer.model";
-import {addInteractivityToLabel, zoomToWorld} from "../helpers/zoom-layer.helper";
-import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
-import {useParams, usePathname, useRouter} from "next/navigation";
-import {ButtonLink} from "@/app/models/button-link.model";
+import { usePathname, useRouter } from "next/navigation";
+import { ButtonLink } from "@/app/models/button-link.model";
 import "@fontsource/source-sans-pro";
 import "@fontsource/source-sans-pro/400.css"; // Specify weight
-import {getCookie} from "cookies-next";
+import { getCookie } from "cookies-next";
+import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
+import { IconColors } from "@/app/models/colors.model";
+import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
+import { MapFiltersGroup } from "@/app/models/maps/map-filters.model";
+import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "@/app/models/layers/layer.model";
+import { MapItem, MapZoomProps } from "@/app/models/maps/map.model";
+import { PopupType } from "@/app/models/popups/pop-up-type.model";
+import { ZoomLabel } from "@/app/models/zoom-layer.model";
+import { addInteractivityToLabel, zoomToWorld } from "@/app/helpers/zoom-layer.helper";
+import { getFontawesomeIcon, parseFromString } from "@/app/helpers/font-awesome.helper";
+import "@/app/popup.css";
 import {MapContext} from "@/app/mappingNY/components/context/MapContext";
+
+import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
+import SliderPopUp from "./components/right-info-bar/popups/pop-up";
+import ExpandableLayerGroupSection from "./components/layers/layer-group-section.component";
+import MapFilterWrapperComponent from "./components/map-filters/map-filter-wrapper.component";
+import NewLayerSectionForm from "./components/forms/NewLayerSectionForm";
+import MapboxCompareWrapper from "./components/map/mapbox-compare.component";
+
+/*
+ -------------------------------- NEED TO UPDATE THIS SPECIFIC IMPORT --------------------------------
+*/
+
+import {
+  Map as PrismaMap,
+  ZoomLabel as PrismaZoomLabel,
+  LayerSection as PrismaLayerSection,
+  LayerData as PrismaLayer,
+  LayerGroup as PrismaLayerGroup,
+  MapGroup as PrismaMapGroup,
+  hoverItem
+} from "@/prisma/generated_schema/myFirstDatabase";
+                                                                  
+// ---------------------------------------------------------------------------------------------------
+
+
+
 
 
 // IMPORTANT: MAPBOX ACCESS TOKEN
 mapboxgl.accessToken = "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wMGh2eSJ9.eJnHIk7wriv-Hp02T7mT3g";
+
+
+
+
+
 
 
 // HTML rendering for the page
