@@ -1216,6 +1216,14 @@ export default function Home() {
           else {
             beforeMap.current?.addLayer(layerStuff as any);
           }
+          
+          beforeMap.current?.on("mouseenter", layerConfig.id, () => {
+            beforeMap.current!.getCanvas().style.cursor = "pointer";
+          });
+          beforeMap.current?.on("mouseleave", layerConfig.id, () => {
+            beforeMap.current!.getCanvas().style.cursor = "";
+          });
+
 
           beforeMap.current?.on("mousemove", layerConfig.id, handleEvent);
           beforeMap.current?.on("mouseleave", layerConfig.id, handleEvent);
@@ -1241,6 +1249,14 @@ export default function Home() {
           else {
             afterMap.current?.addLayer(layerStuff as any);
           }
+
+          afterMap.current?.on("mouseenter", layerConfig.id, () => {
+            afterMap.current!.getCanvas().style.cursor = "pointer";
+          });
+          afterMap.current?.on("mouseleave", layerConfig.id, () => {
+            afterMap.current!.getCanvas().style.cursor = "";
+          });
+
 
           afterMap.current?.on("mousemove", layerConfig.id, handleEvent);
           afterMap.current?.on("mouseleave", layerConfig.id, handleEvent);
