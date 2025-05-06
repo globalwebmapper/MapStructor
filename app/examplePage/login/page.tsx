@@ -136,7 +136,7 @@ const Home = () => {
               setAuth(x.token); //set env token for auth
   
               // Route to the page you were logging in from
-              router.push('/drawing');
+              router.push('/examplePage');
             })
           } else {
             alert(`Failed to find a user with those credentials. Please try again.`);
