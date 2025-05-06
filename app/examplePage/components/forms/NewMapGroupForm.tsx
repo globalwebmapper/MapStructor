@@ -31,7 +31,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
                     {
                       try 
                       {
-                        await fetch('/api/drawing/MapGroup', {
+                        await fetch('/api/examplePage/MapGroup', {
                           method: 'POST',
                           headers: {
                             'authorization': props.authToken ?? '',
@@ -54,7 +54,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
                       {
                         try
                         {
-                          await fetch('/api/drawing/MapGroup/' + props.mapGroup.id, {
+                          await fetch('/api/examplePage/MapGroup/' + props.mapGroup.id, {
                             method: 'PUT',
                             headers: {
                                 'authorization': props.authToken,
@@ -81,7 +81,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
                         {
                           try
                           {
-                            await fetch('/api/drawing/MapGroup/' + props.mapGroup.id, {
+                            await fetch('/api/examplePage/MapGroup/' + props.mapGroup.id, {
                               method: 'DELETE',
                               headers: {
                                 'authorization': props.authToken,

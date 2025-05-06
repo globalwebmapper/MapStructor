@@ -124,7 +124,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
         }, []);
     
         const getStandaloneLayers = () => {
-            fetch("/api/drawing/StandaloneLayers", {
+            fetch("/api/examplePage/StandaloneLayers", {
                 method: "GET",
                 headers: {
                     authorization: props.authToken ?? '',
@@ -171,7 +171,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const fetchLayerSection = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/drawing/LayerSection/' + id) 
+            await fetch('/api/examplePage/LayerSection/' + id) 
             .then((response) => {
             response.json()?.then(parsed => {
                 setLayerSection(parsed.layerSection);
@@ -188,7 +188,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const fetchLayerGroup = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/drawing/LayerGroup/' + id) 
+            await fetch('/api/examplePage/LayerGroup/' + id) 
             .then((response) => {
             response.json()?.then(parsed => {
                 console.log('ERERERER', parsed);
@@ -206,7 +206,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const UpLayerSection = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/drawing/LayerSection/Rearrange/Up/' + id, {
+            await fetch('/api/examplePage/LayerSection/Rearrange/Up/' + id, {
                 method: 'PUT',
                 headers: {
                     authorization: props.authToken,
@@ -225,7 +225,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
     const DownLayerSection = async (id: string) => {
         setIsLoading(true);
         try {
-            await fetch('/api/drawing/LayerSection/Rearrange/Down/' + id, {
+            await fetch('/api/examplePage/LayerSection/Rearrange/Down/' + id, {
                 method: 'PUT',
                 headers: {
                     authorization: props.authToken,

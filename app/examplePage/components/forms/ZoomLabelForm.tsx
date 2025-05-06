@@ -60,7 +60,7 @@ const ZoomLabelForm = (props: ZoomLabelFormProps) => {
     const [isLoading, setIsLoading] = useState<boolean>();
 
     useEffect(() => {
-        fetch('/api/drawing/ZoomLabel', {
+        fetch('/api/examplePage/ZoomLabel', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ const ZoomLabelForm = (props: ZoomLabelFormProps) => {
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            await fetch('/api/drawing/ZoomLabel')
+            await fetch('/api/examplePage/ZoomLabel')
             .then((response) => {
             response.json()?.then(parsed => {
                 setExistingLabels(parsed.zoomLabel);
@@ -97,7 +97,7 @@ const ZoomLabelForm = (props: ZoomLabelFormProps) => {
 
     const deleteLabel = async (label: PrismaZoomLabel) => {
         try {
-            await fetch('/api/drawing/ZoomLabel/' + label.id, {
+            await fetch('/api/examplePage/ZoomLabel/' + label.id, {
                 method: 'DELETE',
                 headers: {
                     'authorization': props.authToken,
@@ -219,7 +219,7 @@ const ZoomLabelForm = (props: ZoomLabelFormProps) => {
 
                 if(selectedLabel == null) {
                     try {
-                        await fetch('/api/drawing/ZoomLabel', {
+                        await fetch('/api/examplePage/ZoomLabel', {
                             method: 'POST',
                             headers: {
                                 'authorization': props.authToken,
@@ -241,7 +241,7 @@ const ZoomLabelForm = (props: ZoomLabelFormProps) => {
                     }
                 } else {
                     try {
-                        await fetch('/api/drawing/ZoomLabel/' + selectedLabel.id, {
+                        await fetch('/api/examplePage/ZoomLabel/' + selectedLabel.id, {
                             method: 'PUT',
                             headers: {
                                 'authorization': props.authToken,

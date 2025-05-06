@@ -78,7 +78,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
      */
     const moveLayerUp = async (id: string) => {
         try {
-            await fetch('/api/drawing/LayerData/Rearrange/Up/' + id, {
+            await fetch('/api/examplePage/LayerData/Rearrange/Up/' + id, {
                 method: 'PUT',
                 headers: {
                     authorization: props.authToken,
@@ -98,7 +98,7 @@ const Layer = (props: LayerProps) => { // Renamed from SectionLayerGroupItemComp
      */
     const moveLayerDown = async (id: string) => {
         try {
-            await fetch('/api/drawing/LayerData/Rearrange/Down/' + id, {
+            await fetch('/api/examplePage/LayerData/Rearrange/Down/' + id, {
                 method: 'PUT',
                 headers: {
                     authorization: props.authToken,

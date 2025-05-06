@@ -24,7 +24,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
             if(values.name?.length > 0) {
               if(submitType === "POST") {
                 try {
-                  await fetch('/api/drawing/LayerSection', {
+                  await fetch('/api/examplePage/LayerSection', {
                     method: 'POST',
                     headers: {
                       'authorization': props.authToken ?? '',
@@ -46,7 +46,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
               else if(submitType === "UPDATE") {
                 if(props.layerSection) {
                   try {
-                    await fetch('/api/drawing/LayerSection/' + props.layerSection.id, {
+                    await fetch('/api/examplePage/LayerSection/' + props.layerSection.id, {
                       method: 'PUT',
                       headers: {
                         'authorization': props.authToken,
@@ -72,7 +72,7 @@ const NewLayerSectionForm = (props: NewLayerSectionFormProps) => {
               else if(submitType === "DELETE") {
                 if(props.layerSection) {
                   try {
-                    await fetch('/api/drawing/LayerSection/' + props.layerSection.id, {
+                    await fetch('/api/examplePage/LayerSection/' + props.layerSection.id, {
                       method: 'DELETE',
                       headers: {
                         'authorization': props.authToken,

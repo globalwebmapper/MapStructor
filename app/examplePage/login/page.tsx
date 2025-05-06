@@ -9,7 +9,7 @@ import * as crypto from 'crypto';
 
 
 
-// If implementing the signup feature, use the code from this page and /app/api/drawing/auth/register/route.ts
+// If implementing the signup feature, use the code from this page and /app/api/examplePage/auth/register/route.ts
 
 
 
@@ -95,7 +95,7 @@ const Home = () => {
         console.log(JSON.stringify({...values, encrypted}));
 
         try {
-          const response = await fetch('/api/drawing/auth/register', {
+          const response = await fetch('/api/examplePage/auth/register', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const Home = () => {
         console.log(JSON.stringify({...values, encrypted}));
 
         try {
-          const response = await fetch('/api/drawing/auth/login', {
+          const response = await fetch('/api/examplePage/auth/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
