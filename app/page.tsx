@@ -31,7 +31,7 @@ export default function Page() {
           <a href="/northamerica/landowners" className="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600">North America - Landowners</a>
           <a href="/drawing" className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-orange-600">Drawing</a>
           <a href="/chronmaps" className="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600">Global History Map</a>
-          <a href="/chronmaps" className="px-4 py-2 bg-purple-500 text-white rounded-lg shadow hover:bg-purple-600">Example Page</a>
+          <a href="/examplePage" className="px-4 py-2 bg-purple-500 text-white rounded-lg shadow hover:bg-purple-600">Example Page</a>
         </div>
       </div>
     </main>
