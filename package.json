@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "generate_prisma": "npm run gen_MFD && npm run gen_NAL && npm run gen_CHR && npm run gen_DRW",
+    "generate_prisma": "npm run gen_EXM && npm run gen_MFD && npm run gen_NAL && npm run gen_CHR && npm run gen_DRW",
+    "gen_EXM": "prisma generate --schema=prisma/schema-EXM.prisma && prisma db push --schema=prisma/schema-EXM.prisma",
     "gen_MFD": "prisma generate --schema=prisma/schema-MFD.prisma && prisma db push --schema=prisma/schema-MFD.prisma",
     "gen_NAL": "prisma generate --schema=prisma/schema-NAL.prisma && prisma db push --schema=prisma/schema-NAL.prisma",
     "gen_CHR": "prisma generate --schema=prisma/schema-CHR.prisma && prisma db push --schema=prisma/schema-CHR.prisma",
