@@ -1,4 +1,4 @@
-import { LayerSection, PrismaClient, ZoomLabel } from "@/prisma/generated_schema/Drawing";
+import { LayerSection, PrismaClient, ZoomLabel } from "@/prisma/generated_schema/Example";
 import { NextResponse } from "next/server";
 
 export async function GET(context: any) {

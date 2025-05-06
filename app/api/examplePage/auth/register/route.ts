@@ -1,4 +1,4 @@
-import { PrismaClient, User } from "@/prisma/generated_schema/Drawing";
+import { PrismaClient, User } from "@/prisma/generated_schema/Example";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { Auth } from "../auth";

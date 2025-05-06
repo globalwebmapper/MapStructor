@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/prisma/generated_schema/Drawing";
+import { PrismaClient } from "@/prisma/generated_schema/Example";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";

@@ -44,7 +44,7 @@ import {
   LayerGroup as PrismaLayerGroup,
   MapGroup as PrismaMapGroup,
   hoverItem
-} from "@/prisma/generated_schema/Drawing";
+} from "@/prisma/generated_schema/Example";
                                                                   
 // ---------------------------------------------------------------------------------------------------
 

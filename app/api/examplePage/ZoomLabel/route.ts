@@ -1,4 +1,4 @@
-import { PrismaClient, ZoomLabel } from "@/prisma/generated_schema/Drawing";
+import { PrismaClient, ZoomLabel } from "@/prisma/generated_schema/Example";
 import { NextResponse } from "next/server";
 
 export async function GET() {
