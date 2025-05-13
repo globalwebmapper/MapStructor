@@ -36,9 +36,9 @@ type LayerGroupSectionProps = { // Props for ExpandableLayerGroupSection
 
 // Renamed from SectionLayerComponent to ExpandableLayerGroupSection for clarity
 const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
-    // NEW IMPLEMENTATION - Have Manhattan layer expanded by default
+    // NEW IMPLEMENTATION - Have Texas layer expanded by default
     // List of layers that should be expanded by default
-    const defaultOpenLayerNames = ["Manhattan"];
+    const defaultOpenLayerNames = ["Texas"];
     const [layerIsOpen, setLayerIsOpen] = useState(
         defaultOpenLayerNames.includes(props.layer.label) // Ensure `label` holds the correct layer name
     );
@@ -368,7 +368,7 @@ const ExpandableLayerGroupSection = (props: LayerGroupSectionProps) => {
                     }
                     
                     {
-     standAloneLayers.filter(layer => layer.topLayerClass === props.layer.id).map((layer, idx) => {    //hardcoding manhattan only for the time being
+     standAloneLayers.filter(layer => layer.topLayerClass === props.layer.id).map((layer, idx) => {    //hardcoding texas only for the time being
         const isLayerActive = props.activeLayers.includes(layer.id);
         return (
             <div key={"standalone-layer-component-" + idx} className="layer-list-row">

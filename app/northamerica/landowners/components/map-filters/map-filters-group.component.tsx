@@ -29,7 +29,7 @@ type MapFiltersGroupComponentProps = {
 }
 
 const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
-    // NEW IMPLEMENTATION - Have Manhattan layer expanded by default
+    // NEW IMPLEMENTATION - Have Texas layer expanded by default
     // List of layers that should be open by default
     const defaultOpenLayerNames = ["1600 | Castello Plan"];
     const [layerIsOpen, setLayerIsOpen] = useState(
