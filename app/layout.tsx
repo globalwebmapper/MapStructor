@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Mapping Early New York",
-  description: "Mapping app for early New York",
+  title: "MapStructor",
+  description: "Mapping app",
 };
 
 export default function RootLayout({
