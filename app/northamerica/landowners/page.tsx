@@ -78,8 +78,12 @@ mapboxgl.accessToken = "pk.eyJ1IjoibWFwbnkiLCJhIjoiY200OW03ZGh2MGJyMzJrcTEydW4wM
 // HTML rendering for the page
 export default function Home() {
   // ----------------------------- PROTECT PAGE ------------------------------
+
+  /*
   const [pageVisible, setPageVisible] = useState(false);
   const [pageCode, setPageCode] = useState<string>("");
+  */  
+
 
   // --------------------------------- MAPS ----------------------------------
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
@@ -139,13 +143,15 @@ export default function Home() {
 
 
   // -------------------------------------- SHOW PAGE OR NOT -------------------------------------
+
+/*
+
   useEffect(() => {
     const pastPageVisible = sessionStorage.getItem("pageVisible");
     setPageVisible(pastPageVisible === "true");
   }, []);
 
-
-
+*/
 
 
   // --------------------------------------- INITIALIZE MAP --------------------------------------
@@ -1585,6 +1591,8 @@ export default function Home() {
     getMaps();
   };
 
+  /*
+
   const displayPage = () => {
     if (pageCode === "spring24nitin") {
       sessionStorage.setItem("pageVisible", "true");
@@ -1594,6 +1602,8 @@ export default function Home() {
       alert("Incorrect code");
     }
   }
+
+  */
 
 
 
@@ -1655,6 +1665,9 @@ export default function Home() {
 
 
       {/* --------------------------------------- PASSWORD --------------------------------------- */}
+
+      {/*
+
       {!pageVisible && (
         <div
           style={{
@@ -1680,12 +1693,12 @@ export default function Home() {
       )
       }
 
-
-
+      */}
 
 
       {/* ---------------------------------------- LAYER PANEL ---------------------------------------- */}
-      {pageVisible && (
+
+      {/* {pageVisible && (  */}
         <>
           <button
             id="view-hide-layer-panel"
@@ -1935,9 +1948,7 @@ export default function Home() {
               )}
           </div>
         </>
-      )}
-
-
+      {/* )}  */}
 
 
 
@@ -1959,7 +1970,7 @@ export default function Home() {
 
 
       {/* ---------------------------------------- TIMELINE ---------------------------------------- */}
-      {pageVisible && (
+      {/* {pageVisible && (  */}
         <>
           <SliderWithDatePanel
             callback={(date: moment.Moment | null) => setCurrDate(date)}
@@ -1969,7 +1980,7 @@ export default function Home() {
             <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
           </div>
         </>
-      )}
+      {/* )}  */}
     </div>
           </div>
       </MapContext.Provider>
