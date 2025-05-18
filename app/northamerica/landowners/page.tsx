@@ -89,7 +89,7 @@ export default function Home() {
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
   // URL hash parameters
-  const [hashParams, setHashParams] = useState<string[]>(["0", "0", "0", "0", "0"]);
+  const [hashParams, setHashParams] = useState<string[]>(["4.81", "-95.370530", "31.926792", "0", "0"]);
 
   // ------------------------------ MOVE LAYERS ------------------------------
   const [showLayerOrdering, setShowLayerOrdering] = useState<boolean>(false);
